@@ -1,0 +1,5 @@
+/easy navigation via enhanced occur-buffers/
+
+* navi
+
+navi.el implements extensions for Emacs occur-mode
