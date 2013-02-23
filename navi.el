@@ -69,19 +69,48 @@ are the names of associated navi-buffers")
 ;;   "Function to be run after `navi' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
 
-(defun navi-buffer-key (&optional buf)
+(defun navi-make-buffer-key (&optional buf)
   "Return the (current) buffer-name or string BUF as interned keyword-symbol"
   (let ((buf-name
          (file-name-sans-extension
           (car (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS)))))
   (intern (concat ":" buf-name))))
 
-(defun navi-marker-name (&optional buf)
+(defun navi-make-marker-name (&optional buf)
   "Return marker-name by expansion of (current) buffer-name or string BUF."
   (let ((buf-name
          (file-name-sans-extension
           (car (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS)))))
   (concat buf-name "-marker")))
+
+(defun navi-get-twin-buffer-markers ()
+  "Return list with two markers pointing to buffer-twins or nil.
+CAR of the return-list is always the marker pointing to
+ current-buffer, CDR the marker pointing to its twin-buffer."
+  (let* ((curr-buf-split
+          (split-string (buffer-name) "[*:]" 'OMIT-NULLS))
+         (is-navi-buffer-p
+          (string-equal (car curr-buf-split) "Navi"))
+         (twin-of-navi
+          (and is-navi-buffer-p
+          (get 'navi (navi-make-buffer-key (cadr curr-buf-split)))))
+         (self-navi
+         (and is-navi-buffer-p
+          (get 'navi (navi-make-buffer-key
+                   (mapconcat 'identity curr-buf-split)))))
+         (twin-of-orig
+          (unless is-navi-buffer-p
+          (get 'navi (navi-make-buffer-key
+                   (concat "Navi:" (car curr-buf-split))))))
+         (self-orig
+         (unless is-navi-buffer-p
+         (get 'navi (navi-make-buffer-key (car curr-buf-split))))))
+    (if is-navi-buffer-p
+        (and self-navi twin-of-navi
+             (list self-navi twin-of-navi))
+      (and self-orig twin-of-orig
+           (list self-orig twin-of-orig)))))
+
 
 ;; modified `occur-rename-buffer' from `replace.el'
 (defun navi-rename-buffer (&optional unique-p)
@@ -103,10 +132,10 @@ each buffer where you invoke `occur'."
       ;; make marker for this navi-buffer
       ;; and store it in `navi''s plist
       (put 'navi
-           (navi-buffer-key)
+           (navi-make-buffer-key)
            (set
             (intern
-             (navi-marker-name
+             (navi-make-marker-name
               (cadr (split-string (buffer-name) "[*:]" 'OMIT-NULLS))))
             (point-marker))))))
 
@@ -128,8 +157,8 @@ buffer"
   (let ((1st-level-headers
          (regexp-quote
           (outshine-calc-outline-string-at-level 1))))
-    (put 'navi (navi-buffer-key (buffer-name))
-         (set (intern (navi-marker-name)) (point-marker)))
+    (put 'navi (navi-make-buffer-key (buffer-name))
+         (set (intern (navi-make-marker-name)) (point-marker)))
     (occur 1st-level-headers)))
 
 
@@ -144,25 +173,36 @@ buffer"
   (set-marker navi-buffer-marker nil)
   (set-marker original-buffer-marker nil))
 
-
-(defun navi-twin-marker ()
-  "Returns the marker pointing to the twin of the current-buffer or nil.
-If the current buffer is a navi-buffer, the marker that points to
-the associated original-buffer is returned. If it is an
-original-buffer with existing navi-buffer, a marker pointing to
-the navi-buffer is returned. Otherwise, nil is returned."
+(defun navi-switch-to-twin-buffer ()
+  "Switch to associated twin-buffer of current buffer or do nothing."
   (interactive)
-    (get navi (navi-buffer-key)))
+  (let* ((marker-list (navi-get-twin-buffer-markers))
+         (self-marker (car marker-list))
+         (twin-marker (crd marker-list)))
+    (and marker-list
+         (move-marker self-marker (point) (marker-buffer self-marker))
+         (switch-to-buffer-other-window (marker-buffer twin-marker))
+         (goto-char (marker-position twin-marker)))))
 
 
-(defun navi-twin-buffer ()
-  "Returns the twin of the current-buffer or nil.
-If the current buffer is a navi-buffer, the associated
-original-buffer is returned. If it is an original-buffer with
-existing navi-buffer, the associated navi-buffer is
-returned. Otherwise, nil is returned."
-  (interactive)
-    (marker-buffer (navi-twin-marker)))
+;; (defun navi-twin-marker ()
+;;   "Returns the marker pointing to the twin of the current-buffer or nil.
+;; If the current buffer is a navi-buffer, the marker that points to
+;; the associated original-buffer is returned. If it is an
+;; original-buffer with existing navi-buffer, a marker pointing to
+;; the navi-buffer is returned. Otherwise, nil is returned."
+;;   (interactive)
+;;     (get navi (navi-make-buffer-key)))
+
+
+;; (defun navi-twin-buffer ()
+;;   "Returns the twin of the current-buffer or nil.
+;; If the current buffer is a navi-buffer, the associated
+;; original-buffer is returned. If it is an original-buffer with
+;; existing navi-buffer, the associated navi-buffer is
+;; returned. Otherwise, nil is returned."
+;;   (interactive)
+;;     (marker-buffer (navi-twin-marker)))
 
 
 ;; * Keybindings
