@@ -163,19 +163,19 @@ buffer"
     (put 'navi (navi-make-buffer-key (buffer-name))
          (set (intern (navi-make-marker-name)) (point-marker)))
     (occur 1st-level-headers)
-    (navi-rename-buffer)))
+    (navi-rename-buffer)
+    (navi-switch-to-twin-buffer)))
 
-
-(defun navi-quit-and-switch ()
-  "Quit `*Navi*' and immediatley switch back to original buffer"
-  (interactive)
-  (quit-window)
-  (switch-to-buffer
-   (marker-buffer original-buffer-marker))
-  (goto-char
-   (marker-position original-buffer-marker)) ; necessary?
-  (set-marker navi-buffer-marker nil)
-  (set-marker original-buffer-marker nil))
+;; (defun navi-quit-and-switch ()
+;;   "Quit `*Navi*' and immediatley switch back to original buffer"
+;;   (interactive)
+;;   (quit-window)
+;;   (switch-to-buffer
+;;    (marker-buffer original-buffer-marker))
+;;   (goto-char
+;;    (marker-position original-buffer-marker)) ; necessary?
+;;   (set-marker navi-buffer-marker nil)
+;;   (set-marker original-buffer-marker nil))
 
 (defun navi-switch-to-twin-buffer ()
   "Switch to associated twin-buffer of current buffer or do nothing."
