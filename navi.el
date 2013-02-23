@@ -93,18 +93,21 @@ CAR of the return-list is always the marker pointing to
           (string-equal (car curr-buf-split) "Navi"))
          (twin-of-navi
           (and is-navi-buffer-p
-          (get 'navi (navi-make-buffer-key (cadr curr-buf-split)))))
+               (get 'navi (navi-make-buffer-key (cadr curr-buf-split)))))
          (self-navi
-         (and is-navi-buffer-p
-          (get 'navi (navi-make-buffer-key
-                   (mapconcat 'identity curr-buf-split)))))
+          (and is-navi-buffer-p
+               (get 'navi (navi-make-buffer-key
+                           (concat
+                            (car curr-buf-split)
+                            ":"
+                            (cadr curr-buf-split))))))
          (twin-of-orig
           (unless is-navi-buffer-p
-          (get 'navi (navi-make-buffer-key
-                   (concat "Navi:" (car curr-buf-split))))))
+            (get 'navi (navi-make-buffer-key
+                        (concat "Navi:" (car curr-buf-split))))))
          (self-orig
-         (unless is-navi-buffer-p
-         (get 'navi (navi-make-buffer-key (car curr-buf-split))))))
+          (unless is-navi-buffer-p
+            (get 'navi (navi-make-buffer-key (car curr-buf-split))))))
     (if is-navi-buffer-p
         (and self-navi twin-of-navi
              (list self-navi twin-of-navi))
@@ -139,7 +142,7 @@ each buffer where you invoke `occur'."
               (cadr (split-string (buffer-name) "[*:]" 'OMIT-NULLS))))
             (point-marker))))))
 
-(add-to-list 'occur-hook 'navi-rename-buffer)
+;; (add-to-list 'occur-hook 'navi-rename-buffer)
 
 ;; ** Commands
 
@@ -159,7 +162,8 @@ buffer"
           (outshine-calc-outline-string-at-level 1))))
     (put 'navi (navi-make-buffer-key (buffer-name))
          (set (intern (navi-make-marker-name)) (point-marker)))
-    (occur 1st-level-headers)))
+    (occur 1st-level-headers)
+    (navi-rename-buffer)))
 
 
 (defun navi-quit-and-switch ()
@@ -178,31 +182,11 @@ buffer"
   (interactive)
   (let* ((marker-list (navi-get-twin-buffer-markers))
          (self-marker (car marker-list))
-         (twin-marker (crd marker-list)))
+         (twin-marker (cadr marker-list)))
     (and marker-list
          (move-marker self-marker (point) (marker-buffer self-marker))
          (switch-to-buffer-other-window (marker-buffer twin-marker))
          (goto-char (marker-position twin-marker)))))
-
-
-;; (defun navi-twin-marker ()
-;;   "Returns the marker pointing to the twin of the current-buffer or nil.
-;; If the current buffer is a navi-buffer, the marker that points to
-;; the associated original-buffer is returned. If it is an
-;; original-buffer with existing navi-buffer, a marker pointing to
-;; the navi-buffer is returned. Otherwise, nil is returned."
-;;   (interactive)
-;;     (get navi (navi-make-buffer-key)))
-
-
-;; (defun navi-twin-buffer ()
-;;   "Returns the twin of the current-buffer or nil.
-;; If the current buffer is a navi-buffer, the associated
-;; original-buffer is returned. If it is an original-buffer with
-;; existing navi-buffer, the associated navi-buffer is
-;; returned. Otherwise, nil is returned."
-;;   (interactive)
-;;     (marker-buffer (navi-twin-marker)))
 
 
 ;; * Keybindings
