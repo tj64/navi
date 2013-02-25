@@ -61,8 +61,8 @@ loaded.
 ;; ** Consts
 ;; ** Vars
 
-(defvar navi-version 0.9
-  "Version number of `navi.el' library")
+(defvar navi-mode-version 0.9
+  "Version number of `navi-mode.el'")
 
 (defvar navi nil
   " list that holds pairs of buffer-marker names.
@@ -223,7 +223,10 @@ buffer"
 
 
 ;; Occur mode: new/better keybindings
-(global-set-key (kbd "M-s n") 'navi-search-and-switch) 
+(global-set-key (kbd "M-s n") 'navi-search-and-switch)
+(global-set-key (kbd "M-s s") 'navi-switch-to-twin-buffer)
+(global-set-key (kbd "M-s M-s") 'navi-switch-to-twin-buffer) 
+(define-key navi-mode-map (kbd "s") 'navi-switch-to-twin-buffer)
 (define-key navi-mode-map (kbd "d") 'occur-mode-display-occurrence)
 (define-key navi-mode-map (kbd "n") 'occur-next)
 (define-key navi-mode-map (kbd "p") 'occur-prev)
@@ -237,5 +240,5 @@ buffer"
 
 (provide 'navi-mode)
 
-;; navi.el ends here
+;; navi-mode.el ends here
 
