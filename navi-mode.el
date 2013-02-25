@@ -70,11 +70,6 @@ Keys are names of markers that point to original-buffers, values
 are the names of associated navi-buffers")
 
 ;; ** Hooks
-
-;; FIXME necessary for derived modes?
-;; (defvar navi-mode-hook nil
-;;   "Hook run after `navi-mode' is loaded")
-
 ;; ** Fonts
 ;; ** Customs
 ;; *** Custom Groups 
@@ -168,9 +163,6 @@ each buffer where you invoke `occur'."
 
 ;; ** Commands
 
-;; ;; FIXME necessary in derived mode?
-;; (defun navi-major-mode ())
-
 ;; Convenience function copied from whom ??
 (defun isearch-occur ()
   "Invoke `occur' from within isearch."
@@ -234,9 +226,6 @@ buffer"
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
 
 ;; * Run Hooks and Provide
-
-;; FIXME necessary for derived modes?
-;; (run-mode-hooks 'navi-mode-hook) 
 
 (provide 'navi-mode)
 
