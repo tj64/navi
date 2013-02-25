@@ -13,9 +13,15 @@
 * NEXT Version 0.9
   [2013-02-21 Do 01:24]
 
+** TODO make navi derived major-mode
+   [2013-02-25 Mo 09:33]
 ** TODO turn off fontification of matches???
    [2013-02-21 Do 01:32]
-** TODO global command: go-back-to-navi-buffer (at marker-position)
+** DONE global command: go-back-to-navi-buffer (at marker-position)
+   CLOSED: [2013-02-25 Mo 09:33]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-02-25 Mo 09:33]
+   :END:
    [2013-02-21 Do 01:30]
 ** TODO implement actualization hook for navi-buffers (always-up-to-date)
    [2013-02-21 Do 01:29]

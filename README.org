@@ -1,5 +1,5 @@
-/easy navigation via enhanced occur-buffers/
+/easy-buffer navigation/
 
-* navi
+* navi-mode
 
-navi.el implements extensions for Emacs occur-mode
+navi-mode.el allows for easy navigation in outlines buffers.

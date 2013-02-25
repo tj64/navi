@@ -1,5 +1,4 @@
-;; * navi.el --- extensions for easy navigation via occur-buffers
-
+;; * navi-mode.el --- major-mode for easy buffer-navigation
 ;; ** Copyright
 
 ;; Copyright (C) 2013 Thorsten Jolitz
@@ -41,6 +40,14 @@
 
 (require 'outshine)
 
+;; * Mode Definition
+
+(define-derived-mode navi-mode
+  occur-mode "Navi"
+  "Major mode for easy buffer-navigation.
+\\{navi-mode-map}"
+  (setq case-fold-search nil))
+ 
 ;; * Variables
 ;; ** Consts
 ;; ** Vars
@@ -55,8 +62,8 @@ are the names of associated navi-buffers")
 
 ;; ** Hooks
 
-(defvar navi-hook nil
-  "Hook run after `navi' is loaded")
+(defvar navi-mode-hook nil
+  "Hook run after `navi-mode' is loaded")
 
 ;; ** Fonts
 ;; ** Customs
@@ -65,8 +72,8 @@ are the names of associated navi-buffers")
 ;; * Defuns
 ;; ** Functions
 
-;; (defun navi-hook-function ()
-;;   "Function to be run after `navi' is loaded."
+;; (defun navi-mode-hook-function ()
+;;   "Function to be run after `navi-mode' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
 
 (defun navi-make-buffer-key (&optional buf)
@@ -142,9 +149,17 @@ each buffer where you invoke `occur'."
               (cadr (split-string (buffer-name) "[*:]" 'OMIT-NULLS))))
             (point-marker))))))
 
+(defun navi-clean-up ()
+  "Clean up `navi' plist and left-over markers after killing navi-buffer." )
+
+
+
 ;; (add-to-list 'occur-hook 'navi-rename-buffer)
 
 ;; ** Commands
+
+(defun navi-major-mode ()
+  
 
 ;; Convenience function copied from whom ??
 (defun isearch-occur ()
@@ -167,7 +182,7 @@ buffer"
     (navi-switch-to-twin-buffer)))
 
 ;; (defun navi-quit-and-switch ()
-;;   "Quit `*Navi*' and immediatley switch back to original buffer"
+;;   "Quit navi-buffer and immediatley switch back to original-buffer"
 ;;   (interactive)
 ;;   (quit-window)
 ;;   (switch-to-buffer
@@ -191,6 +206,11 @@ buffer"
 
 ;; * Keybindings
 
+;; example keybinding
+;; (define-key navi-mode-map
+;;  [down-mouse-3] 'do-hyper-link)
+
+
 ;; Occur mode: new/better keybindings
 (global-set-key (kbd "M-s n") 'navi-search-and-switch) 
 (define-key occur-mode-map (kbd "d") 'occur-mode-display-occurrence)
@@ -201,9 +221,9 @@ buffer"
 
 ;; * Run Hooks and Provide
 
-(run-hooks 'navi-hook)
+(run-mode-hooks 'navi-mode-hook)
 
-(provide 'navi)
+(provide 'navi-mode)
 
 ;; navi.el ends here
 
