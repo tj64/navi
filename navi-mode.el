@@ -38,13 +38,22 @@
 
 ;; * Requires
 
-(require 'outshine)
+;; ;; TODO really?
+;; (require 'outshine)
 
-;; * Mode Definition
+;; * Mode Definitions
 
 (define-derived-mode navi-mode
   occur-mode "Navi"
   "Major mode for easy buffer-navigation.
+In this mode (derived from `occur-mode') you can easily navigate
+in an associated original-buffer via one-key commands in the
+navi-buffer. You can alter the displayed document structure in
+the navi-buffer by sending one-key commands that execute
+predefined occur searches in the original buffer. `navi-mode' is
+especially useful in buffers with outline structure, e.g. buffers
+with `outline-minor-mode' activated and `outshine' extensions
+loaded.
 \\{navi-mode-map}"
   (setq case-fold-search nil))
  
@@ -62,8 +71,9 @@ are the names of associated navi-buffers")
 
 ;; ** Hooks
 
-(defvar navi-mode-hook nil
-  "Hook run after `navi-mode' is loaded")
+;; FIXME necessary for derived modes?
+;; (defvar navi-mode-hook nil
+;;   "Hook run after `navi-mode' is loaded")
 
 ;; ** Fonts
 ;; ** Customs
@@ -158,8 +168,8 @@ each buffer where you invoke `occur'."
 
 ;; ** Commands
 
-(defun navi-major-mode ()
-  
+;; ;; FIXME necessary in derived mode?
+;; (defun navi-major-mode ())
 
 ;; Convenience function copied from whom ??
 (defun isearch-occur ()
@@ -179,7 +189,8 @@ buffer"
          (set (intern (navi-make-marker-name)) (point-marker)))
     (occur 1st-level-headers)
     (navi-rename-buffer)
-    (navi-switch-to-twin-buffer)))
+    (navi-switch-to-twin-buffer)
+    (navi-mode)))
 
 ;; (defun navi-quit-and-switch ()
 ;;   "Quit navi-buffer and immediatley switch back to original-buffer"
@@ -213,15 +224,16 @@ buffer"
 
 ;; Occur mode: new/better keybindings
 (global-set-key (kbd "M-s n") 'navi-search-and-switch) 
-(define-key occur-mode-map (kbd "d") 'occur-mode-display-occurrence)
-(define-key occur-mode-map (kbd "n") 'occur-next)
-(define-key occur-mode-map (kbd "p") 'occur-prev)
-(define-key occur-mode-map (kbd "q") 'navi-quit-and-switch)
+(define-key navi-mode-map (kbd "d") 'occur-mode-display-occurrence)
+(define-key navi-mode-map (kbd "n") 'occur-next)
+(define-key navi-mode-map (kbd "p") 'occur-prev)
+(define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
 
 ;; * Run Hooks and Provide
 
-(run-mode-hooks 'navi-mode-hook)
+;; FIXME necessary for derived modes?
+;; (run-mode-hooks 'navi-mode-hook) 
 
 (provide 'navi-mode)
 
