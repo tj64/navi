@@ -154,32 +154,44 @@ each buffer where you invoke `occur'."
               (cadr (split-string (buffer-name) "[*:]" 'OMIT-NULLS))))
             (point-marker))))))
 
-(defun navi-show-headers (level &optional NO-PARENT-LEVELS)
-  "Show headers of original-buffer up to outline-level LEVEL in navi-buffer.
-If NO-PARENT-LEVELS in non-nil, only headers of level LEVEL are shown."
-  (let* ((outline-base-string
-          (outshine-transform-normalized-outline-regexp-base-to-string))
-         (rgxp-string (regexp-quote
-                       (outshine-chomp
-                       (format
-                        "%s" (car (rassoc 1 outline-promotion-headings))))))
-        (rgxp (if (not (and level
-                          (integer-or-marker-p level)
-                          (>= level 1)
-                          (<= level 8)))
-                     (error "Level must be an integer between 1 and 8")
-                   (if NO-PARENT-LEVELS
-                       (format
-                        "%s" (car (rassoc level outline-promotion-headings)))
-                     (concat
-                      (dotimes (i (1- level) rgxp-string)
-                       (setq rgxp-string
-                             (concat rgxp-string
-                                     (regexp-quote
-                                      outline-base-string)
-                                     "?")))
-                                     " ")))))
-    (message "%s" rgxp)))
+(defun navi-calc-headline-regexp (level &optional NO-PARENT-LEVELS)
+  "Calculate regexp to show headers of original-buffer.
+Regexp should result in an occur-search showing up to
+outline-level LEVEL headlines in navi-buffer. If NO-PARENT-LEVELS
+in non-nil, only headers of level LEVEL are shown."
+  (let* ((orig-buf (marker-buffer
+                    (cadr (navi-get-twin-buffer-markers))))
+         (outline-base-string
+          (with-current-buffer orig-buf
+            (outshine-transform-normalized-outline-regexp-base-to-string)))
+         (rgxp-string
+          (regexp-quote
+           (outshine-chomp
+            (format
+             "%s" (car (rassoc 1 (with-current-buffer orig-buf
+                                   outline-promotion-headings)))))))
+         (rgxp (if (not (and level
+                             (integer-or-marker-p level)
+                             (>= level 1)
+                             (<= level 8)))
+                   (error "Level must be an integer between 1 and 8")
+                 (if NO-PARENT-LEVELS
+                     (regexp-quote
+                      (format
+                       "%s"
+                       (car
+                        (rassoc level
+                                (with-current-buffer orig-buf
+                                  outline-promotion-headings)))))
+                   (concat
+                    (dotimes (i (1- level) rgxp-string)
+                      (setq rgxp-string
+                            (concat rgxp-string
+                                    (regexp-quote
+                                     outline-base-string)
+                                    "?")))
+                    " ")))))
+    rgxp))
 
 (defun navi-clean-up ()
   "Clean up `navi' plist and left-over markers after killing navi-buffer."
@@ -240,8 +252,7 @@ If NO-PARENT-LEVELS in non-nil, only headers of level LEVEL are shown."
   (let ((navi-revert-arguments
          (if regexp
             (append
-             (list regexp)
-             (cdr occur-revert-arguments))
+             (list regexp) (cdr occur-revert-arguments))
            occur-revert-arguments)))
   (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
   (navi-mode)))
@@ -259,9 +270,78 @@ If NO-PARENT-LEVELS in non-nil, only headers of level LEVEL are shown."
 
 ;; TODO use occur-1 (and occur-revert-function) to update navi-buffer
 
-(defun navi-show-headers-level-1 (args)
+(defun navi-show-headers-level-1 (&optional args)
   "Show headers (up-to) level 1."
-  (interactive "p"))
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 1 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 1))))
+
+(defun navi-show-headers-level-2 (&optional args)
+  "Show headers (up-to) level 2."
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 2 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 2))))
+
+(defun navi-show-headers-level-3 (&optional args)
+  "Show headers (up-to) level 3."
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 3 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 3))))
+
+(defun navi-show-headers-level-4 (&optional args)
+  "Show headers (up-to) level 4."
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 4 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 4))))
+
+(defun navi-show-headers-level-5 (&optional args)
+  "Show headers (up-to) level 5."
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 5 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 5))))
+
+(defun navi-show-headers-level-6 (&optional args)
+  "Show headers (up-to) level 6."
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 6 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 6))))
+
+(defun navi-show-headers-level-7 (&optional args)
+  "Show headers (up-to) level 7."
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 7 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 7))))
+
+(defun navi-show-headers-level-8 (&optional args)
+  "Show headers (up-to) level 8."
+  (interactive "P")
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp 8 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp 8))))
+
 
 ;; * Keybindings
 
@@ -280,6 +360,14 @@ If NO-PARENT-LEVELS in non-nil, only headers of level LEVEL are shown."
 (define-key navi-mode-map (kbd "p") 'occur-prev)
 (define-key navi-mode-map (kbd "r") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
+(define-key navi-mode-map (kbd "1") 'navi-show-headers-level-1)
+(define-key navi-mode-map (kbd "2") 'navi-show-headers-level-2)
+(define-key navi-mode-map (kbd "3") 'navi-show-headers-level-3)
+(define-key navi-mode-map (kbd "4") 'navi-show-headers-level-4)
+(define-key navi-mode-map (kbd "5") 'navi-show-headers-level-5)
+(define-key navi-mode-map (kbd "6") 'navi-show-headers-level-6)
+(define-key navi-mode-map (kbd "7") 'navi-show-headers-level-7)
+(define-key navi-mode-map (kbd "8") 'navi-show-headers-level-8)
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
 
 ;; * Run Hooks and Provide
