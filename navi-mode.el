@@ -38,8 +38,7 @@
 
 ;; * Requires
 
-;; ;; TODO really?
-;; (require 'outshine)
+(require 'outshine)
 
 ;; * Mode Definitions
 
@@ -55,6 +54,7 @@ especially useful in buffers with outline structure, e.g. buffers
 with `outline-minor-mode' activated and `outshine' extensions
 loaded.
 \\{navi-mode-map}"
+  (set (make-local-variable 'revert-buffer-function) 'navi-revert-function)
   (setq case-fold-search nil))
  
 ;; * Variables
@@ -64,10 +64,10 @@ loaded.
 (defvar navi-mode-version 0.9
   "Version number of `navi-mode.el'")
 
-(defvar navi nil
-  " list that holds pairs of buffer-marker names.
-Keys are names of markers that point to original-buffers, values
-are the names of associated navi-buffers")
+(defvar navi "navi"
+  "Symbol that holds pairs of buffer-marker names in its plist.
+Keys are buffernames as keyword-symbols, values are markers that
+point to original-buffers")
 
 ;; ** Hooks
 ;; ** Fonts
@@ -154,8 +154,36 @@ each buffer where you invoke `occur'."
               (cadr (split-string (buffer-name) "[*:]" 'OMIT-NULLS))))
             (point-marker))))))
 
+(defun navi-show-headers (level &optional NO-PARENT-LEVELS)
+  "Show headers of original-buffer up to outline-level LEVEL in navi-buffer.
+If NO-PARENT-LEVELS in non-nil, only headers of level LEVEL are shown."
+  (let* ((outline-base-string
+          (outshine-transform-normalized-outline-regexp-base-to-string))
+         (rgxp-string (regexp-quote
+                       (outshine-chomp
+                       (format
+                        "%s" (car (rassoc 1 outline-promotion-headings))))))
+        (rgxp (if (not (and level
+                          (integer-or-marker-p level)
+                          (>= level 1)
+                          (<= level 8)))
+                     (error "Level must be an integer between 1 and 8")
+                   (if NO-PARENT-LEVELS
+                       (format
+                        "%s" (car (rassoc level outline-promotion-headings)))
+                     (concat
+                      (dotimes (i (1- level) rgxp-string)
+                       (setq rgxp-string
+                             (concat rgxp-string
+                                     (regexp-quote
+                                      outline-base-string)
+                                     "?")))
+                                     " ")))))
+    (message "%s" rgxp)))
+
 (defun navi-clean-up ()
-  "Clean up `navi' plist and left-over markers after killing navi-buffer." )
+  "Clean up `navi' plist and left-over markers after killing navi-buffer."
+  (setq navi-revert-arguments nil))
 
 
 
@@ -171,8 +199,7 @@ each buffer where you invoke `occur'."
     (occur (if isearch-regexp isearch-string (regexp-quote isearch-string)))))
 
 (defun navi-search-and-switch ()
-  "Call `occur' and immediatley switch to `*Navi*' (modified `*Occur*')
-buffer"
+  "Call `occur' and immediatley switch to `*Navi:original-buffer-name*' buffer"
   (interactive)
   (let ((1st-level-headers
          (regexp-quote
@@ -206,6 +233,35 @@ buffer"
          (switch-to-buffer-other-window (marker-buffer twin-marker))
          (goto-char (marker-position twin-marker)))))
 
+;; adapted from 'replace.el'
+(defun navi-revert-function (&optional regexp)
+  "Handle `revert-buffer' for navi-buffers."
+  (interactive)
+  (let ((navi-revert-arguments
+         (if regexp
+            (append
+             (list regexp)
+             (cdr occur-revert-arguments))
+           occur-revert-arguments)))
+  (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
+  (navi-mode)))
+
+;; too much...
+;; (defun navi-revert-function (&optional regexp nlines bufs)
+;;   "Handle `revert-buffer' for navi-buffers."
+;;   (interactive)
+;;   (let ((args (if (and regexp bufs)
+;;                   (append regexp nlines bufs
+;;                           (list (buffer-name)))
+;;                 (append occur-revert-arguments
+;;                         (list (buffer-name))))))
+;;  (apply 'occur-1 args)))
+
+;; TODO use occur-1 (and occur-revert-function) to update navi-buffer
+
+(defun navi-show-headers-level-1 (args)
+  "Show headers (up-to) level 1."
+  (interactive "p"))
 
 ;; * Keybindings
 
@@ -222,6 +278,7 @@ buffer"
 (define-key navi-mode-map (kbd "d") 'occur-mode-display-occurrence)
 (define-key navi-mode-map (kbd "n") 'occur-next)
 (define-key navi-mode-map (kbd "p") 'occur-prev)
+(define-key navi-mode-map (kbd "r") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
 
