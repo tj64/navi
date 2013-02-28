@@ -69,17 +69,97 @@ loaded.
 Keys are buffernames as keyword-symbols, values are markers that
 point to original-buffers")
 
+(defvar navi-regexp-quoted-line-at-point ""
+  "Regexp that matches the line at point in navi-buffer.")
+
 ;; ** Hooks
 ;; ** Fonts
 ;; ** Customs
 ;; *** Custom Groups 
+
+(defgroup navi-mode nil
+  "Library for outline navigation and Org-mode editing in Lisp buffers."
+  :prefix "navi-"
+  :group 'lisp 'outlines)
+
 ;; *** Custom Vars
+
+(defcustom navi-var-keywords nil
+  "."
+  :group 'navi-mode
+  :type 'boolean)
+
+
+(defcustom navi-fp-keywords nil
+  "."
+  :group 'navi-mode
+  :type 'boolean)
+
+
+(defcustom navi-oop-keywords nil
+  "."
+  :group 'navi-mode
+  :type 'boolean)
+
+
 ;; * Defuns
 ;; ** Functions
 
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
+
+(defun navi-regexp-quote-line-at-point ()
+  "Store a quoted regexp for line at point.
+Leading and trailing whitespace is deleted."
+  (setq navi-regexp-quoted-line-at-point
+   (regexp-quote
+    (outshine-chomp
+     (substring-no-properties
+     (buffer-string) (point-at-bol) (point-at-eol)))))
+  (format "%s" navi-regexp-quoted-line-at-point))
+
+(defun navi-search-less-or-equal-line-number (&optional num)
+  "Search closest result-line to given line-number.
+This function searches a result-line in a navi-buffer with
+line-number less-or-equal to line-number of
+`navi-regexp-quoted-line-at-point' or NUM. Its not about
+line-numbers in the navi-buffer, but about the line-numbers in
+the original-buffer shown in the occur-search results."
+  (let* ((line-num-str (or
+                        (and
+                         num (integer-or-marker-p num) (>= num 1)
+                         (int-to-string num))
+                        (car
+                         (split-string
+                          navi-regexp-quoted-line-at-point
+                          ":" 'OMIT-NULLS))))
+         (line-num (string-to-int line-num-str))
+         (match-point))
+    (save-excursion
+      (goto-char (point-min))
+      (while (and (>= line-num 1)
+                  (not
+                   (setq match-point
+                         (re-search-forward
+                          (concat "^[[:space:]]*"
+                                  line-num-str
+                                  ":") 
+                          nil 'NO-ERROR))))
+        (goto-char (point-min))
+        (setq line-num (1- line-num))
+        (setq line-num-str (int-to-string line-num)))
+      (goto-char match-point)
+      (forward-line)
+      (occur-prev)
+      (point))))
+
+(defun navi-goto-occurrence-other-window ()
+  "Moves navi-buffer marker to point before switching buffers."
+  (interactive)
+  (move-marker
+   (car (navi-get-twin-buffer-markers)) (point))
+  (occur-mode-goto-occurrence-other-window))
 
 (defun navi-make-buffer-key (&optional buf)
   "Return the (current) buffer-name or string BUF as interned keyword-symbol"
@@ -195,8 +275,8 @@ in non-nil, only headers of level LEVEL are shown."
 
 (defun navi-clean-up ()
   "Clean up `navi' plist and left-over markers after killing navi-buffer."
-  (setq navi-revert-arguments nil))
-
+  (setq navi-revert-arguments nil)
+  (setq navi-regexp-quoted-line-at-point nil))
 
 
 ;; (add-to-list 'occur-hook 'navi-rename-buffer)
@@ -221,7 +301,11 @@ in non-nil, only headers of level LEVEL are shown."
     (occur 1st-level-headers)
     (navi-rename-buffer)
     (navi-switch-to-twin-buffer)
-    (navi-mode)))
+    (navi-mode)
+    (occur-next)
+    (move-marker
+     (car (navi-get-twin-buffer-markers)) (point))
+    (navi-regexp-quote-line-at-point)))
 
 ;; (defun navi-quit-and-switch ()
 ;;   "Quit navi-buffer and immediatley switch back to original-buffer"
@@ -243,7 +327,9 @@ in non-nil, only headers of level LEVEL are shown."
     (and marker-list
          (move-marker self-marker (point) (marker-buffer self-marker))
          (switch-to-buffer-other-window (marker-buffer twin-marker))
-         (goto-char (marker-position twin-marker)))))
+         (goto-char (marker-position twin-marker))
+         (and (eq major-mode 'navi-mode)
+              (navi-revert-function)))))
 
 ;; adapted from 'replace.el'
 (defun navi-revert-function (&optional regexp)
@@ -254,21 +340,11 @@ in non-nil, only headers of level LEVEL are shown."
             (append
              (list regexp) (cdr occur-revert-arguments))
            occur-revert-arguments)))
-  (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
-  (navi-mode)))
-
-;; too much...
-;; (defun navi-revert-function (&optional regexp nlines bufs)
-;;   "Handle `revert-buffer' for navi-buffers."
-;;   (interactive)
-;;   (let ((args (if (and regexp bufs)
-;;                   (append regexp nlines bufs
-;;                           (list (buffer-name)))
-;;                 (append occur-revert-arguments
-;;                         (list (buffer-name))))))
-;;  (apply 'occur-1 args)))
-
-;; TODO use occur-1 (and occur-revert-function) to update navi-buffer
+    (navi-regexp-quote-line-at-point)
+    (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
+    (navi-mode)
+    (goto-char 
+      (navi-search-less-or-equal-line-number))))
 
 (defun navi-show-headers-level-1 (&optional args)
   "Show headers (up-to) level 1."
@@ -342,6 +418,19 @@ in non-nil, only headers of level LEVEL are shown."
     (navi-revert-function
      (navi-calc-headline-regexp 8))))
 
+;; TODO args from [1-8]: show headline-levels too
+(defun navi-show-oop-keywords (&optional args)
+  "Show keywords listed in `navi-oop-keywords'."
+  (interactive "P"))
+
+(defun navi-show-fp-keywords (&optional args)
+  "Show keywords listed in `navi-oop-keywords'."
+  (interactive "P"))
+
+(defun navi-show-var-keywords (&optional args)
+  "Show keywords listed in `navi-oop-keywords'."
+  (interactive "P"))
+
 
 ;; * Keybindings
 
@@ -353,9 +442,10 @@ in non-nil, only headers of level LEVEL are shown."
 ;; Occur mode: new/better keybindings
 (global-set-key (kbd "M-s n") 'navi-search-and-switch)
 (global-set-key (kbd "M-s s") 'navi-switch-to-twin-buffer)
-(global-set-key (kbd "M-s M-s") 'navi-switch-to-twin-buffer) 
+(global-set-key (kbd "M-s M-s") 'navi-switch-to-twin-buffer)
 (define-key navi-mode-map (kbd "s") 'navi-switch-to-twin-buffer)
 (define-key navi-mode-map (kbd "d") 'occur-mode-display-occurrence)
+(define-key navi-mode-map (kbd "o") 'navi-goto-occurrence-other-window)
 (define-key navi-mode-map (kbd "n") 'occur-next)
 (define-key navi-mode-map (kbd "p") 'occur-prev)
 (define-key navi-mode-map (kbd "r") 'navi-revert-function)
