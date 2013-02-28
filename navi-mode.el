@@ -80,26 +80,96 @@ point to original-buffers")
 (defgroup navi-mode nil
   "Library for outline navigation and Org-mode editing in Lisp buffers."
   :prefix "navi-"
-  :group 'lisp 'outlines)
+  :group 'lisp)
 
 ;; *** Custom Vars
 
-(defcustom navi-var-keywords nil
-  "."
-  :group 'navi-mode
-  :type 'boolean)
+(defcustom navi-keywords
+  '(("emacs-lisp" . ((:f . "^[[:space:]]*(defun ")
+                     (:v . "^[[:space:]]*(defvar ")
+                     (:c . "^[[:space:]]*(defconst ")
+                     (:g . "^[[:space:]]*(defgroup ")
+                     (:u . "^[[:space:]]*(defcustom ")
+                     (:a . "^[[:space:]]*(defadvice ")
+                     (:m . "^[[:space:]]*(defmacro ")
+                     (:e . "^[[:space:]]*(defface ")
+                     (:s . "^[[:space:]]*(defstruct ")
+                     (:l . "^[[:space:]]*(defclass ")
+                     (:h . "^[[:space:]]*(defmethod ")
+                     (:D . "^[[:space:]]*(def[a-z]+ ")
+                     (:O . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
+                     (:V . "^[[:space:]]*(def[vc][^l][a-z]+ ")
+                     (:F . "^[[:space:]]*(def[mau][^ ")
+                     (:C . "^[[:space:]]*(def[cg][^ol][a-z]+ ")))
+    ("picolisp" . ((:d . "^[[:space:]]*(de ")
+                   (:f . "^[[:space:]]*(def ")
+                   (:c . "^[[:space:]]*(class ")
+                   (:m . "^[[:space:]]*(dm ")
+                   (:r . "^[[:space:]]*(rel ")
+                   (:v . "^[[:space:]]*(var ")
+                   (:x . "^[[:space:]]*(extend ")
+                   (:o . "^[[:space:]]*(obj ")
+                   (:e . "^[[:space:]]*(object ")
+                   (:n . "^[[:space:]]*(new ")
+                   (:s . "^[[:space:]]*(symbols ")
+                   (:p . "^[[:space:]]*(pool ")
+                   (:t . "^[[:space:]]*(tree ")
+                   (:u . "^[[:space:]]*(clause ")
+                   (:g . "^[[:space:]]*(goal ")
+                   (:b . "^[[:space:]]*(be ")
+                   (:i . "^[[:space:]]*(prove ")
+                   (:C . (concat
+                          "^[[:space:]]*("
+                          "\\(class \\|"
+                          "extend \\|"
+                          "dm \\|"
+                          "var \\|"
+                          "rel \\)"))
+                   (:O . (concat
+                          "^[[:space:]]*("
+                          "\\(pool \\|"
+                          "obj \\|"
+                          "object \\|"
+                          "tree \\|"
+                          "new \\)"))
+                   (:P . (concat
+                          "^[[:space:]]*("
+                          "\\(prove \\|"
+                          "clause \\|"
+                          "goal \\|"
+                          "be \\)"))
+                   (:D . (concat
+                          "^[[:space:]]*("
+                          "\\(de \\|"
+                          "def \\|"
+                          "symbols \\)")))))
+  
+  "Alist of language-specific keywords for occur-searches in
+  navi-mode.
+
+This customization variable holds a nested alist with 2 levels:
+
+1st level:
+
+The name of the language (key-string) should be the associated
+major-mode name without the '-mode' suffix. Run 'M-x major-mode'
+in a buffer to find out about the name, in an Emacs Lisp buffer
+you get 'emacs-lisp-mode', in a PicoLisp buffer you get
+'picolisp-mode', thus the alist keys for these two languages
+should be 'emacs-lisp' and 'picolisp'.
+
+2nd level:
+
+The key of each language-alist are one-character keywords used
+for selecting the regexp, the value is the regexp itself, e.g.
+
+ (:u . \"^[[:space:]]*(defcustom \")"
+
+  :group 'iorg-projects
+  :type '(alist :key-type string
+                :value-type alist))
 
 
-(defcustom navi-fp-keywords nil
-  "."
-  :group 'navi-mode
-  :type 'boolean)
-
-
-(defcustom navi-oop-keywords nil
-  "."
-  :group 'navi-mode
-  :type 'boolean)
 
 
 ;; * Defuns
