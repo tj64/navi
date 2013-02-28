@@ -179,6 +179,30 @@ for selecting the regexp, the value is the regexp itself, e.g.
 ;;   "Function to be run after `navi-mode' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
 
+
+(defun non-empty-string-p (str)
+  "Return t if function argument STR is a string of length > 0, nil otherwise."
+ (if (and (stringp str) (> (length str) 0))
+     str
+   nil))
+
+(defun navi-get-regexp (language key)
+  "Return the value of KEY for LANGUAGE in `navi-keywords'."
+  (if (not (and (non-empty-string-p language)
+                (assoc language navi-keywords)))
+      (error (concat "Language not registered in customizable "
+                     "variable 'navi-keywords'"))
+    (let ((result (assoc key (cdr (assoc language navi-keywords)))))
+      (and result (cdr result)))))
+
+(defun navi-get-language-alist (language)
+  "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'."  
+  (if (not (and (non-empty-string-p language)
+                (assoc language navi-keywords)))
+      (error (concat "Language not registered in customizable "
+                     "variable 'navi-keywords'"))
+     (cdr (assoc language navi-keywords))))
+
 (defun navi-regexp-quote-line-at-point ()
   "Store a quoted regexp for line at point.
 Leading and trailing whitespace is deleted."
