@@ -39,6 +39,7 @@
 ;; * Requires
 
 (require 'outshine)
+(require 'outorg)
 
 ;; * Mode Definitions
 
@@ -190,10 +191,33 @@ for selecting the regexp, the value is the regexp itself, e.g.
   "Return the value of KEY for LANGUAGE in `navi-keywords'."
   (if (not (and (non-empty-string-p language)
                 (assoc language navi-keywords)))
-      (error (concat "Language not registered in customizable "
-                     "variable 'navi-keywords'"))
-    (let ((result (assoc key (cdr (assoc language navi-keywords)))))
-      (and result (cdr result)))))
+      (progn
+        (message
+         (format "%s%s%s"
+          "Language "
+          language
+          " not registered in 'navi-keywords'"))
+        nil)
+    (let* ((result (assoc key (cdr (assoc language navi-keywords))))
+           (rgxp  (and result (cdr result))))
+      (cond
+       ((stringp rgxp) rgxp)
+       ((and (listp rgxp) (functionp (car rgxp)) (eval rgxp)))
+       (t nil)))))
+
+;; TODO test the results!
+(defun navi-make-regexp-alternatives (&rest rgxps)
+  "Enclose the set of regexp alternatives.
+The regexps are given as the list of strings RGXPS."
+  (and rgxps
+       (replace-regexp-in-string
+        (regexp-quote "\\|\\)")
+        (regexp-quote "\\)")
+        (concat
+         "\\("
+         (mapconcat
+          'identity rgxps "\\|")
+         "\\)"))))
 
 (defun navi-get-language-alist (language)
   "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'."  
