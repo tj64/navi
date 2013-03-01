@@ -464,91 +464,28 @@ in non-nil, only headers of level LEVEL are shown."
     (goto-char 
       (navi-search-less-or-equal-line-number))))
 
-(defun navi-show-headers-level-1 (&optional args)
-  "Show headers (up-to) level 1."
-  (interactive "P")
+(defun navi-show-headers (level &optional args)
+  "Show headers (up-to) level LEVEL."
   (if args
       (navi-revert-function
-       (navi-calc-headline-regexp 1 'NO-PARENT-LEVELS))
+       (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
     (navi-revert-function
-     (navi-calc-headline-regexp 1))))
+     (navi-calc-headline-regexp level))))
 
-(defun navi-show-headers-level-2 (&optional args)
-  "Show headers (up-to) level 2."
-  (interactive "P")
-  (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp 2 'NO-PARENT-LEVELS))
+;; FIXME magit-like (org-export-like) selection menu
+(defun navi-show-keywords (key)
+  "Show matches of occur-search with KEY.
+Language is derived from major-mode."
+  (let ((language
+         (with-current-buffer
+             (marker-buffer
+              (cadr (navi-get-twin-buffer-markers)))
+           (car
+            (split-string
+             (symbol-name major-mode)
+             "-mode" 'OMIT-NULLS)))))
     (navi-revert-function
-     (navi-calc-headline-regexp 2))))
-
-(defun navi-show-headers-level-3 (&optional args)
-  "Show headers (up-to) level 3."
-  (interactive "P")
-  (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp 3 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp 3))))
-
-(defun navi-show-headers-level-4 (&optional args)
-  "Show headers (up-to) level 4."
-  (interactive "P")
-  (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp 4 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp 4))))
-
-(defun navi-show-headers-level-5 (&optional args)
-  "Show headers (up-to) level 5."
-  (interactive "P")
-  (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp 5 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp 5))))
-
-(defun navi-show-headers-level-6 (&optional args)
-  "Show headers (up-to) level 6."
-  (interactive "P")
-  (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp 6 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp 6))))
-
-(defun navi-show-headers-level-7 (&optional args)
-  "Show headers (up-to) level 7."
-  (interactive "P")
-  (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp 7 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp 7))))
-
-(defun navi-show-headers-level-8 (&optional args)
-  "Show headers (up-to) level 8."
-  (interactive "P")
-  (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp 8 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp 8))))
-
-;; TODO args from [1-8]: show headline-levels too
-(defun navi-show-oop-keywords (&optional args)
-  "Show keywords listed in `navi-oop-keywords'."
-  (interactive "P"))
-
-(defun navi-show-fp-keywords (&optional args)
-  "Show keywords listed in `navi-oop-keywords'."
-  (interactive "P"))
-
-(defun navi-show-var-keywords (&optional args)
-  "Show keywords listed in `navi-oop-keywords'."
-  (interactive "P"))
-
+     (navi-get-regexp language key))))
 
 ;; * Keybindings
 
@@ -568,15 +505,27 @@ in non-nil, only headers of level LEVEL are shown."
 (define-key navi-mode-map (kbd "p") 'occur-prev)
 (define-key navi-mode-map (kbd "r") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
-(define-key navi-mode-map (kbd "1") 'navi-show-headers-level-1)
-(define-key navi-mode-map (kbd "2") 'navi-show-headers-level-2)
-(define-key navi-mode-map (kbd "3") 'navi-show-headers-level-3)
-(define-key navi-mode-map (kbd "4") 'navi-show-headers-level-4)
-(define-key navi-mode-map (kbd "5") 'navi-show-headers-level-5)
-(define-key navi-mode-map (kbd "6") 'navi-show-headers-level-6)
-(define-key navi-mode-map (kbd "7") 'navi-show-headers-level-7)
-(define-key navi-mode-map (kbd "8") 'navi-show-headers-level-8)
+(define-key navi-mode-map (kbd "1")
+  (lambda () (interactive) (navi-show-headers 1)))
+(define-key navi-mode-map (kbd "2")
+  (lambda () (interactive) (navi-show-headers 2)))
+(define-key navi-mode-map (kbd "3")
+  (lambda () (interactive) (navi-show-headers 3)))
+(define-key navi-mode-map (kbd "4")
+  (lambda () (interactive) (navi-show-headers 4)))
+(define-key navi-mode-map (kbd "5")
+  (lambda () (interactive) (navi-show-headers 5)))
+(define-key navi-mode-map (kbd "6")
+  (lambda () (interactive) (navi-show-headers 6)))
+(define-key navi-mode-map (kbd "7")
+  (lambda () (interactive) (navi-show-headers 7)))
+(define-key navi-mode-map (kbd "8")
+  (lambda () (interactive) (navi-show-headers 8)))
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
+
+;; TODO define prefix-key "^" for combining letters with keywords
+;; e.g. 'C-3 d'b
+;; transform chars into keyword-symbols (d -> :d)
 
 ;; * Run Hooks and Provide
 
