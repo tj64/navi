@@ -100,7 +100,7 @@ point to original-buffers")
                      (:D . "^[[:space:]]*(def[a-z]+ ")
                      (:O . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
                      (:V . "^[[:space:]]*(def[vc][^l][a-z]+ ")
-                     (:F . "^[[:space:]]*(def[mau][^ ")
+                     (:F . "^[[:space:]]*(def[mau][a-z]+ ")
                      (:C . "^[[:space:]]*(def[cg][^ol][a-z]+ ")))
     ("picolisp" . ((:d . "^[[:space:]]*(de ")
                    (:f . "^[[:space:]]*(def ")
@@ -179,6 +179,91 @@ for selecting the regexp, the value is the regexp itself, e.g.
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
+
+
+;; modified `occur-1' from `replace.el'
+(defun navi-1 (regexp nlines bufs &optional buf-name)
+  (unless (and regexp (not (equal regexp "")))
+    (error "Occur doesn't work with the empty regexp"))
+  (unless buf-name
+    (setq buf-name "*Navi*"))
+  (let (occur-buf
+	(active-bufs (delq nil (mapcar #'(lambda (buf)
+					   (when (buffer-live-p buf) buf))
+				       bufs))))
+    ;; Handle the case where one of the buffers we're searching is the
+    ;; output buffer.  Just rename it.
+    (when (member buf-name (mapcar 'buffer-name active-bufs))
+      (with-current-buffer (get-buffer buf-name)
+	(rename-uniquely)))
+
+    ;; Now find or create the output buffer.
+    ;; If we just renamed that buffer, we will make a new one here.
+    (setq occur-buf (get-buffer-create buf-name))
+
+    (with-temp-buffer
+      (setq navi-tmp-buffer-marker (point-marker))
+      (if (stringp nlines)
+	  (fundamental-mode) ;; This is for collect operation.
+        (navi-mode))
+      (let ((inhibit-read-only t)
+	    ;; Don't generate undo entries for creation of the initial contents.
+	    (buffer-undo-list t))
+	(let ((count
+	       (if (stringp nlines)
+                   ;; Treat nlines as a regexp to collect.
+		   (let ((bufs active-bufs)
+			 (count 0))
+		     (while bufs
+		       (with-current-buffer (car bufs)
+			 (save-excursion
+			   (goto-char (point-min))
+			   (while (re-search-forward regexp nil t)
+                             ;; Insert the replacement regexp.
+			     (let ((str (match-substitute-replacement nlines)))
+			       (if str
+				   (with-current-buffer
+                                       (marker-buffer navi-tmp-buffer-marker)
+				     (insert str)
+				     (setq count (1+ count))
+				     (or (zerop (current-column))
+					 (insert "\n"))))))))
+                       (setq bufs (cdr bufs)))
+                     count)
+		 ;; Perform normal occur.
+		 (occur-engine
+		  regexp active-bufs (marker-buffer navi-tmp-buffer-marker)
+		  (or nlines list-matching-lines-default-context-lines)
+		  (if (and case-fold-search search-upper-case)
+		      (isearch-no-upper-case-p regexp t)
+		    case-fold-search)
+		  list-matching-lines-buffer-name-face
+		  nil list-matching-lines-face
+		  (not (eq occur-excluded-properties t))))))
+	  (let* ((bufcount (length active-bufs))
+		 (diff (- (length bufs) bufcount)))
+	    (message "Searched %d buffer%s%s; %s match%s%s"
+		     bufcount (if (= bufcount 1) "" "s")
+		     (if (zerop diff) "" (format " (%d killed)" diff))
+		     (if (zerop count) "no" (format "%d" count))
+		     (if (= count 1) "" "es")
+		     ;; Don't display regexp if with remaining text
+		     ;; it is longer than window-width.
+		     (if (> (+ (length regexp) 42) (window-width))
+			 "" (format " for `%s'" (query-replace-descr regexp)))))
+          (if (= count 0)
+              nil
+            (with-current-buffer occur-buf
+              (setq occur-revert-arguments (list regexp nlines bufs))
+              (erase-buffer)
+              (insert-buffer-substring
+               (marker-buffer navi-tmp-buffer-marker))
+              (display-buffer occur-buf)
+              (setq next-error-last-buffer occur-buf)
+              (setq buffer-read-only t)
+              (set-buffer-modified-p nil)
+              (run-hooks 'occur-hook)))))
+      (set-marker navi-tmp-buffer-marker nil))))
 
 
 (defun non-empty-string-p (str)
@@ -479,13 +564,16 @@ in non-nil, only headers of level LEVEL are shown."
              (list regexp) (cdr occur-revert-arguments))
            occur-revert-arguments)))
     (navi-set-regexp-quoted-line-at-point)
-    (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
-    (navi-mode)
+    ;; (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
+    (apply 'navi-1 (append navi-revert-arguments (list (buffer-name))))
+    ;; redundant with navi-1 instead of occur-1?
+    (unless
+        (string-equal major-mode "navi-mode") (navi-mode))
     (goto-char 
       (navi-search-less-or-equal-line-number))))
 
 (defun navi-show-headers (level &optional args)
-  "Show headers (up-to) level LEVEL."
+  "Show headers up-to level LEVEL."
   (if args
       (navi-revert-function
        (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
@@ -506,6 +594,26 @@ Language is derived from major-mode."
              "-mode" 'OMIT-NULLS)))))
     (navi-revert-function
      (navi-get-regexp language key))))
+
+
+(defun navi-show-headers-and-keywords (level key &optional args)
+  "Show headers up-to level LEVEL and matches of occur-search with KEY.
+Language is derived from major-mode."
+  (let* ((language
+          (with-current-buffer
+              (marker-buffer
+               (cadr (navi-get-twin-buffer-markers)))
+            (car
+             (split-string
+              (symbol-name major-mode)
+              "-mode" 'OMIT-NULLS))))
+         (rgxp
+          (navi-make-regexp-alternatives
+           (if args
+               (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)
+             (navi-calc-headline-regexp level))
+           (navi-get-regexp language key))))
+    (navi-revert-function rgxp)))
 
 ;; * Keybindings
 
