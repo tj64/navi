@@ -85,6 +85,12 @@ point to original-buffers")
 
 ;; *** Custom Vars
 
+;; TODO one (small basic) set of standard keys for all languages!!
+;; :f functions & macros
+;; :v variables, consts, customs
+;; :c classes, objects, methods, structs, 
+;; :s store & select
+;; :a all
 (defcustom navi-keywords
   '(("emacs-lisp" . ((:f . "^[[:space:]]*(defun ")
                      (:v . "^[[:space:]]*(defvar ")
@@ -180,6 +186,9 @@ for selecting the regexp, the value is the regexp itself, e.g.
 ;;   "Function to be run after `navi-mode' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
 
+;; TODO implement
+(defun navi-map-keybinding-to-key ()
+  "Map keybinding to key in `navi-keywords'.") 
 
 ;; modified `occur-1' from `replace.el'
 (defun navi-1 (regexp nlines bufs &optional buf-name)
@@ -290,7 +299,7 @@ for selecting the regexp, the value is the regexp itself, e.g.
        ((and (listp rgxp) (functionp (car rgxp)) (eval rgxp)))
        (t nil)))))
 
-;; TODO test the results!
+;; TODO deeper test of the results
 (defun navi-make-regexp-alternatives (&rest rgxps)
   "Enclose the set of regexp alternatives.
 The regexps are given as the list of strings RGXPS."
