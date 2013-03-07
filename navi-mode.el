@@ -227,15 +227,32 @@ The regexps are given as the list of strings RGXPS."
                      "variable 'navi-keywords'"))
      (cdr (assoc language navi-keywords))))
 
+(defun navi-set-regexp-quoted-line-at-point ()
+  "Set `navi-regexp-quoted-line-at-point' to the value calculated by
+`navi-regexp-quote-line-at-point'."
+  (setq navi-regexp-quoted-line-at-point
+        (navi-regexp-quote-line-at-point))
+  (format "%s" navi-regexp-quoted-line-at-point))
+
 (defun navi-regexp-quote-line-at-point ()
   "Store a quoted regexp for line at point.
 Leading and trailing whitespace is deleted."
-  (setq navi-regexp-quoted-line-at-point
-   (regexp-quote
-    (outshine-chomp
-     (substring-no-properties
+  ;; (setq navi-regexp-quoted-line-at-point
+  (regexp-quote
+   (outshine-chomp
+    (substring-no-properties
      (buffer-string) (point-at-bol) (point-at-eol)))))
-  (format "%s" navi-regexp-quoted-line-at-point))
+  ;; (format "%s" navi-regexp-quoted-line-at-point))
+
+(defun navi-get-line-number-from-regexp-quoted-line-at-point (rgxp)
+  "Return as Integer the line number in regexp-quoted-line-at-point."
+  (string-to-int
+   (car (split-string rgxp ":" 'OMIT-NULLS))))
+
+(defun navi-in-buffer-headline-p ()
+  "Return `line-number-at-position' if in first line, nil otherwise."
+  (and (string-equal major-mode "navi-mode")
+       (if (eq (line-number-at-pos) 1) 1 nil)))
 
 (defun navi-search-less-or-equal-line-number (&optional num)
   "Search closest result-line to given line-number.
@@ -244,30 +261,33 @@ line-number less-or-equal to line-number of
 `navi-regexp-quoted-line-at-point' or NUM. Its not about
 line-numbers in the navi-buffer, but about the line-numbers in
 the original-buffer shown in the occur-search results."
-  (let* ((line-num-str (or
-                        (and
-                         num (integer-or-marker-p num) (>= num 1)
-                         (int-to-string num))
-                        (car
-                         (split-string
-                          navi-regexp-quoted-line-at-point
-                          ":" 'OMIT-NULLS))))
-         (line-num (string-to-int line-num-str))
+  (let* ((line-num (or
+                    (and num (integer-or-marker-p num) (>= num 1) num)
+                    (navi-get-line-number-from-regexp-quoted-line-at-point
+                     navi-regexp-quoted-line-at-point)))
+         (line-num-str (int-to-string line-num))
          (match-point))
     (save-excursion
       (goto-char (point-min))
-      (while (and (>= line-num 1)
-                  (not
-                   (setq match-point
-                         (re-search-forward
-                          (concat "^[[:space:]]*"
-                                  line-num-str
-                                  ":") 
-                          nil 'NO-ERROR))))
-        (goto-char (point-min))
-        (setq line-num (1- line-num))
-        (setq line-num-str (int-to-string line-num)))
-      (goto-char match-point)
+      (forward-line)
+      (unless (< line-num
+                 (navi-get-line-number-from-regexp-quoted-line-at-point
+                  (navi-regexp-quote-line-at-point)))
+        (forward-line -1)
+        (while (and (>= line-num 1)
+                    (not
+                     (setq match-point
+                           (re-search-forward
+                            (concat "^[[:space:]]*"
+                                    line-num-str
+                                    ":") 
+                            nil 'NO-ERROR))))
+          (goto-char (point-min))
+          (setq line-num (1- line-num))
+          (setq line-num-str (int-to-string line-num)))
+        (if match-point
+            (goto-char match-point)
+          (forward-line)))
       (forward-line)
       (occur-prev)
       (point))))
@@ -423,7 +443,7 @@ in non-nil, only headers of level LEVEL are shown."
     (occur-next)
     (move-marker
      (car (navi-get-twin-buffer-markers)) (point))
-    (navi-regexp-quote-line-at-point)))
+    (navi-set-regexp-quoted-line-at-point)))
 
 ;; (defun navi-quit-and-switch ()
 ;;   "Quit navi-buffer and immediatley switch back to original-buffer"
@@ -458,7 +478,7 @@ in non-nil, only headers of level LEVEL are shown."
             (append
              (list regexp) (cdr occur-revert-arguments))
            occur-revert-arguments)))
-    (navi-regexp-quote-line-at-point)
+    (navi-set-regexp-quoted-line-at-point)
     (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
     (navi-mode)
     (goto-char 
