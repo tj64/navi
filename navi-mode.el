@@ -94,6 +94,7 @@ point to original-buffers")
 ;; navigation:
 ;; :p previous
 ;; :n next
+;; :g revert
 ;; :d display
 ;; :o other
 ;; :c copy
@@ -112,23 +113,73 @@ point to original-buffers")
 ;; :^ move up (same level)
 ;; :< move down (same level)
 
+
+(defcustom navi-key-mappings
+  '(("emacs-lisp" . ((:ALL . "a")
+                     (:FUN . "f")
+                     (:VAR . "v")
+                     (:OBJ . "x")
+                     (:DB . "b")
+                     (:defun . "F")
+                     (:defvar . "V")
+                     (:defconst . "C")
+                     (:defgroup . "G")
+                     (:defcustom . "U")
+                     (:defadvice . "A")
+                     (:defmarcro . "M")
+                     (:defface . "E")
+                     (:defstruct . "S")
+                     (:defclass . "L")))
+    ("picolisp" . ((:ALL . "a")
+                     (:FUN . "f")
+                     (:VAR . "v")
+                     (:OBJ . "x")
+                     (:DB . "b")
+                     (:de . "D")
+                   (:def . "F")
+                   (:class . "C")
+                   (:dm . "M")
+                   (:rel . "R")
+                   (:var . "V")
+                   (:extend . "E")
+                   (:obj . "O")
+                   (:object . "J")
+                   (:new . "N")
+                   (:symbols . "S")
+                   (:pool . "L")
+                   (:tree . "T")
+                   (:clause . "U")
+                   (:goal . "G")
+                   (:be . "B")
+                   (:prove . "P"))))
+  "Mappings between keybindings and keys in `navi-keywords'"
+  :group 'outshine
+  :type '(alist :key-type string
+                :value-type alist))
+
+
 (defcustom navi-keywords
-  '(("emacs-lisp" . ((:f . "^[[:space:]]*(defun ")
-                     (:v . "^[[:space:]]*(defvar ")
-                     (:c . "^[[:space:]]*(defconst ")
-                     (:g . "^[[:space:]]*(defgroup ")
-                     (:u . "^[[:space:]]*(defcustom ")
-                     (:a . "^[[:space:]]*(defadvice ")
-                     (:m . "^[[:space:]]*(defmacro ")
-                     (:e . "^[[:space:]]*(defface ")
-                     (:s . "^[[:space:]]*(defstruct ")
-                     (:l . "^[[:space:]]*(defclass ")
-                     (:h . "^[[:space:]]*(defmethod ")
-                     (:D . "^[[:space:]]*(def[a-z]+ ")
-                     (:O . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
-                     (:V . "^[[:space:]]*(def[vc][^l][a-z]+ ")
-                     (:F . "^[[:space:]]*(def[mau][a-z]+ ")
-                     (:C . "^[[:space:]]*(def[cg][^ol][a-z]+ ")))
+  '(("emacs-lisp" . (
+
+                     (:defun . "^[[:space:]]*(defun ")
+                     (:defvar . "^[[:space:]]*(defvar ")
+                     (:defconst . "^[[:space:]]*(defconst ")
+                     (:defgroup . "^[[:space:]]*(defgroup ")
+                     (:defcustom . "^[[:space:]]*(defcustom ")
+                     (:defadvice . "^[[:space:]]*(defadvice ")
+                     (:defmarcro . "^[[:space:]]*(defmacro ")
+                     (:defface . "^[[:space:]]*(defface ")
+                     (:defstruct . "^[[:space:]]*(defstruct ")
+                     (:defclass . "^[[:space:]]*(defclass ")
+                     (:defmethod . "^[[:space:]]*(defmethod ")
+                     ;; TODO make regexp alternatives!
+                     (:ALL . "^[[:space:]]*(def[a-z]+ ")
+                     (:OBJ . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
+                     (:VAR . "^[[:space:]]*(def[vcgf][^l][a-z]+ ")
+                     (:FUN . "^[[:space:]]*(def[mau][^e][a-z]+ ")
+                     (:C . "^[[:space:]]*(def[cg][^ol][a-z]+ ")
+
+                     ))
     ("picolisp" . ((:d . "^[[:space:]]*(de ")
                    (:f . "^[[:space:]]*(def ")
                    (:c . "^[[:space:]]*(class ")
@@ -171,6 +222,65 @@ point to original-buffers")
                           "\\(de \\|"
                           "def \\|"
                           "symbols \\)")))))
+
+;; '(("emacs-lisp" . ((:f . "^[[:space:]]*(defun ")
+;;                      (:v . "^[[:space:]]*(defvar ")
+;;                      (:c . "^[[:space:]]*(defconst ")
+;;                      (:g . "^[[:space:]]*(defgroup ")
+;;                      (:u . "^[[:space:]]*(defcustom ")
+;;                      (:a . "^[[:space:]]*(defadvice ")
+;;                      (:m . "^[[:space:]]*(defmacro ")
+;;                      (:e . "^[[:space:]]*(defface ")
+;;                      (:s . "^[[:space:]]*(defstruct ")
+;;                      (:l . "^[[:space:]]*(defclass ")
+;;                      (:h . "^[[:space:]]*(defmethod ")
+;;                      (:D . "^[[:space:]]*(def[a-z]+ ")
+;;                      (:O . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
+;;                      (:V . "^[[:space:]]*(def[vc][^l][a-z]+ ")
+;;                      (:F . "^[[:space:]]*(def[mau][a-z]+ ")
+;;                      (:C . "^[[:space:]]*(def[cg][^ol][a-z]+ ")))
+;;     ("picolisp" . ((:d . "^[[:space:]]*(de ")
+;;                    (:f . "^[[:space:]]*(def ")
+;;                    (:c . "^[[:space:]]*(class ")
+;;                    (:m . "^[[:space:]]*(dm ")
+;;                    (:r . "^[[:space:]]*(rel ")
+;;                    (:v . "^[[:space:]]*(var ")
+;;                    (:x . "^[[:space:]]*(extend ")
+;;                    (:o . "^[[:space:]]*(obj ")
+;;                    (:e . "^[[:space:]]*(object ")
+;;                    (:n . "^[[:space:]]*(new ")
+;;                    (:s . "^[[:space:]]*(symbols ")
+;;                    (:p . "^[[:space:]]*(pool ")
+;;                    (:t . "^[[:space:]]*(tree ")
+;;                    (:u . "^[[:space:]]*(clause ")
+;;                    (:g . "^[[:space:]]*(goal ")
+;;                    (:b . "^[[:space:]]*(be ")
+;;                    (:i . "^[[:space:]]*(prove ")
+;;                    (:C . (concat
+;;                           "^[[:space:]]*("
+;;                           "\\(class \\|"
+;;                           "extend \\|"
+;;                           "dm \\|"
+;;                           "var \\|"
+;;                           "rel \\)"))
+;;                    (:O . (concat
+;;                           "^[[:space:]]*("
+;;                           "\\(pool \\|"
+;;                           "obj \\|"
+;;                           "object \\|"
+;;                           "tree \\|"
+;;                           "new \\)"))
+;;                    (:P . (concat
+;;                           "^[[:space:]]*("
+;;                           "\\(prove \\|"
+;;                           "clause \\|"
+;;                           "goal \\|"
+;;                           "be \\)"))
+;;                    (:D . (concat
+;;                           "^[[:space:]]*("
+;;                           "\\(de \\|"
+;;                           "def \\|"
+;;                           "symbols \\)")))))
   
   "Alist of language-specific keywords for occur-searches in
   navi-mode.
@@ -191,9 +301,9 @@ should be 'emacs-lisp' and 'picolisp'.
 The key of each language-alist are one-character keywords used
 for selecting the regexp, the value is the regexp itself, e.g.
 
- (:u . \"^[[:space:]]*(defcustom \")"
+ (:defcustom . \"^[[:space:]]*(defcustom \")"
 
-  :group 'iorg-projects
+  :group 'outshine
   :type '(alist :key-type string
                 :value-type alist))
 
