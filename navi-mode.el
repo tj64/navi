@@ -633,6 +633,51 @@ in non-nil, only headers of level LEVEL are shown."
                     " ")))))
     rgxp))
 
+
+(defun navi-show-headers (level &optional args)
+  "Show headers up-to level LEVEL."
+  (if args
+      (navi-revert-function
+       (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
+    (navi-revert-function
+     (navi-calc-headline-regexp level))))
+
+
+;; FIXME magit-like (org-export-like) selection menu
+(defun navi-show-keywords (key)
+  "Show matches of occur-search with KEY.
+Language is derived from major-mode."
+  (let ((language
+         (with-current-buffer
+             (marker-buffer
+              (cadr (navi-get-twin-buffer-markers)))
+           (car
+            (split-string
+             (symbol-name major-mode)
+             "-mode" 'OMIT-NULLS)))))
+    (navi-revert-function
+     (navi-get-regexp language key))))
+
+
+(defun navi-show-headers-and-keywords (level key &optional args)
+  "Show headers up-to level LEVEL and matches of occur-search with KEY.
+Language is derived from major-mode."
+  (let* ((language
+          (with-current-buffer
+              (marker-buffer
+               (cadr (navi-get-twin-buffer-markers)))
+            (car
+             (split-string
+              (symbol-name major-mode)
+              "-mode" 'OMIT-NULLS))))
+         (rgxp
+          (navi-make-regexp-alternatives
+           (if args
+               (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)
+             (navi-calc-headline-regexp level))
+           (navi-get-regexp language key))))
+    (navi-revert-function rgxp)))
+
 (defun navi-clean-up ()
   "Clean up `navi' plist and left-over markers after killing navi-buffer."
   (setq navi-revert-arguments nil)
@@ -709,48 +754,69 @@ in non-nil, only headers of level LEVEL are shown."
     (goto-char 
       (navi-search-less-or-equal-line-number))))
 
-(defun navi-show-headers (level &optional args)
-  "Show headers up-to level LEVEL."
+;; convenience function
+(defun navi-show-headers-1 (args)
+  "Show headers up to level 1"
+  (interactive "P")
   (if args
-      (navi-revert-function
-       (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp level))))
+      (navi-show-headers 1 args)
+    (navi-show-headers 1)))
 
-;; FIXME magit-like (org-export-like) selection menu
-(defun navi-show-keywords (key)
-  "Show matches of occur-search with KEY.
-Language is derived from major-mode."
-  (let ((language
-         (with-current-buffer
-             (marker-buffer
-              (cadr (navi-get-twin-buffer-markers)))
-           (car
-            (split-string
-             (symbol-name major-mode)
-             "-mode" 'OMIT-NULLS)))))
-    (navi-revert-function
-     (navi-get-regexp language key))))
+;; convenience function
+(defun navi-show-headers-2 (args)
+  "Show headers up to level 2"
+  (interactive "P")
+  (if args
+      (navi-show-headers 2 args)
+    (navi-show-headers 2)))
 
+;; convenience function
+(defun navi-show-headers-3 (args)
+  "Show headers up to level 3"
+  (interactive "P")
+  (if args
+      (navi-show-headers 3 args)
+    (navi-show-headers 3)))
 
-(defun navi-show-headers-and-keywords (level key &optional args)
-  "Show headers up-to level LEVEL and matches of occur-search with KEY.
-Language is derived from major-mode."
-  (let* ((language
-          (with-current-buffer
-              (marker-buffer
-               (cadr (navi-get-twin-buffer-markers)))
-            (car
-             (split-string
-              (symbol-name major-mode)
-              "-mode" 'OMIT-NULLS))))
-         (rgxp
-          (navi-make-regexp-alternatives
-           (if args
-               (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)
-             (navi-calc-headline-regexp level))
-           (navi-get-regexp language key))))
-    (navi-revert-function rgxp)))
+;; convenience function
+(defun navi-show-headers-4 (args)
+  "Show headers up to level 4"
+  (interactive "P")
+  (if args
+      (navi-show-headers 4 args)
+    (navi-show-headers 4)))
+
+;; convenience function
+(defun navi-show-headers-5 (args)
+  "Show headers up to level 5"
+  (interactive "P")
+  (if args
+      (navi-show-headers 5 args)
+    (navi-show-headers 5)))
+
+;; convenience function
+(defun navi-show-headers-6 (args)
+  "Show headers up to level 6"
+  (interactive "P")
+  (if args
+      (navi-show-headers 6 args)
+    (navi-show-headers 6)))
+
+;; convenience function
+(defun navi-show-headers-7 (args)
+  "Show headers up to level 7"
+  (interactive "P")
+  (if args
+      (navi-show-headers 7 args)
+    (navi-show-headers 7)))
+
+;; convenience function
+(defun navi-show-headers-8 (args)
+  "Show headers up to level 8"
+  (interactive "P")
+  (if args
+      (navi-show-headers 8 args)
+    (navi-show-headers 8)))
 
 ;; * Keybindings
 
@@ -770,22 +836,14 @@ Language is derived from major-mode."
 (define-key navi-mode-map (kbd "p") 'occur-prev)
 (define-key navi-mode-map (kbd "r") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
-(define-key navi-mode-map (kbd "1")
-  (lambda () (interactive) (navi-show-headers 1)))
-(define-key navi-mode-map (kbd "2")
-  (lambda () (interactive) (navi-show-headers 2)))
-(define-key navi-mode-map (kbd "3")
-  (lambda () (interactive) (navi-show-headers 3)))
-(define-key navi-mode-map (kbd "4")
-  (lambda () (interactive) (navi-show-headers 4)))
-(define-key navi-mode-map (kbd "5")
-  (lambda () (interactive) (navi-show-headers 5)))
-(define-key navi-mode-map (kbd "6")
-  (lambda () (interactive) (navi-show-headers 6)))
-(define-key navi-mode-map (kbd "7")
-  (lambda () (interactive) (navi-show-headers 7)))
-(define-key navi-mode-map (kbd "8")
-  (lambda () (interactive) (navi-show-headers 8)))
+(define-key navi-mode-map (kbd "1") 'navi-show-headers-1)
+(define-key navi-mode-map (kbd "2") 'navi-show-headers-2)
+(define-key navi-mode-map (kbd "3") 'navi-show-headers-3)
+(define-key navi-mode-map (kbd "4") 'navi-show-headers-4)
+(define-key navi-mode-map (kbd "5") 'navi-show-headers-5)
+(define-key navi-mode-map (kbd "6") 'navi-show-headers-6)
+(define-key navi-mode-map (kbd "7") 'navi-show-headers-7)
+(define-key navi-mode-map (kbd "8") 'navi-show-headers-8)
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
 
 ;; TODO define prefix-key "^" for combining letters with keywords
