@@ -88,9 +88,30 @@ point to original-buffers")
 ;; TODO one (small basic) set of standard keys for all languages!!
 ;; :f functions & macros
 ;; :v variables, consts, customs
-;; :c classes, objects, methods, structs, 
-;; :s store & select
+;; :x classes, objects, methods, structs, 
+;; :b db store & select
 ;; :a all
+;; navigation:
+;; :p previous
+;; :n next
+;; :d display
+;; :o other
+;; :c copy
+;; :m mark
+;; :n narrow
+;; :w widen
+;; :s switch
+;; :k kill (y-or-n-p)
+;; :y yank
+;; :e edit (outorg)
+;; :q quit
+;; :h help
+;; :+ promote
+;; :- demote
+;; :t transpose
+;; :^ move up (same level)
+;; :< move down (same level)
+
 (defcustom navi-keywords
   '(("emacs-lisp" . ((:f . "^[[:space:]]*(defun ")
                      (:v . "^[[:space:]]*(defvar ")
@@ -175,9 +196,6 @@ for selecting the regexp, the value is the regexp itself, e.g.
   :group 'iorg-projects
   :type '(alist :key-type string
                 :value-type alist))
-
-
-
 
 ;; * Defuns
 ;; ** Functions
