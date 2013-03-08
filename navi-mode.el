@@ -131,11 +131,11 @@ point to original-buffers")
                      (:defstruct . "S")
                      (:defclass . "L")))
     ("picolisp" . ((:ALL . "a")
-                     (:FUN . "f")
-                     (:VAR . "v")
-                     (:OBJ . "x")
-                     (:DB . "b")
-                     (:de . "D")
+                   (:FUN . "f")
+                   (:VAR . "v")
+                   (:OBJ . "x")
+                   (:DB . "b")
+                   (:de . "D")
                    (:def . "F")
                    (:class . "C")
                    (:dm . "M")
@@ -314,9 +314,29 @@ for selecting the regexp, the value is the regexp itself, e.g.
 ;;   "Function to be run after `navi-mode' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
 
-;; TODO implement
-(defun navi-map-keybinding-to-key ()
-  "Map keybinding to key in `navi-keywords'.") 
+;; ;; TODO implement
+;; (defun navi-map-char-to-key (char)
+;;   "Map char to key in `navi-keywords'." ) 
+
+(defun navi-msg (key language)
+  "Tell user that key is not defined for language."
+  (message "Key %s is not defined for language %s" key language))
+
+;; convenience function
+(defun navi-normalize-key (key)
+  "Transform given key into canonical format."
+  (and key
+       (cond
+        ((and (stringp key)
+              (>= (length key) 1)
+              (not (string-equal (elt key 1) ":")))
+         (intern (concat ":" key)))
+        ((and (stringp key)
+              (>= (length key) 2)
+              (string-equal (elt key 1) ":"))
+         (intern  key))
+        ((keywordp key) key)
+        (t (error "Not a valid key")))))
 
 ;; modified `occur-1' from `replace.el'
 (defun navi-1 (regexp nlines bufs &optional buf-name)
@@ -656,7 +676,8 @@ Language is derived from major-mode."
              (symbol-name major-mode)
              "-mode" 'OMIT-NULLS)))))
     (navi-revert-function
-     (navi-get-regexp language key))))
+     (navi-get-regexp language
+                      (navi-normalize-key key)))))
 
 
 (defun navi-show-headers-and-keywords (level key &optional args)
@@ -675,7 +696,8 @@ Language is derived from major-mode."
            (if args
                (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)
              (navi-calc-headline-regexp level))
-           (navi-get-regexp language key))))
+           (navi-get-regexp language
+                            (navi-normalize-key key)))))
     (navi-revert-function rgxp)))
 
 (defun navi-clean-up ()
@@ -817,6 +839,409 @@ Language is derived from major-mode."
   (if args
       (navi-show-headers 8 args)
     (navi-show-headers 8)))
+
+(defun navi-a (args)
+  "Show keywords for key mapped to 'a'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+(defun navi-b (args)
+  "Show keywords for key mapped to 'b'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-f (args)
+  "Show keywords for key mapped to 'f'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-v (args)
+  "Show keywords for key mapped to 'v'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-x (args)
+  "Show keywords for key mapped to 'x'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-A (args)
+  "Show keywords for key mapped to 'A'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-B (args)
+  "Show keywords for key mapped to 'B'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-C (args)
+  "Show keywords for key mapped to 'C'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-D (args)
+  "Show keywords for key mapped to 'D'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-E (args)
+  "Show keywords for key mapped to 'E'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-F (args)
+  "Show keywords for key mapped to 'F'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-G (args)
+  "Show keywords for key mapped to 'G'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-H (args)
+  "Show keywords for key mapped to 'H'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-I (args)
+  "Show keywords for key mapped to 'I'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-J (args)
+  "Show keywords for key mapped to 'J'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-K (args)
+  "Show keywords for key mapped to 'K'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-L (args)
+  "Show keywords for key mapped to 'L'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-M (args)
+  "Show keywords for key mapped to 'M'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-N (args)
+  "Show keywords for key mapped to 'N'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-O (args)
+  "Show keywords for key mapped to 'O'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-P (args)
+  "Show keywords for key mapped to 'P'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-Q (args)
+  "Show keywords for key mapped to 'Q'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-R (args)
+  "Show keywords for key mapped to 'R'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-S (args)
+  "Show keywords for key mapped to 'S'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-T (args)
+  "Show keywords for key mapped to 'T'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-U (args)
+  "Show keywords for key mapped to 'U'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-V (args)
+  "Show keywords for key mapped to 'V'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-W (args)
+  "Show keywords for key mapped to 'W'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-X (args)
+  "Show keywords for key mapped to 'X'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-Y (args)
+  "Show keywords for key mapped to 'Y'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
+(defun navi-Z (args)
+  "Show keywords for key mapped to 'Z'"
+  (interactive "P")
+  (let ((mapping (rassoc :a navi-key-mappings)))
+    (unless
+        (if args
+            (navi-show-headers-and-keywords
+             args
+             (and mapping (car mapping)))
+          (navi-show-keywords :a)))
+    (message "key 'a' not defined for language")))
+
+
 
 ;; * Keybindings
 
