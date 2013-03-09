@@ -314,29 +314,16 @@ for selecting the regexp, the value is the regexp itself, e.g.
 ;;   "Function to be run after `navi-mode' is loaded."
 ;;   (add-to-list 'occur-hook 'occur-rename-buffer))
 
-;; ;; TODO implement
-;; (defun navi-map-char-to-key (char)
-;;   "Map char to key in `navi-keywords'." ) 
+;; TODO implement
+(defun navi-map-keyboard-to-key (language kbd-key)
+  "Map pressed keyboard-key KBD-KEY to key in `navi-keywords'."
+  (let ((mappings (navi-get-language-alist language 'MAPPINGS)))
+    (and (rassoc kbd-key mappings)
+         (car (rassoc kbd-key mappings)))))
 
 (defun navi-msg (key language)
   "Tell user that key is not defined for language."
   (message "Key %s is not defined for language %s" key language))
-
-;; convenience function
-(defun navi-normalize-key (key)
-  "Transform given key into canonical format."
-  (and key
-       (cond
-        ((and (stringp key)
-              (>= (length key) 1)
-              (not (string-equal (elt key 1) ":")))
-         (intern (concat ":" key)))
-        ((and (stringp key)
-              (>= (length key) 2)
-              (string-equal (elt key 1) ":"))
-         (intern  key))
-        ((keywordp key) key)
-        (t (error "Not a valid key")))))
 
 ;; modified `occur-1' from `replace.el'
 (defun navi-1 (regexp nlines bufs &optional buf-name)
@@ -461,13 +448,14 @@ The regexps are given as the list of strings RGXPS."
           'identity rgxps "\\|")
          "\\)"))))
 
-(defun navi-get-language-alist (language)
-  "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'."  
+(defun navi-get-language-alist (language &optional MAPPINGS)
+  "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'."
+(let ((custom-alist (if MAPPINGS navi-key-mappings navi-keywords)))
   (if (not (and (non-empty-string-p language)
-                (assoc language navi-keywords)))
-      (error (concat "Language not registered in customizable "
-                     "variable 'navi-keywords'"))
-     (cdr (assoc language navi-keywords))))
+                (assoc language custom-alist)))
+      (message "Language not registered in customizable variable `%s'"
+                (symbol-name custom-alist))
+    (cdr (assoc language custom-alist)))))
 
 (defun navi-set-regexp-quoted-line-at-point ()
   "Set `navi-regexp-quoted-line-at-point' to the value calculated by
@@ -677,7 +665,7 @@ Language is derived from major-mode."
              "-mode" 'OMIT-NULLS)))))
     (navi-revert-function
      (navi-get-regexp language
-                      (navi-normalize-key key)))))
+                      (navi-map-keyboard-to-key language key)))))
 
 
 (defun navi-show-headers-and-keywords (level key &optional args)
@@ -697,7 +685,7 @@ Language is derived from major-mode."
                (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)
              (navi-calc-headline-regexp level))
            (navi-get-regexp language
-                            (navi-normalize-key key)))))
+                            (navi-map-keyboard-to-key language key)))))
     (navi-revert-function rgxp)))
 
 (defun navi-clean-up ()
@@ -768,32 +756,48 @@ Language is derived from major-mode."
              (list regexp) (cdr occur-revert-arguments))
            occur-revert-arguments)))
     (navi-set-regexp-quoted-line-at-point)
-    ;; (apply 'occur-1 (append navi-revert-arguments (list (buffer-name))))
     (apply 'navi-1 (append navi-revert-arguments (list (buffer-name))))
-    ;; redundant with navi-1 instead of occur-1?
+    ;; FIXME redundant with navi-1 instead of occur-1?
     (unless
         (string-equal major-mode "navi-mode") (navi-mode))
     (goto-char 
       (navi-search-less-or-equal-line-number))))
 
-
 (defun navi-generic-command (key prefix)
-  "One size fits all."
-   (interactive (list last-command-event current-prefix-arg))
-   (message "%s %s " (format "%c" key) (if prefix prefix 999)))
+  "One size fits all (user-defined header and keyword searches)."
+  (interactive (list last-command-event current-prefix-arg))
+  (let ((keystrg (format "%c" key))
+        (numval-prefix (and prefix (prefix-numeric-value prefix))))
+    (if prefix
+        (cond
+         ((memq numval-prefix (number-sequence 1 8))
+          (navi-show-headers-and-keywords numval-prefix keystrg))
+         ((and
+           (not (memq numval-prefix (number-sequence 1 8))
+                (not (memq key (number-sequence 49 56)))))
+          (navi-show-headers keystrg prefix))
+         (t nil))
+      (cond
+       ((memq key (number-sequence 49 56))
+        (navi-show-headers (string-to-int (format "%c" key))))
+       ((memq key (number-sequence 57 126))
+        (navi-show-keywords keystrg))
+       (t nil)))))
 
 
 ;; * Keybindings
 
+;; key-bindings for user-defined occur-searches
+;; see `navi-key-mappings' and `navi-keywords'
 (mapc #'(lambda (key)
           (define-key navi-mode-map (format "%c" key)
             'navi-generic-command))
      (mapc #'(lambda (num)
                (delq num (number-sequence 32 127))) ; ascii printing chars
-           ;; '(?d ?g ?h ?n ?o ?p ?q ?s)
-           '(100 103 104 110 111 112 113 115)))
+           ;; '(?\s ?d ?g ?h ?n ?o ?p ?q ?s ?\d)
+           '(32 100 103 104 110 111 112 113 115 127)))
 
-;; Occur mode: new/better keybindings
+;; keybindings for basic navi-mode (or occur-mode) commands
 (global-set-key (kbd "M-s n") 'navi-search-and-switch)
 (global-set-key (kbd "M-s s") 'navi-switch-to-twin-buffer)
 (global-set-key (kbd "M-s M-s") 'navi-switch-to-twin-buffer)
