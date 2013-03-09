@@ -1243,11 +1243,38 @@ Language is derived from major-mode."
 
 
 
+;; TODO check this
+
+;; (progn (print (read-char))
+;;                  (print last-command-event)
+;;                  last-input-event)
+
+
+(defun navi-generic-command (key prefix)
+  "One size fits all."
+   (interactive (list last-command-event current-prefix-arg))
+   (message "%s %s " (format "%c" key) (if prefix prefix 999)))
+
+
 ;; * Keybindings
 
 ;; example keybinding
 ;; (define-key navi-mode-map
 ;;  [down-mouse-3] 'do-hyper-link)
+
+;; (mapc #'(lambda (key)
+;;           (define-key navi-mode-map (format "%d" key)
+;;             'navi-generic-command))
+;;       (number-sequence 1 9))
+
+;; todo remove s d o n p spc del r q 
+(mapc #'(lambda (key)
+          (define-key navi-mode-map (format "%c" key)
+            'navi-generic-command))
+     (mapc #'(lambda (num)
+               (delq num (number-sequence 32 127))) ; ascii printing chars
+           ;; '(?d ?g ?h ?n ?o ?p ?q ?s)
+           '(100 103 104 110 111 112 113 115)))
 
 
 ;; Occur mode: new/better keybindings
@@ -1259,10 +1286,12 @@ Language is derived from major-mode."
 (define-key navi-mode-map (kbd "o") 'navi-goto-occurrence-other-window)
 (define-key navi-mode-map (kbd "n") 'occur-next)
 (define-key navi-mode-map (kbd "p") 'occur-prev)
-(define-key navi-mode-map (kbd "r") 'navi-revert-function)
+(define-key navi-mode-map (kbd "SPC") 'occur-next)
+(define-key navi-mode-map (kbd "DEL") 'occur-prev)
+(define-key navi-mode-map (kbd "g") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
 (define-key navi-mode-map (kbd "1") 'navi-show-headers-1)
-(define-key navi-mode-map (kbd "2") 'navi-show-headers-2)
+(define-key navi-mode-map (kbd "2") 'navi-generic-command)
 (define-key navi-mode-map (kbd "3") 'navi-show-headers-3)
 (define-key navi-mode-map (kbd "4") 'navi-show-headers-4)
 (define-key navi-mode-map (kbd "5") 'navi-show-headers-5)
