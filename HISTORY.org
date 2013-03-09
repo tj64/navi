@@ -13,7 +13,11 @@
 * TODO Version 0.9
   [2013-02-21 Do 01:24]
 
-** TODO finish keybindings
+** DONE finish keybindings
+   CLOSED: [2013-03-09 Sa 23:12]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-09 Sa 23:12]
+   :END:
    [2013-03-08 Fr 12:01]
 ** TODO write 'navi-quit-and-switch'
    [2013-03-08 Fr 12:00]
@@ -23,7 +27,11 @@
    [2013-03-08 Fr 11:58]
 ** TODO write Worg article
    [2013-03-08 Fr 11:50]
-** TODO ask about keybindings for functions with args.
+** DONE ask about keybindings for functions with args.
+   CLOSED: [2013-03-09 Sa 23:13]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-03-09 Sa 23:13]
+   :END:
    [2013-03-08 Fr 11:49]
 ** TODO fix wrong point location (always 1st match) after excursion to other buffers
    [2013-03-08 Fr 11:44]
