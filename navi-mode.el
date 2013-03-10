@@ -5,7 +5,7 @@
 
 ;; Maintainer: Thorsten Jolitz <tjolitz AT gmail DOT com>
 ;; Version: 0.9
-;; Keywords: occur
+;; Keywords: occur, outlines, 
 
 ;; ** Licence
 
@@ -276,28 +276,28 @@ regexp and performs an occur-search with it."
                    (:be . "^[[:space:]]*(be ")
                    (:prove . "^[[:space:]]*(prove ")
                    (:OBJ . (concat
-                          "^[[:space:]]*("
-                          "\\(class \\|"
-                          "extend \\|"
-                          "dm \\|"
-                          "var \\|"
-                          "rel \\)"))
+                            "^[[:space:]]*("
+                            "\\(class \\|"
+                            "extend \\|"
+                            "dm \\|"
+                            "var \\|"
+                            "rel \\)"))
                    (:DB . (concat
-                          "^[[:space:]]*("
-                          "\\(pool \\|"
-                          "obj \\|"
-                          "object \\|"
-                          "tree \\|"
-                          "new \\|"
-                          "prove \\|"
-                          "clause \\|"
-                          "goal \\|"
-                          "be \\)"))
+                           "^[[:space:]]*("
+                           "\\(pool \\|"
+                           "obj \\|"
+                           "object \\|"
+                           "tree \\|"
+                           "new \\|"
+                           "prove \\|"
+                           "clause \\|"
+                           "goal \\|"
+                           "be \\)"))
                    (:FUN . (concat
-                          "^[[:space:]]*("
-                          "\\(de \\|"
-                          "def \\|"
-                          "symbols \\)")))))
+                            "^[[:space:]]*("
+                            "\\(de \\|"
+                            "def \\|"
+                            "symbols \\)")))))
 
   "Alist of language-specific keywords for occur-searches in
   navi-mode.
@@ -316,10 +316,7 @@ should be 'emacs-lisp' and 'picolisp'.
 2nd level:
 
 The keys of each language-alist are keywords-symbols used for
-selecting the regexp, the value is the regexp itself, e.g.
-
- (:defcustom . \"^[[:space:]]*(defcustom \")"
-
+selecting the regexp, the value is the regexp itself"
   :group 'outshine
   :type '(alist :key-type string
                 :value-type alist))
@@ -668,7 +665,6 @@ in non-nil, only headers of level LEVEL are shown."
      (navi-calc-headline-regexp level))))
 
 
-;; FIXME magit-like (org-export-like) selection menu
 (defun navi-show-keywords (key)
   "Show matches of occur-search with KEY.
 Language is derived from major-mode."
@@ -801,6 +797,14 @@ Language is derived from major-mode."
         (navi-show-keywords keystrg))
        (t nil)))))
 
+(defun navi-mark-subtree ()
+  "Mark subtree at point in original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-mark-subtree)ppp
+    (message "Only subtrees may be marked via navi-mode")))
+  ;; (navi-switch-to-twin-buffer))
 
 ;; * Keybindings
 
@@ -811,9 +815,12 @@ Language is derived from major-mode."
             'navi-generic-command))
      (mapc #'(lambda (num)
                (delq num (number-sequence 32 127))) ; ascii printing chars
-           ;; '(?\s ?d ?g ?h ?n ?o ?p ?q ?s ?\d)
-           '(32 100 103 104 110 111 112 113 115 127)))
+           ;; '(?\s ?\+ ?\- ?\^ ?\< ?c ?d ?g ?h ?k ?m ?n ?o ?p ?q ?r ?s ?t ?w
+           ;; ?y ?\d)
+           '(32 43 45 60 94 99 100 103 104 107 109 110 111 112 113 114
+           115 116 119 121 127)))
 
+;; TODO navi-edit-mode "e"
 ;; keybindings for basic navi-mode (or occur-mode) commands
 (global-set-key (kbd "M-s n") 'navi-search-and-switch)
 (global-set-key (kbd "M-s s") 'navi-switch-to-twin-buffer)
@@ -825,6 +832,18 @@ Language is derived from major-mode."
 (define-key navi-mode-map (kbd "p") 'occur-prev)
 (define-key navi-mode-map (kbd "SPC") 'occur-next)
 (define-key navi-mode-map (kbd "DEL") 'occur-prev)
+(define-key navi-mode-map (kbd "m") 'navi-mark-subtree)
+(define-key navi-mode-map (kbd "c") 'navi-copy-subtree)
+(define-key navi-mode-map (kbd "r") 'navi-narrow-to-subtree)
+(define-key navi-mode-map (kbd "w") 'navi-widen)
+(define-key navi-mode-map (kbd "k") 'navi-kill-subtree)
+(define-key navi-mode-map (kbd "y") 'navi-yank-subtree)
+(define-key navi-mode-map (kbd "h") 'navi-show-help)
+(define-key navi-mode-map (kbd "t") 'navi-transpose-subtrees)
+;; (define-key navi-mode-map (kbd "+") 'navi-demote-subtree)
+;; (define-key navi-mode-map (kbd "-") 'navi-promote-subtree)
+;; (define-key navi-mode-map (kbd "^") 'navi-move-up-subtree) 
+;; (define-key navi-mode-map (kbd "<") 'navi-move-down-subtree)
 (define-key navi-mode-map (kbd "g") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)

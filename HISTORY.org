@@ -13,6 +13,10 @@
 * TODO Version 0.9
   [2013-02-21 Do 01:24]
 
+** TODO fix navi-edit-mode ("e")
+   [2013-03-10 So 01:54]
+** TODO fix not revieves keys
+   [2013-03-10 So 01:54]
 ** DONE finish keybindings
    CLOSED: [2013-03-09 Sa 23:12]
    :LOGBOOK:
