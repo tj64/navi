@@ -704,8 +704,10 @@ Language is derived from major-mode."
 (defun navi-clean-up ()
   "Clean up `navi' plist and left-over markers after killing navi-buffer."
   (setq navi-revert-arguments nil)
-  (setq navi-regexp-quoted-line-at-point nil))
-
+  (setq navi-regexp-quoted-line-at-point nil)
+  (mapc
+   (lambda (marker) (set-marker marker nil))
+   (navi-get-twin-buffer-markers)))
 
 ;; (add-to-list 'occur-hook 'navi-rename-buffer)
 
@@ -735,16 +737,12 @@ Language is derived from major-mode."
      (car (navi-get-twin-buffer-markers)) (point))
     (navi-set-regexp-quoted-line-at-point)))
 
-;; (defun navi-quit-and-switch ()
-;;   "Quit navi-buffer and immediatley switch back to original-buffer"
-;;   (interactive)
-;;   (quit-window)
-;;   (switch-to-buffer
-;;    (marker-buffer original-buffer-marker))
-;;   (goto-char
-;;    (marker-position original-buffer-marker)) ; necessary?
-;;   (set-marker navi-buffer-marker nil)
-;;   (set-marker original-buffer-marker nil))
+(defun navi-quit-and-switch ()
+  "Quit navi-buffer and immediatley switch back to original-buffer"
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (kill-buffer (marker-buffer (cadr (navi-get-twin-buffer-markers))))
+  (navi-clean-up))
 
 (defun navi-switch-to-twin-buffer ()
   "Switch to associated twin-buffer of current buffer or do nothing."
@@ -797,28 +795,203 @@ Language is derived from major-mode."
         (navi-show-keywords keystrg))
        (t nil)))))
 
-(defun navi-mark-subtree ()
+(defun navi-mark-subtree-and-switch ()
   "Mark subtree at point in original-buffer."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (outline-mark-subtree)ppp
-    (message "Only subtrees may be marked via navi-mode")))
-  ;; (navi-switch-to-twin-buffer))
+      (outline-mark-subtree)
+      (message "Only subtrees may be marked via navi-mode")))
+  ;; (navi-switch-to-twin-buffer)) ; FIXME deactivates region - workaround?
+
+(defun navi-copy-subtree ()
+  "Copy subtree at point in original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (progn
+        (outline-mark-subtree)
+        (and
+         (use-region-p)
+         (copy-to-register ?s (region-beginning) (region-end)))
+        (deactivate-mark))
+    (message "Only subtrees may be copied via navi-mode"))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-narrow-to-subtree ()
+  "Narrow original buffer to subtree at point."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (progn
+        (outline-mark-subtree)
+        (and
+         (use-region-p)
+         (narrow-to-region (region-beginning) (region-end)))
+        (deactivate-mark))
+    (message "Navi-mode can only narrow to subtrees"))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-widen ()
+  "Widen original buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (widen)
+  (navi-switch-to-twin-buffer))
+
+(defun navi-kill-subtree ()
+  "Kill subtree at point in original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (progn
+        (outline-mark-subtree)
+        (and
+         (use-region-p)
+         (and (y-or-n-p
+               "Really kill this subtree in the original-buffer ")
+              (copy-to-register ?s (region-beginning) (region-end) 'DELETE-FLAG)))
+        (deactivate-mark))
+    (message "Only subtrees may be killed via navi-mode"))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-undo ()
+  "Undo last (undoable) action in original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (undo)
+  (navi-switch-to-twin-buffer))
+
+(defun navi-yank-subtree ()
+  "Yank in original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (and
+       (outline-on-heading-p)
+       (get-register ?s))
+      (progn
+        (newline)
+        (forward-line -1)
+        (insert-register ?s))
+    (message "Not on subtree-heading or no subtree to yank."))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-narrow-to-subtree ()
+  "Narrow original buffer to subtree at point."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (progn
+        (outline-mark-subtree)
+        (and
+         (use-region-p)
+         (narrow-to-region (region-beginning) (region-end)))
+        (deactivate-mark))
+    (message "Navi-mode can only narrow to subtrees"))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-demote-subtree ()
+  "Demote subtree at point."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-demote)
+    (message "Navi-mode can only demote subtrees"))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-promote-subtree ()
+  "Promote subtree at point."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-promote)
+    (message "Navi-mode can only promote subtrees"))
+  (navi-switch-to-twin-buffer))
+
+
+;; FIXME obsolete because of navi-move-up-subtree?
+;; (defun navi-transpose-subtrees ()
+;;   "Transpose subtree at point with subtree above.
+;; The subtree above must be on the same level and have the same parent."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (progn
+;;         (outline-mark-subtree)
+;;         (and
+;;          (use-region-p)
+;;          (narrow-to-region (region-beginning) (region-end)))
+;;         (deactivate-mark))
+;;     (message "Navi-mode can only narrow to subtrees"))
+;;   (navi-switch-to-twin-buffer))
+
+
+;; (defun navi-move-up-subtree ()
+;;   "Move subtree at point one position up."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (outline-promote)
+;;     (message "Navi-mode can only promote subtrees"))
+;;   (navi-switch-to-twin-buffer))
+
+
+;; (defun navi-move-down-subtree ()
+;;   "Move subtree at point one position down."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (outline-promote)
+;;     (message "Navi-mode can only promote subtrees"))
+;;   (navi-switch-to-twin-buffer))
+
+
+;; (defun navi-show-help ()
+;;   "Show navi-keybindings for major-mode of original-buffer."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (outline-promote)
+;;     (message "Navi-mode can only promote subtrees"))
+;;   (navi-switch-to-twin-buffer))
+
 
 ;; * Keybindings
 
 ;; key-bindings for user-defined occur-searches
-;; see `navi-key-mappings' and `navi-keywords'
+;; see `navi-key-mappings' and `navi-keywords'.
+;; reserved keys to be removed from num-seq:
+;; | ?\s |  32 |
+;; | ?\+ |  43 |
+;; | ?\- |  45 |
+;; | ?\^ |  60 |
+;; | ?\< |  94 |
+;; | ?c  |  99 |
+;; | ?d  | 100 |
+;; | ?g  | 103 |
+;; | ?h  | 104 |
+;; | ?k  | 107 |
+;; | ?m  | 109 |
+;; | ?n  | 110 |
+;; | ?o  | 111 |
+;; | ?p  | 112 |
+;; | ?q  | 113 |
+;; | ?r  | 114 |
+;; | ?s  | 115 |
+;; | ?t  | 116 |
+;; | ?u  | 117 |
+;; | ?w  | 119 |
+;; | ?y  | 121 |
+;; | ?\d | 127 |
 (mapc #'(lambda (key)
           (define-key navi-mode-map (format "%c" key)
             'navi-generic-command))
-     (mapc #'(lambda (num)
-               (delq num (number-sequence 32 127))) ; ascii printing chars
-           ;; '(?\s ?\+ ?\- ?\^ ?\< ?c ?d ?g ?h ?k ?m ?n ?o ?p ?q ?r ?s ?t ?w
-           ;; ?y ?\d)
-           '(32 43 45 60 94 99 100 103 104 107 109 110 111 112 113 114
-           115 116 119 121 127)))
+      (let ((num-seq (number-sequence 32 127))) ; all ascii printing chars
+        (mapc #'(lambda (num)
+                  (setq num-seq (delq num num-seq))) 
+              '(32 43 45 60 94 99 100 103 104 107 109 110 111 112 113 114 115
+                   116 117 119 121 127))    ; reserved keys defined elsewhere
+        num-seq))
 
 ;; TODO navi-edit-mode "e"
 ;; keybindings for basic navi-mode (or occur-mode) commands
@@ -832,18 +1005,19 @@ Language is derived from major-mode."
 (define-key navi-mode-map (kbd "p") 'occur-prev)
 (define-key navi-mode-map (kbd "SPC") 'occur-next)
 (define-key navi-mode-map (kbd "DEL") 'occur-prev)
-(define-key navi-mode-map (kbd "m") 'navi-mark-subtree)
+(define-key navi-mode-map (kbd "m") 'navi-mark-subtree-and-switch)
 (define-key navi-mode-map (kbd "c") 'navi-copy-subtree)
 (define-key navi-mode-map (kbd "r") 'navi-narrow-to-subtree)
 (define-key navi-mode-map (kbd "w") 'navi-widen)
 (define-key navi-mode-map (kbd "k") 'navi-kill-subtree)
 (define-key navi-mode-map (kbd "y") 'navi-yank-subtree)
+(define-key navi-mode-map (kbd "u") 'navi-undo)        
 (define-key navi-mode-map (kbd "h") 'navi-show-help)
 (define-key navi-mode-map (kbd "t") 'navi-transpose-subtrees)
-;; (define-key navi-mode-map (kbd "+") 'navi-demote-subtree)
-;; (define-key navi-mode-map (kbd "-") 'navi-promote-subtree)
-;; (define-key navi-mode-map (kbd "^") 'navi-move-up-subtree) 
-;; (define-key navi-mode-map (kbd "<") 'navi-move-down-subtree)
+(define-key navi-mode-map (kbd "+") 'navi-demote-subtree)
+(define-key navi-mode-map (kbd "-") 'navi-promote-subtree)
+(define-key navi-mode-map (kbd "^") 'navi-move-up-subtree)
+(define-key navi-mode-map (kbd "<") 'navi-move-down-subtree)
 (define-key navi-mode-map (kbd "g") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
