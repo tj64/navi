@@ -914,7 +914,8 @@ Language is derived from major-mode."
         (and
          (use-region-p)
          (narrow-to-region (region-beginning) (region-end)))
-        (call-interactively 'isearch-forward))
+        (deactivate-mark)
+        (isearch-mode t nil nil t nil))
     (message "Navi-mode can perform isearches only on subtrees"))
   (navi-switch-to-twin-buffer))
 
