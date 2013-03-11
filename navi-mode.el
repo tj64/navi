@@ -335,7 +335,6 @@ selecting the regexp, the value is the regexp itself"
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded.")
 
-;; TODO implement
 (defun navi-map-keyboard-to-key (language kbd-key)
   "Map pressed keyboard-key KBD-KEY to key in `navi-keywords'."
   (let ((mappings (navi-get-language-alist language 'MAPPINGS)))
