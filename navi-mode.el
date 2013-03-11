@@ -74,6 +74,10 @@ point to original-buffers")
   "Regexp that matches the line at point in navi-buffer.")
 
 ;; ** Hooks
+
+(defvar navi-mode-hook nil
+  "Hook run after navi-mode is called.")
+
 ;; ** Fonts
 ;; ** Customs
 ;; *** Custom Groups 
@@ -324,9 +328,10 @@ selecting the regexp, the value is the regexp itself"
 ;; * Defuns
 ;; ** Functions
 
-;; (defun navi-mode-hook-function ()
-;;   "Function to be run after `navi-mode' is loaded."
-;;   (add-to-list 'occur-hook 'occur-rename-buffer))
+(defun navi-mode-hook-function ()
+  "Function to be run after `navi-mode' is loaded."
+  (make-variable-buffer-local 'kill-buffer-hook)
+  (add-to-list 'kill-buffer-hook 'navi-clean-up))
 
 ;; TODO implement
 (defun navi-map-keyboard-to-key (language kbd-key)
@@ -463,7 +468,9 @@ The regexps are given as the list of strings RGXPS."
          "\\)"))))
 
 (defun navi-get-language-alist (language &optional MAPPINGS)
-  "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'."
+  "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'.
+If MAPPINGS is non-nil, return the alist with key-mappings from
+`navi-key-mappings' instead."
 (let ((custom-alist (if MAPPINGS navi-key-mappings navi-keywords)))
   (if (not (and (non-empty-string-p language)
                 (assoc language custom-alist)))
@@ -665,33 +672,28 @@ in non-nil, only headers of level LEVEL are shown."
      (navi-calc-headline-regexp level))))
 
 
+(defun navi-get-language-name ()
+  "Return language name for major-mode of original-buffer."
+  (with-current-buffer
+      (marker-buffer
+       (cadr (navi-get-twin-buffer-markers)))
+    (car
+     (split-string
+      (symbol-name major-mode)
+      "-mode" 'OMIT-NULLS))))
+
 (defun navi-show-keywords (key)
   "Show matches of occur-search with KEY.
 Language is derived from major-mode."
-  (let ((language
-         (with-current-buffer
-             (marker-buffer
-              (cadr (navi-get-twin-buffer-markers)))
-           (car
-            (split-string
-             (symbol-name major-mode)
-             "-mode" 'OMIT-NULLS)))))
+  (let ((language (navi-get-language-name)))
     (navi-revert-function
      (navi-get-regexp language
                       (navi-map-keyboard-to-key language key)))))
 
-
 (defun navi-show-headers-and-keywords (level key &optional args)
   "Show headers up-to level LEVEL and matches of occur-search with KEY.
 Language is derived from major-mode."
-  (let* ((language
-          (with-current-buffer
-              (marker-buffer
-               (cadr (navi-get-twin-buffer-markers)))
-            (car
-             (split-string
-              (symbol-name major-mode)
-              "-mode" 'OMIT-NULLS))))
+  (let* ((language (navi-get-language-name))
          (rgxp
           (navi-make-regexp-alternatives
            (if args
@@ -723,21 +725,25 @@ Language is derived from major-mode."
 (defun navi-search-and-switch ()
   "Call `occur' and immediatley switch to `*Navi:original-buffer-name*' buffer"
   (interactive)
-  (if (navi-get-twin-buffer-markers)
-      (navi-switch-to-twin-buffer)
-    (let ((1st-level-headers
-           (regexp-quote
-            (outshine-calc-outline-string-at-level 1))))
-      (put 'navi (navi-make-buffer-key (buffer-name))
-           (set (intern (navi-make-marker-name)) (point-marker)))
-      (occur 1st-level-headers)
-      (navi-rename-buffer)
-      (navi-switch-to-twin-buffer)
-      (navi-mode)
-      (occur-next)
-      (move-marker
-       (car (navi-get-twin-buffer-markers)) (point))
-      (navi-set-regexp-quoted-line-at-point))))
+  (let ((buf-markers (navi-get-twin-buffer-markers)))
+    (if (and
+         buf-markers 
+         (buffer-live-p (car buf-markers))
+         (buffer-live-p (cadr buf-markers)))
+        (navi-switch-to-twin-buffer)
+      (let ((1st-level-headers
+             (regexp-quote
+              (outshine-calc-outline-string-at-level 1))))
+        (put 'navi (navi-make-buffer-key (buffer-name))
+             (set (intern (navi-make-marker-name)) (point-marker)))
+        (occur 1st-level-headers)
+        (navi-rename-buffer)
+        (navi-switch-to-twin-buffer)
+        (navi-mode)
+        (occur-next)
+        (move-marker
+         (car (navi-get-twin-buffer-markers)) (point))
+        (navi-set-regexp-quoted-line-at-point)))))
 
 (defun navi-quit-and-switch ()
   "Quit navi-buffer and immediatley switch back to original-buffer"
@@ -753,6 +759,8 @@ Language is derived from major-mode."
          (self-marker (car marker-list))
          (twin-marker (cadr marker-list)))
     (and marker-list
+         (buffer-live-p (marker-buffer self-marker))
+         (buffer-live-p (marker-buffer twin-marker))
          (move-marker self-marker (point) (marker-buffer self-marker))
          (switch-to-buffer-other-window (marker-buffer twin-marker))
          (goto-char (marker-position twin-marker))
@@ -911,24 +919,6 @@ Language is derived from major-mode."
     (message "Navi-mode can only promote subtrees"))
   (navi-switch-to-twin-buffer))
 
-
-;; FIXME obsolete because of navi-move-up-subtree?
-;; (defun navi-transpose-subtrees ()
-;;   "Transpose subtree at point with subtree above.
-;; The subtree above must be on the same level and have the same parent."
-;;   (interactive)
-;;   (navi-goto-occurrence-other-window)
-;;   (if (outline-on-heading-p)
-;;       (progn
-;;         (outline-mark-subtree)
-;;         (and
-;;          (use-region-p)
-;;          (narrow-to-region (region-beginning) (region-end)))
-;;         (deactivate-mark))
-;;     (message "Navi-mode can only narrow to subtrees"))
-;;   (navi-switch-to-twin-buffer))
-
-
 (defun navi-move-up-subtree ()
   "Move subtree at point one position up."
   (interactive)
@@ -937,7 +927,6 @@ Language is derived from major-mode."
       (outline-move-subtree-up 1)
     (message "Navi-mode can only move subtrees"))
   (navi-switch-to-twin-buffer))
-
 
 (defun navi-move-down-subtree ()
   "Move subtree at point one position down."
@@ -948,14 +937,45 @@ Language is derived from major-mode."
     (message "Navi-mode can only move subtrees"))
   (navi-switch-to-twin-buffer))
 
-
 (defun navi-show-help ()
   "Show navi-keybindings for major-mode of original-buffer."
   (interactive)
+  (let ((mappings
+         (navi-get-language-alist (navi-get-language-name) 'MAPPINGS))
+        (navi-buf-marker (car (navi-get-twin-buffer-markers))))
+    (switch-to-buffer-other-window
+     (get-buffer-create "*Navi:HELP*"))
+    (save-restriction
+      (widen)
+      (when (string-equal
+             (buffer-substring-no-properties (point-min) (point-max)) "")
+        (mapc
+         (lambda (association)
+           (insert
+            (format "[KEY] %s\t[SEARCH] %s\n"
+                    (cdr association)
+                    (car
+                     (split-string
+                      (symbol-name (car association))
+                      ":" 'OMIT-NULLS)))))
+         mappings))
+      (goto-char (point-min))
+      (view-buffer (current-buffer)))))
+
+(defun navi-cycle-subtree ()
+  "Cycle the visibility state of subtree at point in the original-buffer."
+  (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (outline-promote)
-    (message "Navi-mode can only promote subtrees"))
+      (outline-cycle 1)
+    (message "Not on subtree - can't cycle subtree visibility state."))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-cycle-buffer ()
+  "Cycle the visibility state of the original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (outline-cycle '(4))
   (navi-switch-to-twin-buffer))
 
 
@@ -981,7 +1001,6 @@ Language is derived from major-mode."
 ;; | ?q  | 113 |
 ;; | ?r  | 114 |
 ;; | ?s  | 115 |
-;; | ?t  | 116 |
 ;; | ?u  | 117 |
 ;; | ?w  | 119 |
 ;; | ?y  | 121 |
@@ -993,7 +1012,7 @@ Language is derived from major-mode."
         (mapc #'(lambda (num)
                   (setq num-seq (delq num num-seq))) 
               '(32 43 45 60 94 99 100 103 104 107 109 110 111 112 113 114 115
-                   116 117 119 121 127))    ; reserved keys defined elsewhere
+                   117 119 121 127))    ; reserved keys defined elsewhere
         num-seq))
 
 ;; TODO navi-edit-mode "e"
@@ -1008,6 +1027,8 @@ Language is derived from major-mode."
 (define-key navi-mode-map (kbd "p") 'occur-prev)
 (define-key navi-mode-map (kbd "SPC") 'occur-next)
 (define-key navi-mode-map (kbd "DEL") 'occur-prev)
+(define-key navi-mode-map (kbd "TAB") 'navi-cycle-subtree)
+(define-key navi-mode-map (kbd "<backtab>") 'navi-cycle-buffer)
 (define-key navi-mode-map (kbd "m") 'navi-mark-subtree-and-switch)
 (define-key navi-mode-map (kbd "c") 'navi-copy-subtree)
 (define-key navi-mode-map (kbd "r") 'navi-narrow-to-subtree)
@@ -1016,7 +1037,6 @@ Language is derived from major-mode."
 (define-key navi-mode-map (kbd "y") 'navi-yank-subtree)
 (define-key navi-mode-map (kbd "u") 'navi-undo)        
 (define-key navi-mode-map (kbd "h") 'navi-show-help)
-(define-key navi-mode-map (kbd "t") 'navi-transpose-subtrees)
 (define-key navi-mode-map (kbd "+") 'navi-demote-subtree)
 (define-key navi-mode-map (kbd "-") 'navi-promote-subtree)
 (define-key navi-mode-map (kbd "^") 'navi-move-up-subtree)
@@ -1026,6 +1046,9 @@ Language is derived from major-mode."
 (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
 
 ;; * Run Hooks and Provide
+
+(add-to-list 'navi-mode-hook 'navi-mode-hook-function)
+(run-mode-hooks)
 
 (provide 'navi-mode)
 
