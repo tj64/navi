@@ -736,8 +736,10 @@ Language is derived from major-mode."
          (buffer-live-p (marker-buffer (cadr buf-markers))))
         (navi-switch-to-twin-buffer)
       (let ((1st-level-headers
+             ;; (regexp-quote
+             ;;  (outshine-calc-outline-string-at-level 1))))
              (regexp-quote
-              (outshine-calc-outline-string-at-level 1))))
+              (car (rassoc 1 outline-promotion-headings)))))
         (put 'navi (navi-make-buffer-key (buffer-name))
              (set (intern (navi-make-marker-name)) (point-marker)))
         (occur 1st-level-headers)
