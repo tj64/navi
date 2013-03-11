@@ -723,19 +723,21 @@ Language is derived from major-mode."
 (defun navi-search-and-switch ()
   "Call `occur' and immediatley switch to `*Navi:original-buffer-name*' buffer"
   (interactive)
-  (let ((1st-level-headers
-         (regexp-quote
-          (outshine-calc-outline-string-at-level 1))))
-    (put 'navi (navi-make-buffer-key (buffer-name))
-         (set (intern (navi-make-marker-name)) (point-marker)))
-    (occur 1st-level-headers)
-    (navi-rename-buffer)
-    (navi-switch-to-twin-buffer)
-    (navi-mode)
-    (occur-next)
-    (move-marker
-     (car (navi-get-twin-buffer-markers)) (point))
-    (navi-set-regexp-quoted-line-at-point)))
+  (if (navi-get-twin-buffer-markers)
+      (navi-switch-to-twin-buffer)
+    (let ((1st-level-headers
+           (regexp-quote
+            (outshine-calc-outline-string-at-level 1))))
+      (put 'navi (navi-make-buffer-key (buffer-name))
+           (set (intern (navi-make-marker-name)) (point-marker)))
+      (occur 1st-level-headers)
+      (navi-rename-buffer)
+      (navi-switch-to-twin-buffer)
+      (navi-mode)
+      (occur-next)
+      (move-marker
+       (car (navi-get-twin-buffer-markers)) (point))
+      (navi-set-regexp-quoted-line-at-point))))
 
 (defun navi-quit-and-switch ()
   "Quit navi-buffer and immediatley switch back to original-buffer"
@@ -774,6 +776,7 @@ Language is derived from major-mode."
     (goto-char 
       (navi-search-less-or-equal-line-number))))
 
+;; this command executes all user-defined occur-searches
 (defun navi-generic-command (key prefix)
   "One size fits all (user-defined header and keyword searches)."
   (interactive (list last-command-event current-prefix-arg))
