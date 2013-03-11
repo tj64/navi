@@ -3,38 +3,50 @@
 
 ;; Copyright (C) 2013 Thorsten Jolitz
 
+;; Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
 ;; Maintainer: Thorsten Jolitz <tjolitz AT gmail DOT com>
 ;; Version: 0.9
-;; Keywords: occur, outlines, 
+;; Created: 11th March 2013
+;; Keywords: occur, outlines 
 
 ;; ** Licence
 
-;; This file is not part of GNU Emacs.
+;; This file is NOT (yet) part of GNU Emacs.
 
-;; GNU Emacs is free software; you can redistribute it and/or modify
-;; it under the terms of the GNU General Public License as published by
-;; the Free Software Foundation; either version 2, or (at your option)
+;; This program is free software; you can redistribute it and/or modify it
+;; under the terms of the GNU General Public License as published by the Free
+;; Software Foundation, either version 3 of the License, or (at your option)
 ;; any later version.
 
-;; GNU Emacs is distributed in the hope that it will be useful,
-;; but WITHOUT ANY WARRANTY; without even the implied warranty of
-;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-;; GNU General Public License for more details.
+;; This program is distributed in the hope that it will be useful, but WITHOUT
+;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+;; FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
+;; more details.
 
 ;; You should have received a copy of the GNU General Public License
-;; along with GNU Emacs; see the file COPYING.  If not, write to the
-;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
-;; Boston, MA 02111-1307, USA.
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 ;; ** Commentary
 
-;; This file implements extensions for occur-mode.
-;;
-;; ** Installation
-;;
-;; ** Usage
-;;
-;; ** Compatibility:
+;; *** About navi-mode
+;; This file implements extensions for occur-mode. You can think of a navi-buffer
+;; as a kind of 'remote-control' for an (adecuately) outline-structured
+;; original-buffer. It enables quick navigation and basic structure editing in
+;; the original-buffer without (necessarily) leaving the navi-buffer. When
+;; switching to the original-buffer and coming back after some modifications, the
+;; navi-buffer is always reverted (thus up-to-date).
+
+;; Besides the fundamental outline-heading-searches (8 outline-levels) and the 5
+;; basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL), all languages can
+;; have their own set of searches and keybindings (see `navi-key-mappings' and
+;; `navi-keywords'). Heading-searches and keyword-searches can be combined,
+;; offering a vast amount of possible 'views' at the original-buffer.
+
+;; *** Installation
+
+;; *** Usage
+
+;; *** Compatibility:
 
 ;; * Requires
 
@@ -1042,8 +1054,17 @@ Language is derived from major-mode."
   (outline-cycle '(4))
   (navi-switch-to-twin-buffer))
 
-
-
+(defun navi-edit-as-org (&optional args)
+  "Edit subtree at point (or whole buffer if ARGS are given) with `outorg'.
+Editing takes place in a separate temporary Org-mode edit-buffer."
+  (interactive "P")
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (if args
+          (outorg-edit-as-org args)
+        (outorg-edit-as-org))
+    (message "Only subtrees (or the whole buffer) may be edited via navi-mode"))
+  (navi-switch-to-twin-buffer))
 
 ;; * Keybindings
 
@@ -1057,6 +1078,7 @@ Language is derived from major-mode."
 ;; | ?\< |  94 |
 ;; | ?c  |  99 |
 ;; | ?d  | 100 |
+;; | ?e  | 101 |
 ;; | ?g  | 103 |
 ;; | ?h  | 104 |
 ;; | ?k  | 107 |
@@ -1078,8 +1100,8 @@ Language is derived from major-mode."
       (let ((num-seq (number-sequence 32 127))) ; all ascii printing chars
         (mapc #'(lambda (num)
                   (setq num-seq (delq num num-seq))) 
-              '(32 43 45 60 94 99 100 103 104 107 108 109 110 111 112 113 114
-                   115 117 119 121 127))    ; reserved keys defined elsewhere
+              '(32 43 45 60 94 99 100 101 103 104 107 108 109 110 111 112 113
+                   114 115 117 119 121 127))    ; reserved keys defined elsewhere
         num-seq))
 
 ;; TODO navi-edit-mode "e"
@@ -1105,6 +1127,7 @@ Language is derived from major-mode."
 (define-key navi-mode-map (kbd "k") 'navi-kill-subtree)
 (define-key navi-mode-map (kbd "y") 'navi-yank-subtree-from-register-s)
 (define-key navi-mode-map (kbd "u") 'navi-undo)
+(define-key navi-mode-map (kbd "e") 'navi-edit-as-org)
 (define-key navi-mode-map (kbd "h") 'navi-show-help)
 (define-key navi-mode-map (kbd "+") 'navi-demote-subtree)
 (define-key navi-mode-map (kbd "-") 'navi-promote-subtree)
