@@ -73,6 +73,9 @@ point to original-buffers")
 (defvar navi-regexp-quoted-line-at-point ""
   "Regexp that matches the line at point in navi-buffer.")
 
+(defvar navi-regexp-quoted-line-before-narrowing ""
+  "Regexp that matched the line at point in navi-buffer before narrowing.")
+
 ;; ** Hooks
 
 ;; (defvar navi-mode-hook nil
@@ -542,12 +545,6 @@ the original-buffer shown in the occur-search results."
       (occur-prev)
       (point))))
 
-(defun navi-goto-occurrence-other-window ()
-  "Moves navi-buffer marker to point before switching buffers."
-  (interactive)
-  (move-marker
-   (car (navi-get-twin-buffer-markers)) (point))
-  (occur-mode-goto-occurrence-other-window))
 
 (defun navi-make-buffer-key (&optional buf)
   "Return the (current) buffer-name or string BUF as interned keyword-symbol"
@@ -714,6 +711,14 @@ Language is derived from major-mode."
 
 ;; ** Commands
 
+(defun navi-goto-occurrence-other-window ()
+  "Moves navi-buffer marker to point before switching buffers."
+  (interactive)
+  (move-marker
+   (car (navi-get-twin-buffer-markers)) (point))
+  (navi-set-regexp-quoted-line-at-point)
+  (occur-mode-goto-occurrence-other-window))
+
 ;; Convenience function copied from whom ??
 (defun isearch-occur ()
   "Invoke `occur' from within isearch."
@@ -844,6 +849,8 @@ Language is derived from major-mode."
          (narrow-to-region (region-beginning) (region-end)))
         (deactivate-mark))
     (message "Navi-mode can only narrow to subtrees"))
+  (setq navi-regexp-quoted-line-before-narrowing
+        navi-regexp-quoted-line-at-point)
   (navi-switch-to-twin-buffer))
 
 (defun navi-widen ()
@@ -851,7 +858,11 @@ Language is derived from major-mode."
   (interactive)
   (navi-goto-occurrence-other-window)
   (widen)
-  (navi-switch-to-twin-buffer))
+  (navi-switch-to-twin-buffer)
+  (setq navi-regexp-quoted-line-at-point
+        navi-regexp-quoted-line-before-narrowing)
+  (goto-char
+   (navi-search-less-or-equal-line-number)))
 
 (defun navi-kill-subtree ()
   "Kill subtree at point in original-buffer."
@@ -919,19 +930,34 @@ Language is derived from major-mode."
     (message "Navi-mode can perform isearches only on subtrees"))
   (navi-switch-to-twin-buffer))
 
-(defun navi-narrow-to-subtree ()
-  "Narrow original buffer to subtree at point."
-  (interactive)
-  (navi-goto-occurrence-other-window)
-  (if (outline-on-heading-p)
-      (progn
-        (outline-mark-subtree)
-        (and
-         (use-region-p)
-         (narrow-to-region (region-beginning) (region-end)))
-        (deactivate-mark))
-    (message "Navi-mode can only narrow to subtrees"))
-  (navi-switch-to-twin-buffer))
+;; (defun navi-narrow-to-subtree ()
+;;   "Narrow original buffer to subtree at point."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (progn
+;;         (outline-mark-subtree)
+;;         (and
+;;          (use-region-p)
+;;          (narrow-to-region (region-beginning) (region-end)))
+;;         (deactivate-mark))
+;;     (message "Navi-mode can only narrow to subtrees"))
+;;   (setq navi-regexp-quoted-line-before-narrowing
+;;         navi-regexp-quoted-line-at-point)
+;;   (navi-switch-to-twin-buffer))
+
+;; (defun navi-widen ()
+;;   "Widen original buffer."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (widen)
+;;   (navi-switch-to-twin-buffer)
+;;   (setq navi-regexp-quoted-line-at-point
+;;         navi-regexp-quoted-line-before-narrowing)
+;;   (navi-search-less-or-equal-line-number
+;;    (navi-get-line-number-from-regexp-quoted-line-at-point
+;;     navi-regexp-quoted-line-at-point))))
+
 
 (defun navi-demote-subtree ()
   "Demote subtree at point."
