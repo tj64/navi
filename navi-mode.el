@@ -898,7 +898,7 @@ Language is derived from major-mode."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (outline-demote)
+      (outline-demote 1)
     (message "Navi-mode can only demote subtrees"))
   (navi-switch-to-twin-buffer))
 
@@ -907,7 +907,7 @@ Language is derived from major-mode."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (outline-promote)
+      (outline-promote 1)
     (message "Navi-mode can only promote subtrees"))
   (navi-switch-to-twin-buffer))
 
