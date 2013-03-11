@@ -24,9 +24,10 @@ _________________
 
   Copyright (C) 2013 Thorsten Jolitz
 
-  Author: Thorsten Jolitz <tjolitz AT gmail DOT com> Maintainer:
-  Thorsten Jolitz <tjolitz AT gmail DOT com> Version: 0.9 Created: 11th
-  March 2013 Keywords: occur, outlines, navigation
+  Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
+  Maintainer: Thorsten Jolitz <tjolitz AT gmail DOT com>
+  Version: 0.9 Created: 11th March 2013
+  Keywords: occur, outlines, navigation
 
 
 1.2 Licence
@@ -159,7 +160,7 @@ _________________
   ---------------------------------------------------
    1 ... 8  show levels 1 to 8  navi-generic-command
 
-  1. Navigate up and down in the search results shown in the
+  2. Navigate up and down in the search results shown in the
      navi-buffer:
 
    key  command   function-name
@@ -169,7 +170,7 @@ _________________
    n    next      occur-next
    SPC
 
-  1. Revert the navi-buffer (seldom necessary), show help for the
+  3. Revert the navi-buffer (seldom necessary), show help for the
      user-defined keyword-searches, and quit the navi-buffer and
      switch-back to the original-buffer:
 
@@ -179,7 +180,7 @@ _________________
    h    show help                  navi-show-help
    q    quit navi-mode and switch  navi-quit-and-switch
 
-  1. Switch to the original-buffer and back to the navi-buffer, display
+  4. Switch to the original-buffer and back to the navi-buffer, display
      and occurence in the original-buffer or go to the occurence:
 
    key      command                 function-name
@@ -191,7 +192,7 @@ _________________
    d        display occurrence      occur-mode-display-occurrence
    o        goto occurrence         navi-goto-occurrence-other-window
 
-  1. Structure editing on subtrees and visibility cycling
+  5. Structure editing on subtrees and visibility cycling
 
    key        command                         function-name
   -------------------------------------------------------------------
@@ -202,7 +203,7 @@ _________________
    \^         move up subtree (same level)    navi-move-up-subtree
    <          move down subtree (same level)  navi-move-down-subtree
 
-  1. Miscancellous actions on subtrees
+  6. Miscancellous actions on subtrees
 
    key  command                     function-name
   --------------------------------------------------------------------
@@ -217,7 +218,7 @@ _________________
    i    isearch                     navi-isearch
    e    edit as org (outorg)        navi-edit-as-org
 
-  1. Furthermore, there are five (semantically) predefined
+  7. Furthermore, there are five (semantically) predefined
      keyword-searches:
 
    key  keyword-symbol  searches for
@@ -229,7 +230,7 @@ _________________
    a    :ALL            all
 
 
-  1. And (potentially) many more user-defined keyword-searches
+  8. And (potentially) many more user-defined keyword-searches
   (example Emacs Lisp):
 
    key  keyword-symbol  searches for
@@ -245,7 +246,7 @@ _________________
    S    :defstruct      (defstruct
    L    :defclass       (defclass
 
-  1. Headline-searches and keyword-searches can be combined, e.g.
+  9. Headline-searches and keyword-searches can be combined, e.g.
 
   ,------
   C-2 f
