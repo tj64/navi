@@ -1,5 +1,0 @@
-/easy-buffer navigation/
-
-* navi-mode
-
-navi-mode.el allows for easy navigation in outlined buffers.

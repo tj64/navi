@@ -200,7 +200,7 @@ _________________
    <backtab>  cycle buffer                    navi-cycle-buffer
    +          Demote Subtree                  navi-demote-subtree
    -          promote subtree                 navi-promote-subtree
-   \^         move up subtree (same level)    navi-move-up-subtree
+   ^         move up subtree (same level)    navi-move-up-subtree
    <          move down subtree (same level)  navi-move-down-subtree
 
   6. Miscancellous actions on subtrees

@@ -142,7 +142,7 @@
 ;; | h   | show help                 | navi-show-help       |
 ;; | q   | quit navi-mode and switch | navi-quit-and-switch |
 
-;; 4. Switch to the original-buffer and back to the navi-buffer, display and
+;; 4. Switch to the original-buffer and back to the navi-buffer, display an
 ;;    occurence in the original-buffer or go to the occurence:
 
 ;; | key     | command                | function-name                     |
@@ -162,7 +162,7 @@
 ;; | <backtab> | cycle buffer                   | navi-cycle-buffer      |
 ;; | +         | Demote Subtree                 | navi-demote-subtree    |
 ;; | -         | promote subtree                | navi-promote-subtree   |
-;; | \^        | move up subtree (same level)   | navi-move-up-subtree   |
+;; | ^         | move up subtree (same level)   | navi-move-up-subtree   |
 ;; | <         | move down subtree (same level) | navi-move-down-subtree |
 
 ;; 6. Miscancellous actions on subtrees
