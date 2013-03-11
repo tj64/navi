@@ -926,34 +926,34 @@ Language is derived from major-mode."
 ;;   (navi-switch-to-twin-buffer))
 
 
-;; (defun navi-move-up-subtree ()
-;;   "Move subtree at point one position up."
-;;   (interactive)
-;;   (navi-goto-occurrence-other-window)
-;;   (if (outline-on-heading-p)
-;;       (outline-promote)
-;;     (message "Navi-mode can only promote subtrees"))
-;;   (navi-switch-to-twin-buffer))
+(defun navi-move-up-subtree ()
+  "Move subtree at point one position up."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-move-subtree-up 1)
+    (message "Navi-mode can only move subtrees"))
+  (navi-switch-to-twin-buffer))
 
 
-;; (defun navi-move-down-subtree ()
-;;   "Move subtree at point one position down."
-;;   (interactive)
-;;   (navi-goto-occurrence-other-window)
-;;   (if (outline-on-heading-p)
-;;       (outline-promote)
-;;     (message "Navi-mode can only promote subtrees"))
-;;   (navi-switch-to-twin-buffer))
+(defun navi-move-down-subtree ()
+  "Move subtree at point one position down."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-move-subtree-down 1)
+    (message "Navi-mode can only move subtrees"))
+  (navi-switch-to-twin-buffer))
 
 
-;; (defun navi-show-help ()
-;;   "Show navi-keybindings for major-mode of original-buffer."
-;;   (interactive)
-;;   (navi-goto-occurrence-other-window)
-;;   (if (outline-on-heading-p)
-;;       (outline-promote)
-;;     (message "Navi-mode can only promote subtrees"))
-;;   (navi-switch-to-twin-buffer))
+(defun navi-show-help ()
+  "Show navi-keybindings for major-mode of original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-promote)
+    (message "Navi-mode can only promote subtrees"))
+  (navi-switch-to-twin-buffer))
 
 
 ;; * Keybindings
