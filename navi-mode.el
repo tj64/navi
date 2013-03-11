@@ -295,34 +295,6 @@ point to original-buffers")
 
 ;; *** Custom Vars
 
-;; TODO one (small basic) set of standard keys for all languages!!
-;; :f functions & macros
-;; :v variables, consts, customs
-;; :x classes, objects, methods, structs, 
-;; :b db store & select
-;; :a all
-;; navigation:
-;; :p previous
-;; :n next
-;; :g revert
-;; :d display
-;; :o other
-;; :c copy
-;; :m mark
-;; :n narrow
-;; :w widen
-;; :s switch
-;; :k kill (y-or-n-p)
-;; :y yank
-;; :e edit (outorg)
-;; :q quit
-;; :h help
-;; :+ promote
-;; :- demote
-;; :t transpose
-;; :^ move up (same level)
-;; :< move down (same level)
-
 (defcustom navi-key-mappings
   '(("emacs-lisp" . ((:ALL . "a")
                      (:FUN . "f")
@@ -1133,35 +1105,6 @@ Language is derived from major-mode."
         (isearch-mode t nil nil t nil))
     (message "Navi-mode can perform isearches only on subtrees"))
   (navi-switch-to-twin-buffer))
-
-;; (defun navi-narrow-to-subtree ()
-;;   "Narrow original buffer to subtree at point."
-;;   (interactive)
-;;   (navi-goto-occurrence-other-window)
-;;   (if (outline-on-heading-p)
-;;       (progn
-;;         (outline-mark-subtree)
-;;         (and
-;;          (use-region-p)
-;;          (narrow-to-region (region-beginning) (region-end)))
-;;         (deactivate-mark))
-;;     (message "Navi-mode can only narrow to subtrees"))
-;;   (setq navi-regexp-quoted-line-before-narrowing
-;;         navi-regexp-quoted-line-at-point)
-;;   (navi-switch-to-twin-buffer))
-
-;; (defun navi-widen ()
-;;   "Widen original buffer."
-;;   (interactive)
-;;   (navi-goto-occurrence-other-window)
-;;   (widen)
-;;   (navi-switch-to-twin-buffer)
-;;   (setq navi-regexp-quoted-line-at-point
-;;         navi-regexp-quoted-line-before-narrowing)
-;;   (navi-search-less-or-equal-line-number
-;;    (navi-get-line-number-from-regexp-quoted-line-at-point
-;;     navi-regexp-quoted-line-at-point))))
-
 
 (defun navi-demote-subtree ()
   "Demote subtree at point."
