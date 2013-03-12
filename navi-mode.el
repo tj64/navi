@@ -51,25 +51,6 @@
 ;; `navi-keywords'). Heading-searches and keyword-searches can be combined,
 ;; offering a vast amount of possible 'views' at the original-buffer.
 
-;; *** Installation
-
-;; Download (or clone the github-repos of) the three required libraries
-
-;; | `navi-mode.el' | (https://github.com/tj64/navi)     |
-;; | `outshine.el'  | (https://github.com/tj64/outshine) |
-;; | `outorg.el'    | (https://github.com/tj64/outorg)   |
-
-;; and put them in a place where Emacs can find them (on the Emacs 'load-path').
-;; Follow the installation instructions in `outshine.el' and `outorg.el'.
-
-;; Install `navi-mode.el' by adding
-
-;; ;; #+begin_src emacs-lisp
-;; ;;  (require 'navi-mode)
-;; ;; #+end_src
-
-;; to your .emacs file. 
-
 ;; *** Usage
 
 ;; For `navi-mode' to work, the original-buffer must be outline-structured 'the
@@ -125,12 +106,12 @@
 
 ;; 2. Navigate up and down in the search results shown in the navi-buffer:
 
-;; | key | command  | function-name |
-;; |-----+----------+---------------|
-;; | p   | previous | occur-prev    |
-;; | DEL |          |               |
-;; | n   | next     | occur-next    |
-;; | SPC |          |               |
+;; | key | command   | function-name       |
+;; |-----+-----------+---------------------|
+;; | p   | previous  | occur-prev          |
+;; | n   | next      | occur-next          |
+;; | DEL | down page | scroll-down-command |
+;; | SPC | up page   | scroll-up-command   |
 
 ;; 3. Revert the navi-buffer (seldom necessary), show help for the user-defined
 ;;    keyword-searches, and quit the navi-buffer and switch-back to the
@@ -225,6 +206,25 @@
 ;; of the standard keyword-searches 'f' and 'a' must be defined with a regexp in
 ;; the customizable variable `navi-keywords' (just like the user-defined
 ;; keyword-searches).
+
+;; *** Installation
+
+;; Download (or clone the github-repos of) the three required libraries
+
+;; | `navi-mode.el' | (https://github.com/tj64/navi)     |
+;; | `outshine.el'  | (https://github.com/tj64/outshine) |
+;; | `outorg.el'    | (https://github.com/tj64/outorg)   |
+
+;; and put them in a place where Emacs can find them (on the Emacs 'load-path').
+;; Follow the installation instructions in `outshine.el' and `outorg.el'.
+
+;; Install `navi-mode.el' by adding
+
+;; ;; #+begin_src emacs-lisp
+;; ;;  (require 'navi-mode)
+;; ;; #+end_src
+
+;; to your .emacs file. 
 
 ;; *** Emacs Version
 
@@ -1247,8 +1247,10 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-mode-map (kbd "o") 'navi-goto-occurrence-other-window)
 (define-key navi-mode-map (kbd "n") 'occur-next)
 (define-key navi-mode-map (kbd "p") 'occur-prev)
-(define-key navi-mode-map (kbd "SPC") 'occur-next)
-(define-key navi-mode-map (kbd "DEL") 'occur-prev)
+;; (define-key navi-mode-map (kbd "SPC") 'occur-next)
+;; (define-key navi-mode-map (kbd "DEL") 'occur-prev)
+(define-key navi-mode-map (kbd "SPC") 'scroll-up-command)
+(define-key navi-mode-map (kbd "DEL") 'scroll-down-command)
 (define-key navi-mode-map (kbd "TAB") 'navi-cycle-subtree)
 (define-key navi-mode-map (kbd "<backtab>") 'navi-cycle-buffer)
 (define-key navi-mode-map (kbd "m") 'navi-mark-subtree-and-switch)

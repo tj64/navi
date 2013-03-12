@@ -163,12 +163,12 @@ _________________
   2. Navigate up and down in the search results shown in the
      navi-buffer:
 
-   key  command   function-name
-  ------------------------------
-   p    previous  occur-prev
-   DEL
-   n    next      occur-next
-   SPC
+   key  command     function-name
+  -----------------------------------
+   p    previous    occur-prev
+   n    next        occur-next
+   DEL  down page   scroll-down-command
+   SPC  up page     scroll-up-command
 
   3. Revert the navi-buffer (seldom necessary), show help for the
      user-defined keyword-searches, and quit the navi-buffer and
