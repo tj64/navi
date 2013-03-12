@@ -341,9 +341,9 @@ except those used for the core commands of 'navi-mode' itself:
 | key | command                        |
 |-----+--------------------------------|
 | p   | previous                       |
-| DEL |                                |
 | n   | next                           |
-| SPC |                                |
+| DEL | page up                        |
+| SPC | page down                      |
 | g   | revert buffer                  |
 | d   | display occurrence             |
 | o   | goto occurrence                |
