@@ -1260,12 +1260,13 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 		  :button (:toggle . (and (boundp 'next-error-follow-minor-mode)
 					  next-error-follow-minor-mode))))
 
-    (define-key map [separator-2] menu-bar-separator)
+    (define-key map [separator-11] menu-bar-separator)
     (define-key map [navi-quit-and-switch]
       `(menu-item ,(purecopy "Quit")
       navi-quit-and-switch :help ,(purecopy "Quit navi-buffer and switch to
     original-buffer"))) 
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-10] menu-bar-separator)
     (define-key map [kill-this-buffer]
       `(menu-item ,(purecopy "Kill Navi Buffer") kill-this-buffer
 		  :help ,(purecopy "Kill the current *Navi* buffer")))
@@ -1273,7 +1274,8 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
       `(menu-item ,(purecopy "Clone Navi Buffer") clone-buffer
 		  :help ,(purecopy "Create and return a twin copy
 		  of the current *Navi* buffer")))
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-9] menu-bar-separator)
     (define-key map [navi-show-help]
       `(menu-item ,(purecopy "Show Help")
       navi-show-help :help ,(purecopy "Show help for keyword queries. Use
@@ -1285,7 +1287,8 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
      (define-key map [navi-undo]
       `(menu-item ,(purecopy "Undo Last Change")
       navi-undo :help ,(purecopy "Undo last change in original-buffer")))
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-8] menu-bar-separator)
      (define-key map [navi-edit-mode]
       `(menu-item ,(purecopy "Make Navi-Buffer Editable")
       navi-edit-mode :help ,(purecopy "Make navi-buffer editable and apply
@@ -1294,7 +1297,8 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
       `(menu-item ,(purecopy "Edit Subtree in Org-mode")
       navi-edit-as-org :help ,(purecopy "Edit Subtree at point in temporary
      Org-mode edit buffer")))
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-7] menu-bar-separator)
      (define-key map [navi-query-replace]
       `(menu-item ,(purecopy "Query-Replace in Subtree")
       navi-query-replace :help ,(purecopy "Do a query-replace in
@@ -1302,7 +1306,8 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
      (define-key map [navi-isearch]
       `(menu-item ,(purecopy "iSearch in Subtree")
       navi-isearch :help ,(purecopy "Do an isearch in subtree at point")))
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-6] menu-bar-separator)
      (define-key map [navi-widen]
       `(menu-item ,(purecopy "Widen Original Buffer")
       navi-widen  :help ,(purecopy "Widen original-buffer")))
@@ -1311,16 +1316,21 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
       navi-narrow-to-subtree
 		  :help ,(purecopy "Narrow original-buffer to
 		  subtree at point")))
-    (define-key map [separator-2] menu-bar-separator)
-     (define-key map [navi-kill-subtree]
-      `(menu-item ,(purecopy "Kill Subtree")
-      navi-kill-subtree
-		  :help ,(purecopy "Kill subtree at point (y-or-n-p)")))
+
+    (define-key map [separator-5] menu-bar-separator)
+     (define-key map [navi-mail-subtree]
+      `(menu-item ,(purecopy "Mail Subtree")
+      navi-mail-subtree
+		  :help ,(purecopy "Mail subtree at point")))
      (define-key map [navi-yank-subtree-from-register-s]
       `(menu-item ,(purecopy "Yank Subtree")
       navi-yank-subtree-from-register-s
 		  :help ,(purecopy "Yank (killed/copied) subtree
 		  from register s")))
+     (define-key map [navi-kill-subtree]
+      `(menu-item ,(purecopy "Kill Subtree")
+      navi-kill-subtree
+		  :help ,(purecopy "Kill subtree at point (y-or-n-p)")))
      (define-key map [navi-copy-subtree-to-register-s]
       `(menu-item ,(purecopy "Copy Subtree")
       navi-copy-subtree-to-register-s
@@ -1330,7 +1340,8 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
       navi-mark-subtree-and-switch
 		  :help ,(purecopy "Mark subtree at point and switch to
      original buffer")))
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-4] menu-bar-separator)
      (define-key map [navi-move-up-subtree]
       `(menu-item ,(purecopy "Move Up Subtree")
       navi-move-up-subtree
@@ -1355,7 +1366,9 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
       `(menu-item ,(purecopy "Cycle Subtree")
       navi-cycle-subtree
 		  :help ,(purecopy "Cycle visibility of subtree at point")))
-    (define-key map [separator-2] menu-bar-separator)
+
+
+    (define-key map [separator-3] menu-bar-separator)
     (define-key map [navi-switch-to-twin-buffer]
       `(menu-item ,(purecopy "Switch to Twin Buffer")
       navi-switch-to-twin-buffer
@@ -1370,6 +1383,7 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
       occur-mode-display-occurrence
 		  :help ,(purecopy "Display in another window the
 		  occurrence the current line describes")))
+
     (define-key map [separator-2] menu-bar-separator)
     (define-key map [scroll-up-command]
       `(menu-item ,(purecopy "Move Page up") scroll-up-command
@@ -1398,17 +1412,20 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 			  "Display another occurrence when moving the cursor")
 		  :button (:toggle . (and (boundp 'next-error-follow-minor-mode)
 					  next-error-follow-minor-mode))))
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-4] menu-bar-separator)
     (define-key map [navi-cease-edit]
       `(menu-item ,(purecopy "Cease Edit")
       navi-cease-edit :help ,(purecopy "Cease editing in navi-edit-mode and
     return to (read-only) navi-mode")))
-    (define-key map [separator-2] menu-bar-separator)
+
+    (define-key map [separator-3] menu-bar-separator)
     (define-key map [occur-mode-display-occurrence]
       `(menu-item ,(purecopy "Display Occurrence")
       occur-mode-display-occurrence
 		  :help ,(purecopy "Display in another window the
 		  occurrence the current line describes")))
+
     (define-key map [separator-2] menu-bar-separator)
     (define-key map [scroll-up-command]
       `(menu-item ,(purecopy "Move Page up") scroll-up-command
