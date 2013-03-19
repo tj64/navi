@@ -369,13 +369,17 @@ except those used for the core commands of 'navi-mode' itself:
 | d   | display occurrence             |
 | o   | goto occurrence                |
 | c   | copy subtree                   |
+| e   | edit subtree as org            |
+| E   | make navi-buffer editable      |
 | m   | mark subtree                   |
-| n   | narrow to subtree              |
+| u   | undo last change               |
+| z   | mail subtree                   |
+| r   | narrow to subtree              |
 | w   | widen                          |
 | s   | switch (to original buffer)    |
 | k   | kill subtree                   |
-| i   | isearch                        |
-| l   | query-replace                  |
+| i   | isearch in subtree             |
+| l   | query-replace in subtree       |
 | y   | yank killed/copied subtree     |
 | q   | quit navi-mode and switch      |
 | h   | show help                      |
@@ -912,6 +916,21 @@ Language is derived from major-mode."
 
 ;; ** Commands
 
+;; TODO improve orderly exit from `message' buffer via `outorg' buffer and
+;; `original-buffer' to `navi-buffer', best without showing `outorg'
+;; and `original' buffer to the user (not critical). 
+(defun navi-mail-subtree ()
+  "Send subtree at point as email."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outorg-edit-as-org)
+    (message "Only subtrees be send as email via navi-mode"))
+  (with-current-buffer
+      (get-buffer "*outorg-edit-buffer*")
+    (org-mark-subtree)
+    (org-mime-subtree)))
+
 (defun navi-cease-edit ()
   "Switch from Navi Edit mode to Navi mode."
   (interactive)
@@ -926,14 +945,6 @@ Language is derived from major-mode."
    (car (navi-get-twin-buffer-markers)) (point))
   (navi-set-regexp-quoted-line-at-point)
   (occur-mode-goto-occurrence-other-window))
-
-;; ;; Convenience function copied from whom ?
-;; ;; FIXME better move to .emacs
-;; (defun isearch-occur ()
-;;   "Invoke `occur' from within isearch."
-;;   (interactive)
-;;   (let ((case-fold-search isearch-case-fold-search))
-;;     (occur (if isearch-regexp isearch-string (regexp-quote isearch-string)))))
 
 (defun navi-search-and-switch ()
   "Call `occur' and immediatley switch to `*Navi:original-buffer-name*' buffer"
@@ -1249,17 +1260,12 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 		  :button (:toggle . (and (boundp 'next-error-follow-minor-mode)
 					  next-error-follow-minor-mode))))
 
-    (define-key map [separator-1] menu-bar-separator)
-    (define-key map [navi-generic-command]
-      `(menu-item ,(purecopy "Search Headlines and Keywords")
-      navi-generic-command :help ,(purecopy "Execute predefined and
-    user-defined headline and keyword searches")))
     (define-key map [separator-2] menu-bar-separator)
     (define-key map [navi-quit-and-switch]
       `(menu-item ,(purecopy "Quit")
       navi-quit-and-switch :help ,(purecopy "Quit navi-buffer and switch to
     original-buffer"))) 
-    (define-key map [separator-1] menu-bar-separator)
+    (define-key map [separator-2] menu-bar-separator)
     (define-key map [kill-this-buffer]
       `(menu-item ,(purecopy "Kill Navi Buffer") kill-this-buffer
 		  :help ,(purecopy "Kill the current *Navi* buffer")))
@@ -1449,6 +1455,7 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 ;; | ?u  | 117 |
 ;; | ?w  | 119 |
 ;; | ?y  | 121 |
+;; | ?z  | 122 |
 ;; | ?\d | 127 |
 (mapc #'(lambda (key)
           (define-key navi-mode-map (format "%c" key)
@@ -1459,26 +1466,25 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
                   (setq num-seq (delq num num-seq)))
               ;; reserved keys defined elsewhere 
               '(32 43 45 60 69 94 99 100 101 103 104 107 108 109
-              110 111 112 113 114 115 117 119 121 127)) num-seq))
+              110 111 112 113 114 115 117 119 121 122 127)) num-seq))
 
-;; TODO navi-edit-mode "e"
-;; keybindings for basic navi-mode (or occur-mode) commands
+;; global keys for (original) twin-buffer of navi-buffer
 (global-set-key (kbd "M-s n") 'navi-search-and-switch)
 (global-set-key (kbd "M-s s") 'navi-switch-to-twin-buffer)
 (global-set-key (kbd "M-s M-s") 'navi-switch-to-twin-buffer)
+;; keys for navi-mode
 (define-key navi-mode-map (kbd "s") 'navi-switch-to-twin-buffer)
 (define-key navi-mode-map (kbd "d") 'occur-mode-display-occurrence)
 (define-key navi-mode-map (kbd "o") 'navi-goto-occurrence-other-window)
 (define-key navi-mode-map (kbd "n") 'occur-next)
 (define-key navi-mode-map (kbd "p") 'occur-prev)
-;; (define-key navi-mode-map (kbd "SPC") 'occur-next)
-;; (define-key navi-mode-map (kbd "DEL") 'occur-prev)
 (define-key navi-mode-map (kbd "SPC") 'scroll-up-command)
 (define-key navi-mode-map (kbd "DEL") 'scroll-down-command)
 (define-key navi-mode-map (kbd "TAB") 'navi-cycle-subtree)
 (define-key navi-mode-map (kbd "<backtab>") 'navi-cycle-buffer)
 (define-key navi-mode-map (kbd "m") 'navi-mark-subtree-and-switch)
 (define-key navi-mode-map (kbd "c") 'navi-copy-subtree-to-register-s)
+(define-key navi-mode-map (kbd "z") 'navi-mail-subtree)
 (define-key navi-mode-map (kbd "r") 'navi-narrow-to-subtree)
 (define-key navi-mode-map (kbd "w") 'navi-widen)
 (define-key navi-mode-map (kbd "l") 'navi-query-replace)
@@ -1495,27 +1501,24 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-mode-map (kbd "<") 'navi-move-down-subtree)
 (define-key navi-mode-map (kbd "g") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
+;; menu for navi-mode
 (define-key navi-mode-map [menu-bar navi]
   (cons (purecopy "Navi") navi-menu-map))
 (define-key navi-mode-map [menu-bar occur] nil)
-;; (define-key isearch-mode-map (kbd "M-s i") 'isearch-occur)
 
-;; keymap for navi-edit-mode
-(defvar navi-edit-mode-map
-  (let ((map (make-sparse-keymap)))
-    (set-keymap-parent map text-mode-map)
-    (define-key map [mouse-2] 'occur-mode-mouse-goto)
-    (define-key map "\M-n" 'occur-next)
-    (define-key map "\M-p" 'occur-prev)
-    (define-key map "\C-o" 'occur-mode-display-occurrence)
-    (define-key map "\C-c\C-f" 'next-error-follow-minor-mode)
-    (define-key map "\C-c\C-c" 'navi-cease-edit)
-    (define-key map [menu-bar navi] nil)
-    (define-key map [menu-bar occur] nil)
-    (define-key map [menu-bar navi-edit]
-      (cons (purecopy "Navi-Edit") navi-edit-menu-map))
-    map)
-  "Keymap for `navi-edit-mode'.")
+;; keys for navi-edit-mode
+(set-keymap-parent navi-edit-mode-map text-mode-map)
+(define-key navi-edit-mode-map [mouse-2] 'occur-mode-mouse-goto)
+(define-key navi-edit-mode-map "\M-n" 'occur-next)
+(define-key navi-edit-mode-map "\M-p" 'occur-prev)
+(define-key navi-edit-mode-map "\M-o" 'occur-mode-display-occurrence)
+(define-key navi-edit-mode-map "\C-c\C-f" 'next-error-follow-minor-mode)
+(define-key navi-edit-mode-map "\C-c\C-c" 'navi-cease-edit)
+;; menu for navi-edit-mode
+(define-key navi-edit-mode-map [menu-bar navi] nil)
+(define-key navi-edit-mode-map [menu-bar occur] nil)
+(define-key navi-edit-mode-map [menu-bar navi-edit]
+ (cons (purecopy "Navi-Edit") navi-edit-menu-map))
 
 ;; * Run Hooks and Provide
 
