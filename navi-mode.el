@@ -862,7 +862,7 @@ in non-nil, only headers of level LEVEL are shown."
                                      outline-base-string)
                                     "?")))
                     " ")))))
-    rgxp))
+    (concat "^" rgxp)))
 
 
 ;; special treatment for Org-mode buffers
