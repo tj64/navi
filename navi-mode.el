@@ -541,6 +541,7 @@ selecting the regexp, the value is the regexp itself"
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded.")
 
+
 (defun navi-map-keyboard-to-key (language kbd-key)
   "Map pressed keyboard-key KBD-KEY to key in `navi-keywords'."
   (let ((mappings (navi-get-language-alist language 'MAPPINGS)))
@@ -864,13 +865,76 @@ in non-nil, only headers of level LEVEL are shown."
     rgxp))
 
 
+;; special treatment for Org-mode buffers
+(defun navi-make-org-mode-promotion-headings-list ()
+  "Make a sorted list of headings used for promotion/demotion commands.
+Set this to a list of MAX-LEVEL headings as they are matched by
+`outline-regexp', top-level heading first."
+  (setq outline-promotion-headings
+        '(("* " . 1)
+          ("** " . 2)
+          ("*** " . 3)
+          ("**** " . 4)
+          ("***** " . 5)
+          ("****** " . 6)
+          ("******* " . 7)
+          ("******** " . 8)))
+  (make-variable-buffer-local 'outline-promotion-headings))
+(org-add-hook 'org-mode-hook 'navi-make-org-mode-promotion-headings-list)
+
+;; special treatment for Org-mode buffers
+(defun navi-calc-org-mode-headline-regexp
+  (level &optional org-promo-headers NO-PARENT-LEVELS)
+  "Calculate regexp to show headers of original Org-mode buffer.
+Regexp should result in an occur-search showing up to
+outline-level LEVEL headlines in navi-buffer. If NO-PARENT-LEVELS
+in non-nil, only headers of level LEVEL are shown."
+  (if (not (and level
+                (integer-or-marker-p level)
+                (>= level 1)
+                (<= level 8)))
+      (error "Level must be an integer between 1 and 8")
+    (let ((headline-string
+            (car
+             (rassoc
+              level
+              (or org-promo-headers
+                  outline-promotion-headings)))))
+      (concat
+       "^"
+       (if NO-PARENT-LEVELS
+           (regexp-quote headline-string)
+         (replace-regexp-in-string
+          "\\*" "\\\\*"
+          (replace-regexp-in-string
+           "\\(\\*\\?\\).*\\'" "*"
+           (mapconcat 'identity (split-string headline-string "" t) "?")
+           nil nil 1)))))))
+
 (defun navi-show-headers (level &optional args)
   "Show headers up-to level LEVEL."
-  (if args
+  (let ((org-promo-headers
+         (and (eq major-mode 'navi-mode)
+              (with-current-buffer
+                  (marker-buffer
+                   (cadr (navi-get-twin-buffer-markers)))
+                (and
+                 (eq major-mode 'org-mode)
+                 outline-promotion-headings)))))
+    (if args
+        (navi-revert-function
+         (if org-promo-headers
+             (navi-calc-org-mode-headline-regexp
+              level
+              org-promo-headers
+              'NO-PARENT-LEVELS)
+           (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)))
       (navi-revert-function
-       (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
-    (navi-revert-function
-     (navi-calc-headline-regexp level))))
+       (if org-promo-headers
+           (navi-calc-org-mode-headline-regexp
+            level
+            org-promo-headers)
+         (navi-calc-headline-regexp level))))))
 
 
 (defun navi-get-language-name ()
@@ -895,10 +959,27 @@ Language is derived from major-mode."
   "Show headers up-to level LEVEL and matches of occur-search with KEY.
 Language is derived from major-mode."
   (let* ((language (navi-get-language-name))
+         (org-promo-headers
+          (and (eq major-mode 'navi-mode)
+               (with-current-buffer
+                   (marker-buffer
+                    (cadr (navi-get-twin-buffer-markers)))
+                 (and
+                  (eq major-mode 'org-mode)
+                  outline-promotion-headings))))
          (rgxp
           (navi-make-regexp-alternatives
            (if args
-               (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)
+               (if org-promo-headers
+                   (navi-calc-org-mode-headline-regexp
+                    level
+                    org-promo-headers
+                    'NO-PARENT-LEVELS)
+                 (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
+             (if org-promo-headers
+                 (navi-calc-org-mode-headline-regexp
+                  level
+                  org-promo-headers))
              (navi-calc-headline-regexp level))
            (navi-get-regexp language
                             (navi-map-keyboard-to-key language key)))))
@@ -949,17 +1030,21 @@ Language is derived from major-mode."
 (defun navi-search-and-switch ()
   "Call `occur' and immediatley switch to `*Navi:original-buffer-name*' buffer"
   (interactive)
-  (let ((buf-markers (navi-get-twin-buffer-markers)))
+  (let ((buf-markers (navi-get-twin-buffer-markers))
+        (orig-buffer-mode major-mode))
+    ;; (with-current-buffer (marker-buffer (car buf-markers)) major-mode)))
     (if (and
          buf-markers 
          (buffer-live-p (marker-buffer (car buf-markers)))
          (buffer-live-p (marker-buffer (cadr buf-markers))))
         (navi-switch-to-twin-buffer)
-      (let ((1st-level-headers
-             ;; (regexp-quote
-             ;;  (outshine-calc-outline-string-at-level 1))))
-             (regexp-quote
-              (car (rassoc 1 outline-promotion-headings)))))
+      (let* ((1st-level-headers
+              (if (eq orig-buffer-mode 'org-mode)
+                  (navi-calc-org-mode-headline-regexp 1)
+                (regexp-quote
+                 (car (rassoc 1 outline-promotion-headings))))))
+        ;; (regexp-quote
+        ;;  (outshine-calc-outline-string-at-level 1))))
         (put 'navi (navi-make-buffer-key (buffer-name))
              (set (intern (navi-make-marker-name)) (point-marker)))
         (occur 1st-level-headers)
@@ -970,8 +1055,8 @@ Language is derived from major-mode."
         (move-marker
          (car (navi-get-twin-buffer-markers)) (point))
         (navi-set-regexp-quoted-line-at-point)))
-      (make-variable-buffer-local 'kill-buffer-hook)
-      (add-to-list 'kill-buffer-hook 'navi-clean-up)))
+    (make-variable-buffer-local 'kill-buffer-hook)
+    (add-to-list 'kill-buffer-hook 'navi-clean-up)))
 
 (defun navi-quit-and-switch ()
   "Quit navi-buffer and immediatley switch back to original-buffer"
