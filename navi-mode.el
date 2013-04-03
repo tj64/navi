@@ -353,40 +353,34 @@ point to original-buffers")
                    (:goal . "G")
                    (:be . "B")
                    (:prove . "P")))
-     ("org-mode" . ((:ALL . "a")
-                   (:FUN . "f")
-                   (:VAR . "v")
-                   (:OBJ . "x")
+     ("org" . (
+                   ;; (:ALL . "a")
+                   ;; (:FUN . "f")
+                   ;; (:VAR . "v")
+                   ;; (:OBJ . "x")
 
-                   (:blocks . "b")
-                   (:affkeywords . "k")
-                   (:table . "t")
+                   ;; (:blocks . "b")
+                   ;; (:affkeywords . "k")
+                   ;; (:table . "t")
 
+                   (:priority . "Y")
+                   (:target . "T")
                    (:radiotarget . "R")
-                   (:checkbox . "B")
-                   (:list . "L")
-                   (:propertydrawer . "P")
                    (:drawer . "D")
-                   (:attr . "A")
-                   (:caption . "C")
-                   (:header . "H")
-                   (:name . "N")
-                   (:plot . "O")
-                   (:results . "U")
-                   (:footnotedef . "F")
-                   (:latex . "X")
+                   (:timestamp . "S")
 
-                   (:dm . "M")
-                   (:rel . "R")
-                   (:var . "V")
-                   (:extend . "X")
-                   (:obj . "O")
-                   (:object . "J")
-                   (:new . "N")
-                   (:symbols . "S")
-                   (:clause . "U")
-                   (:goal . "G")
-                   (:be . "B"))))
+                   ;; (:checkbox . "B")
+                   ;; (:list . "L")
+                   ;; (:propertydrawer . "P")
+                   ;; (:attr . "A")
+                   ;; (:caption . "C")
+                   ;; (:header . "H")
+                   ;; (:name . "N")
+                   ;; (:plot . "O")
+                   ;; (:results . "U")
+                   ;; (:footnotedef . "F")
+                   ;; (:latex . "X")
+                   )))
   "Mappings between keybindings and keyword-symbols used in `navi-keywords'.
 
 All ASCII printing characters (see
@@ -545,7 +539,31 @@ regexp and performs an occur-search with it."
                             "^[[:space:]]*("
                             "\\(de \\|"
                             "def \\|"
-                            "symbols \\)")))))
+                            "symbols \\)"))))
+    ("org" . (
+                   ;; (:blocks . "b")
+                   ;; (:affkeywords . "k")
+                   ;; (:table . "t")
+
+                   (:priority . ".*?\\(\\[#\\([A-Z0-9]\\)\\] ?\\)")
+                   (:radiotarget . "<<<\\([^<>\n\r]+\\)>>>")
+                   (:target . "<<\\([^<>\n\r]+\\)>>")
+                   (:drawer . "^[ \t]*:PROPERTIES:[ \t]*$")
+                   (:timestamp . (concat "<\\([0-9]\\{4\\}-[0-9]\\{2\\}"
+                                         "-[0-9]\\{2\\} ?[^\r\n>]*?\\)>"))
+
+                   ;; (:checkbox . "B")
+                   ;; (:list . "L")
+                   ;; (:propertydrawer . "P")
+                   ;; (:attr . "A")
+                   ;; (:caption . "C")
+                   ;; (:header . "H")
+                   ;; (:name . "N")
+                   ;; (:plot . "O")
+                   ;; (:results . "U")
+                   ;; (:footnotedef . "F")
+                   ;; (:latex . "X")
+                   )))
 
   "Alist of language-specific keywords for occur-searches in
   navi-mode.
@@ -1013,8 +1031,8 @@ Language is derived from major-mode."
              (if org-promo-headers
                  (navi-calc-org-mode-headline-regexp
                   level
-                  org-promo-headers))
-             (navi-calc-headline-regexp level))
+                  org-promo-headers)
+               (navi-calc-headline-regexp level)))
            (navi-get-regexp language
                             (navi-map-keyboard-to-key language key)))))
     (navi-revert-function rgxp)))
