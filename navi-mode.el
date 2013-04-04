@@ -353,34 +353,41 @@ point to original-buffers")
                    (:goal . "G")
                    (:be . "B")
                    (:prove . "P")))
-     ("org" . (
-                   ;; (:ALL . "a")
-                   ;; (:FUN . "f")
-                   ;; (:VAR . "v")
-                   ;; (:OBJ . "x")
+    ("org" . (;; (:ALL . "a")
+              ;; (:FUN . "f")
+              ;; (:VAR . "v")
+              ;; (:OBJ . "x")
 
-                   ;; (:blocks . "b")
-                   ;; (:affkeywords . "k")
-                   ;; (:table . "t")
+              (:srcblock . "b")
+              (:time . "x")
+              (:inline-srcblock . "I")
+              ;; (:affkeywords . "k")
+              ;; (:table . "t")
+              (:srcname-w-name . "W")
+              (:multilineheader . "M")
+              (:priority . "Y")
+              (:target . "T")
+              (:radiotarget . "R")
+              (:drawer . "D")
+              (:timestamp . "S")
+              (:srcname . "N")
+              (:result . "U")
+              (:result-w-name . "Z")
+              (:options . "O")
+              (:propertydrawer . "P")
+              (:deadline . "A")
+              (:scheduled-time-hour . "H")
+              ;; (:checkbox . "B")
+              ;; (:list . "L")
+              ;; (:propertydrawer . "P")
+              ;; (:attr . "A")
+              ;; (:caption . "C")
+              ;; (:header . "H")
+              ;; (:plot . "O")
+              ;; (:footnotedef . "F")
+              ;; (:latex . "X")
+              )))
 
-                   (:priority . "Y")
-                   (:target . "T")
-                   (:radiotarget . "R")
-                   (:drawer . "D")
-                   (:timestamp . "S")
-
-                   ;; (:checkbox . "B")
-                   ;; (:list . "L")
-                   ;; (:propertydrawer . "P")
-                   ;; (:attr . "A")
-                   ;; (:caption . "C")
-                   ;; (:header . "H")
-                   ;; (:name . "N")
-                   ;; (:plot . "O")
-                   ;; (:results . "U")
-                   ;; (:footnotedef . "F")
-                   ;; (:latex . "X")
-                   )))
   "Mappings between keybindings and keyword-symbols used in `navi-keywords'.
 
 All ASCII printing characters (see
@@ -540,30 +547,85 @@ regexp and performs an occur-search with it."
                             "\\(de \\|"
                             "def \\|"
                             "symbols \\)"))))
-    ("org" . (
-                   ;; (:blocks . "b")
-                   ;; (:affkeywords . "k")
-                   ;; (:table . "t")
+    ("org" . ((:srcblock
+               . (concat
+                  ;; (1) indentation                 (2) lang
+                  "^\\([ \t]*\\)#\\+begin_src[ \t]+\\([^ \f\t\n\r\v]+\\)[ \t]*"
+                  ;; (3) switches
+                  "\\([^\":\n]*\"[^\"\n*]*\"[^\":\n]*\\|[^\":\n]*\\)"
+                  ;; (4) header arguments
+                  "\\([^\n]*\\)"))
+              ;; ;; (5) body
+              ;; "\n\\([^\000]*?\n\\)?[ \t]*#\\+end_src")
+              (:inline-srcblock
+               .   (concat
+                    ;; (1) replacement target (2) lang
+                    "\\(?:^\\|[^-[:alnum:]]\\)\\(src_\\([^ \f\t\n\r\v]+\\)"
+                    ;; (3,4) (unused, headers)
+                    "\\(\\|\\[\\(.*?\\)\\]\\)"
+                    ;; (5) body
+                    "{\\([^\f\n\r\v]+?\\)}\\)"))
+              ;; (:affkeywords . "k")
+              ;; (:table . "t")
+              (:srcname-w-name
+               . (concat "^[ \t]*#\\+name:[ \t]*"
+                         "\\("
+                         "^[ \t]*#\\+headers?:[ \t]*\\([^\n]*\\)$"
+                         "\\)*"
+                         "\\([^ ()\f\t\n\r\v]+\\)\\(\(\\(.*\\)\)\\|\\)"))
+              (:multilineheader
+               . "^[ \t]*#\\+headers?:[ \t]*\\([^\n]*\\)$")
+              (:srcname . "^[ \t]*#\\+name:[ \t]*")
+              (:priority . ".*?\\(\\[#\\([A-Z0-9]\\)\\] ?\\)")
+              (:radiotarget . "<<<\\([^<>\n\r]+\\)>>>")
+              (:target . "<<\\([^<>\n\r]+\\)>>")
+              (:propertydrawer . "^[ \t]*:PROPERTIES:[ \t]*$")
+              (:timestamp
+               . (concat "<\\([0-9]\\{4\\}-[0-9]\\{2\\}"
+                         "-[0-9]\\{2\\} ?[^\r\n>]*?\\)>"))
+              (:result
+               .   (concat "^[ \t]*#\\+"
+                           (regexp-opt org-babel-data-names t)
+                           "\\(\\[\\("
+                           ;; FIXME The string below is `org-ts-regexp'
+                           "<\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} ?"
+                           "[^\r\n>]*?\\)>"
+                           " \\)?\\([[:alnum:]]+\\)\\]\\)?\\:[ \t]*"))
 
-                   (:priority . ".*?\\(\\[#\\([A-Z0-9]\\)\\] ?\\)")
-                   (:radiotarget . "<<<\\([^<>\n\r]+\\)>>>")
-                   (:target . "<<\\([^<>\n\r]+\\)>>")
-                   (:drawer . "^[ \t]*:PROPERTIES:[ \t]*$")
-                   (:timestamp . (concat "<\\([0-9]\\{4\\}-[0-9]\\{2\\}"
-                                         "-[0-9]\\{2\\} ?[^\r\n>]*?\\)>"))
+              (:result-w-name
+               .   (concat "^[ \t]*#\\+"
+                           (regexp-opt org-babel-data-names t)
+                           "\\(\\[\\("
+                           ;; FIXME The string below is `org-ts-regexp'
+                           "<\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} ?"
+                           "[^\r\n>]*?\\)>"
+                           " \\)?\\([[:alnum:]]+\\)\\]\\)?\\:[ \t]*"
+                           "\\([^ ()\f\t\n\r\v]+\\)\\(\(\\(.*\\)\)\\|\\)"))
+              (:options
+               . (concat
+                  "^#\\+\\(CATEGORY\\|TODO\\|COLUMNS\\|STARTUP\\|ARCHIVE\\|"
+                  "LINK\\|PRIORITIES\\|CONSTANTS\\|PROPERTY\\|DRAWERS\\|"
+                  "SETUPFILE\\|OPTIONS\\|\\(?:[a-zA-Z][0-9a-zA-Z_]*_TODO\\)"
+                  "\\):[ 	]*\\(.*\\)"))
+              (:drawer . "^[ 	]*:\\(PROPERTIES\\|LOGBOOK\\):[ 	]*$")
+              (:deadline . "\\<\\(DEADLINE:\\).*")
+              (:scheduled-time-hour
+               . "\\<SCHEDULED: *<\\(.+[0-9]\\{1,2\\}:[0-9]\\{2\\}[^>]*\\)>")
+              (:time
+               . (conat "\\(\\<\\(SCHEDULED:\\|DEADLINE:\\|CLOSED:\\|"
+                        "CLOCK:\\)\\)? *\\([[<][0-9]\\{4\\}-[0-9]\\{2\\}"
+                        "-[0-9]\\{2\\} ?[^]\r\n>]*?[]>]\\|<%%([^\r\n>]*>\\)"))
+              ;; (:checkbox . "B")
+              ;; (:list . "L")
 
-                   ;; (:checkbox . "B")
-                   ;; (:list . "L")
-                   ;; (:propertydrawer . "P")
-                   ;; (:attr . "A")
-                   ;; (:caption . "C")
-                   ;; (:header . "H")
-                   ;; (:name . "N")
-                   ;; (:plot . "O")
-                   ;; (:results . "U")
-                   ;; (:footnotedef . "F")
-                   ;; (:latex . "X")
-                   )))
+              ;; (:attr . "A")
+              ;; (:caption . "C")
+              ;; (:header . "H")
+              ;; (:name . "N")
+              ;; (:plot . "O")
+              ;; (:footnotedef . "F")
+              ;; (:latex . "X")
+              )))
 
   "Alist of language-specific keywords for occur-searches in
   navi-mode.
