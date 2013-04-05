@@ -1,0 +1,67 @@
+#+TITLE: Exploring 'navi-mode'
+#+AUTHOR: Thorsten Jolitz <tjolitz AT gmail DOT com>
+#+DATE: <2013-04-05 Fr>
+
+/Using navi-mode to explore navi-mode.el/
+
+* Introduction
+** Whats it all about?
+
+This file is a TODO list that serves as a guideline for a screencast about
+the GNU Emacs library 'navi-mode.el', available via:
+
+,---------------------------------------
+| git clone git@github.com:tj64/navi.git
+`---------------------------------------
+
+or by downloading
+
+https://github.com/tj64/navi/blob/master/navi-mode.el
+
+Read section 'Installation' for instructions how to make it work on your
+machine. 
+
+** What will be demonstrated?
+
+ - modern conventions for Emacs Lisp files
+ - editing comment-sections in temporary Org-mode edit buffers (with 'outorg')
+ - editing comment-strings in temporary Org-mode edit buffers (with 'poporg')
+ - remote-buffer-control with 'navi-mode'
+
+** Read more?
+
+Read [[http://orgmode.org/worg/org-tutorials/org-outside-org.html][Org-mode outside Org-mode]] on Worg 
+(http://orgmode.org/worg/org-tutorials/org-outside-org.html)
+
+
+* Screencast Topics
+
+** TODO Modern Conventions for Emacs Lisp Files
+
+Structure elisp files with outcommented Org-mode headers
+
+,-----------------------
+| ;; * First Level Headline
+| ;; ** Second Level Headline
+| ;; *** Third Level Headline
+`-----------------------
+
+Activate outline-minor-mode with outshine.el extensions for full outline
+functionality with Org-mode like keybindings.
+
+** TODO Editing comment-sections with 'outorg'
+
+Subtrees of Elisp buffers structured like that can be edited in temporary
+Org-mode buffers using outorg.el.
+
+** TODO Editing comment-strings with 'poporg'
+
+Any comment-string in an elisp file (independent from its structure or the
+minor-modes loaded) can be edited in a temporary Org-mode buffer using
+poporg.el.
+
+** TODO Remote buffer-control with 'navi-mode'
+
+For elisp buffers structured like that a *Navi* buffer can be opened that
+allows for superfast navigation and structure-editing (and more), a kind of
+remote-control for the original elisp buffer. 

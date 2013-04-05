@@ -1,62 +1,41 @@
 ;; * navi-mode.el --- major-mode for easy buffer-navigation
-;; ** Copyright
-
-;; Copyright (C) 2013 Thorsten Jolitz
-
-;; Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
-;; Maintainer: Thorsten Jolitz <tjolitz AT gmail DOT com>
-;; Version: 0.9
-;; Created: 11th March 2013
-;; Keywords: occur, outlines, navigation
-
-;; ** Licence
-
-;; This file is NOT (yet) part of GNU Emacs.
-
-;; This program is free software; you can redistribute it and/or modify it
-;; under the terms of the GNU General Public License as published by the Free
-;; Software Foundation, either version 3 of the License, or (at your option)
-;; any later version.
-
-;; This program is distributed in the hope that it will be useful, but WITHOUT
-;; ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
-;; FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for
-;; more details.
-
-;; You should have received a copy of the GNU General Public License
-;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-;; ** Credits
-
-;; This library is inspired by the Org-mode command `org-goto', which shows
-;; the documemt structure of an Org-mode file in a temporary buffer, and
-;; enables navigation in that buffer without changing the original-buffer's
-;; visibility-level, and by the authors frequent use of (M-x) `occur' (and the
-;; resulting *Occur* buffer) for buffer navigation purposes.
+;;   :PROPERTIES:
+;;   :copyright: Thorsten Jolitz
+;;   :copyright-years: 2013
+;;   :version:  0.9
+;;   :licence:  GPL 2 or later (free software)
+;;   :licence-url: http://www.gnu.org/licenses/
+;;   :part-of-emacs: no
+;;   :author: Thorsten Jolitz
+;;   :author_email: tjolitz AT gmail DOT com
+;;   :inspiration:  occur-mode org-mode
+;;   :keywords: emacs keymaps unbound 
+;;   :END:
 
 ;; ** Commentary
 
 ;; *** About navi-mode
 
-;; This file implements extensions for occur-mode. You can think of a navi-buffer
-;; as a kind of 'remote-control' for an (adecuately) outline-structured
-;; original-buffer. It enables quick navigation and basic structure editing in
-;; the original-buffer without (necessarily) leaving the navi-buffer. When
-;; switching to the original-buffer and coming back after some modifications, the
-;; navi-buffer is always reverted (thus up-to-date).
+;; This file implements extensions for occur-mode. You can think of a
+;; navi-buffer as a kind of 'remote-control' for an (adecuately)
+;; outline-structured original-buffer. It enables quick navigation and basic
+;; structure editing in the original-buffer without (necessarily) leaving the
+;; navi-buffer. When switching to the original-buffer and coming back after
+;; some modifications, the navi-buffer is always reverted (thus up-to-date).
 
-;; Besides the fundamental outline-heading-searches (8 outline-levels) and the 5
-;; basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL), all languages can
-;; have their own set of searches and keybindings (see `navi-key-mappings' and
-;; `navi-keywords'). Heading-searches and keyword-searches can be combined,
-;; offering a vast amount of possible 'views' at the original-buffer.
+;; Besides the fundamental outline-heading-searches (8 outline-levels) and the
+;; 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL), all languages
+;; can have their own set of searches and keybindings (see `navi-key-mappings'
+;; and `navi-keywords'). Heading-searches and keyword-searches can be
+;; combined, offering a vast amount of possible 'views' at the
+;; original-buffer.
 
 ;; *** Usage
 
-;; For `navi-mode' to work, the original-buffer must be outline-structured 'the
-;; outshine way', i.e. with the headlines being proper Org-mode headlines, marked
-;; and outcommented with `comment-region'. As an example, to generate a 3rd level
-;; outshine-headline in an Emacs Lisp file, write down
+;; For `navi-mode' to work, the original-buffer must be outline-structured
+;; 'the outshine way', i.e. with the headlines being proper Org-mode
+;; headlines, marked and outcommented with `comment-region'. As an example, to
+;; generate a 3rd level outshine-headline in an Emacs Lisp file, write down
 
 ;; ,-----------------------
 ;; | *** Third Level Header
@@ -91,8 +70,8 @@
 ;; ;;  (add-hook ‘outline-minor-mode-hook ‘outshine-hook-function)
 ;; ;; #+end_src
 
-;; When these pre-conditions are fullfilled (`outorg.el' must be loaded too), you
-;; can use 'M-s n' (`navi-search-and-switch') to open a navi-buffer and
+;; When these pre-conditions are fullfilled (`outorg.el' must be loaded too),
+;; you can use 'M-s n' (`navi-search-and-switch') to open a navi-buffer and
 ;; immediately switch to it. The new navi-buffer will show the first-level
 ;; headings of the original-buffer, with point at the first entry.
 
@@ -113,9 +92,9 @@
 ;; | DEL | down page | scroll-down-command |
 ;; | SPC | up page   | scroll-up-command   |
 
-;; 3. Revert the navi-buffer (seldom necessary), show help for the user-defined
-;;    keyword-searches, and quit the navi-buffer and switch-back to the
-;;    original-buffer:
+;; 3. Revert the navi-buffer (seldom necessary), show help for the
+;;    user-defined keyword-searches, and quit the navi-buffer and switch-back
+;;    to the original-buffer:
 
 ;; | key | command                   | function-name        |
 ;; |-----+---------------------------+----------------------|
@@ -194,18 +173,29 @@
 ;; | C-2 f
 ;; `------
 
-;; in an Emacs Lisp (outshine-)buffer shows all headlines up-to level 2 as well
-;; as all function, macro and advice definitions in the original-buffer,
+;; in an Emacs Lisp (outshine-)buffer shows all headlines up-to level 2 as
+;; well as all function, macro and advice definitions in the original-buffer,
 
 ;; ,------
 ;; | C-5 a
 ;; `------
 
 ;; shows all headlines up-to level 5 as well as all functions, variables,
-;; classes, methods, objects, and database-related definitions. The exact meaning
-;; of the standard keyword-searches 'f' and 'a' must be defined with a regexp in
-;; the customizable variable `navi-keywords' (just like the user-defined
-;; keyword-searches).
+;; classes, methods, objects, and database-related definitions. The exact
+;; meaning of the standard keyword-searches 'f' and 'a' must be defined with a
+;; regexp in the customizable variable `navi-keywords' (just like the
+;; user-defined keyword-searches).
+
+;; When exploring a (potentially big) original buffer via navi-mode, a common
+;; usage pattern is the following:
+
+;;  1. type e.g '2'  and go to the relevant headline
+;;  2. type 'r' and e.g. '3' in sequence to narrow buffers to the subtree at
+;;     point and show one deeper level of headlines
+;;  3. do your thing in the narrowed subtree
+;;  4. type e.g. '2' and 'w' to first reduce the headline levels shown and
+;;     then widen the buffers again.
+
 
 ;; *** Installation
 
@@ -215,8 +205,9 @@
 ;; | `outshine.el'  | (https://github.com/tj64/outshine) |
 ;; | `outorg.el'    | (https://github.com/tj64/outorg)   |
 
-;; and put them in a place where Emacs can find them (on the Emacs 'load-path').
-;; Follow the installation instructions in `outshine.el' and `outorg.el'.
+;; and put them in a place where Emacs can find them (on the Emacs
+;; 'load-path'). Follow the installation instructions in `outshine.el' and
+;; `outorg.el'.
 
 ;; Install `navi-mode.el' by adding
 
