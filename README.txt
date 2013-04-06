@@ -266,6 +266,16 @@ _________________
   with a regexp in the customizable variable `navi-keywords' (just like
   the user-defined keyword-searches).
 
+  When exploring a (potentially big) original buffer via navi-mode, a
+  common usage pattern is the following:
+
+  1. type e.g '2' and go to the relevant headline
+  2. type 'r' and e.g. '3' in sequence to narrow buffers to the subtree
+     at point and show one deeper level of headlines
+  3. do your thing in the narrowed subtree
+  4. type e.g. '2' and 'w' to first reduce the headline levels shown and
+     then widen the buffers again.
+
 
 1.4.4 Emacs Version
 -------------------
