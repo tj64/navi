@@ -1,7 +1,7 @@
 ;; * navi-mode.el --- major-mode for easy buffer-navigation
 ;;   :PROPERTIES:
 ;;   :copyright: Thorsten Jolitz
-;;   :copyright-years: 2013
+;;   :copyright-years: 2013 2014, 2013
 ;;   :version:  0.9
 ;;   :licence:  GPL 2 or later (free software)
 ;;   :licence-url: http://www.gnu.org/licenses/
@@ -65,10 +65,10 @@
 ;; original-buffer and `outshine.el' loaded like described in its installation
 ;; instructions, i.e.
 
-;; ;; #+begin_src emacs-lisp
-;; ;;  (require 'outshine)
-;; ;;  (add-hook ‘outline-minor-mode-hook ‘outshine-hook-function)
-;; ;; #+end_src
+;; # #+begin_src emacs-lisp
+;; #   (require 'outshine)
+;; #   (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+;; # #+end_src
 
 ;; When these pre-conditions are fullfilled (`outorg.el' must be loaded too),
 ;; you can use 'M-s n' (`navi-search-and-switch') to open a navi-buffer and
@@ -195,7 +195,6 @@
 ;;  3. do your thing in the narrowed subtree
 ;;  4. type e.g. '2' and 'w' to first reduce the headline levels shown and
 ;;     then widen the buffers again.
-
 
 ;; *** Installation
 
@@ -584,14 +583,16 @@ regexp and performs an occur-search with it."
                            " \\)?\\([[:alnum:]]+\\)\\]\\)?\\:[ \t]*"))
 
               (:result-w-name
-               .   (concat "^[ \t]*#\\+"
+               .   (concat "\\("
+                           "^[ \t]*#\\+"
                            (regexp-opt org-babel-data-names t)
                            "\\(\\[\\("
                            ;; FIXME The string below is `org-ts-regexp'
                            "<\\([0-9]\\{4\\}-[0-9]\\{2\\}-[0-9]\\{2\\} ?"
                            "[^\r\n>]*?\\)>"
                            " \\)?\\([[:alnum:]]+\\)\\]\\)?\\:[ \t]*"
-                           "\\([^ ()\f\t\n\r\v]+\\)\\(\(\\(.*\\)\)\\|\\)"))
+                           "\\([^ ()\f\t\n\r\v]+\\)\\(\(\\(.*\\)\)\\|\\)"
+                           "\\)"))
               (:options
                . (concat
                   "^#\\+\\(CATEGORY\\|TODO\\|COLUMNS\\|STARTUP\\|ARCHIVE\\|"
@@ -646,6 +647,15 @@ selecting the regexp, the value is the regexp itself"
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded.")
 
+;; copied from http://www.emacswiki.org/emacs/basic-edit-toolkit.el
+(defun navi-underline-line-with (char)
+  "Insert some char below at current line."
+  (interactive "cType one char: ")
+  (save-excursion
+    (let ((length (- (point-at-eol) (point-at-bol))))
+      (end-of-line)
+      (insert "\n")
+      (insert (make-string length char)))))
 
 (defun navi-map-keyboard-to-key (language kbd-key)
   "Map pressed keyboard-key KBD-KEY to key in `navi-keywords'."
@@ -1393,7 +1403,7 @@ Language is derived from major-mode."
              (buffer-substring-no-properties (point-min) (point-max)) "")
         (insert "[KEY] : [SEARCH]\n")
         (forward-line -1)
-        (underline-line-with ?=)
+        (navi-underline-line-with ?=)
         (forward-line 2)
         (mapc
          (lambda (association)

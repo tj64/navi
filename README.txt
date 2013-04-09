@@ -143,7 +143,7 @@ _________________
 
   #+begin_src emacs-lisp
     (require 'outshine)
-    (add-hook ‘outline-minor-mode-hook ‘outshine-hook-function)
+    (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
   #+end_src
 
   When these pre-conditions are fullfilled (`outorg.el' must be loaded
