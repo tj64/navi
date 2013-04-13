@@ -1156,8 +1156,10 @@ Language is derived from major-mode."
       (let* ((1st-level-headers
               (if (eq orig-buffer-mode 'org-mode)
                   (navi-calc-org-mode-headline-regexp 1)
-                (regexp-quote
-                 (car (rassoc 1 outline-promotion-headings))))))
+                (if outshine-enforce-no-comment-padding-p
+                    "^;;; "
+                  (regexp-quote
+                   (car (rassoc 1 outline-promotion-headings)))))))
         ;; (regexp-quote
         ;;  (outshine-calc-outline-string-at-level 1))))
         (put 'navi (navi-make-buffer-key (buffer-name))
