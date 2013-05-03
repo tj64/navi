@@ -1,8 +1,8 @@
 ;; * navi-mode.el --- major-mode for easy buffer-navigation
 ;;   :PROPERTIES:
 ;;   :copyright: Thorsten Jolitz
-;;   :copyright-years: 2013 2014, 2013
-;;   :version:  0.9
+;;   :copyright-years: 2013
+;;   :version:  1.0
 ;;   :licence:  GPL 2 or later (free software)
 ;;   :licence-url: http://www.gnu.org/licenses/
 ;;   :part-of-emacs: no
@@ -226,6 +226,7 @@
 
 ;; | date            | author(s)       | version |
 ;; |-----------------+-----------------+---------|
+;; | <2013-05-03 Fr> | Thorsten Jolitz |     1.0 |
 ;; | <2013-03-11 Mo> | Thorsten Jolitz |     0.9 |
 
 ;; * Requires
@@ -268,7 +269,7 @@ To return to ordinary Navi mode, use \\[navi-cease-edit].
 ;; ** Consts
 ;; ** Vars
 
-(defvar navi-mode-version 0.9
+(defvar navi-mode-version 1.0
   "Version number of `navi-mode.el'")
 
 (defvar navi "navi"

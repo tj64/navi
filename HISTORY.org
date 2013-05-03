@@ -1,21 +1,51 @@
 
-* TODO Version 1.0
+* DONE Version 1.0
+  CLOSED: [2013-05-03 Fr 19:21]
+  :LOGBOOK:
+  - State "DONE"       from "TODO"       [2013-05-03 Fr 19:21]
+  :END:
   [2013-02-21 Do 01:24]
 
-** TODO change version number
+** DONE change version number
+   CLOSED: [2013-05-03 Fr 19:21]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:21]
+   :END:
    [2013-02-21 Do 01:27]
-** TODO announce in org-mode mailing-list
+** CANCELLED announce in org-mode mailing-list                    :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:20] \\
+     enough publicity
+   :END:
    [2013-02-21 Do 01:28]
-** TODO announce in emacs mailing-list
+** CANCELLED announce in emacs mailing-list                       :CANCELLED:
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "CANCELLED"  from "TODO"       [2013-05-03 Fr 19:20] \\
+     enough publicity
+   :END:
  [2013-02-21 Do 01:24]
 
 
-* TODO Version 0.9
+* DONE Version 0.9
+  CLOSED: [2013-05-03 Fr 19:20]
+  :LOGBOOK:
+  - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+  :END:
   [2013-02-21 Do 01:24]
 
-** TODO fix navi-edit-mode ("e")
+** DONE fix navi-edit-mode ("e")
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-10 So 01:54]
-** TODO fix not revieves keys
+** DONE fix not revieves keys
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-10 So 01:54]
 ** DONE finish keybindings
    CLOSED: [2013-03-09 Sa 23:12]
@@ -23,13 +53,29 @@
    - State "DONE"       from "TODO"       [2013-03-09 Sa 23:12]
    :END:
    [2013-03-08 Fr 12:01]
-** TODO write 'navi-quit-and-switch'
+** DONE write 'navi-quit-and-switch'
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-08 Fr 12:00]
-** TODO make '?' and 'h' show C-h b
+** DONE make '?' and 'h' show C-h b
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-08 Fr 11:58]
-** TODO implement 'remote control' functions
+** DONE implement 'remote control' functions
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-08 Fr 11:58]
-** TODO write Worg article
+** DONE write Worg article
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-08 Fr 11:50]
 ** DONE ask about keybindings for functions with args.
    CLOSED: [2013-03-09 Sa 23:13]
@@ -37,7 +83,11 @@
    - State "DONE"       from "TODO"       [2013-03-09 Sa 23:13]
    :END:
    [2013-03-08 Fr 11:49]
-** TODO fix wrong point location (always 1st match) after excursion to other buffers
+** DONE fix wrong point location (always 1st match) after excursion to other buffers
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-08 Fr 11:44]
 
 When switching between the twin-buffers, automatic point-location seems to
@@ -64,7 +114,11 @@ at the first match.
    - State "DONE"       from "TODO"       [2013-02-25 Mo 09:33]
    :END:
    [2013-02-21 Do 01:30]
-** TODO make functions that return from original-buffer to navi-buffer revert navi-buffer
+** DONE make functions that return from original-buffer to navi-buffer revert navi-buffer
+   CLOSED: [2013-05-03 Fr 19:20]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:20]
+   :END:
    [2013-03-08 Fr 11:43]
 ** CANCELLED implement actualization hook for navi-buffers (always-up-to-date) :CANCELLED:
    CLOSED: [2013-03-08 Fr 11:42]
@@ -74,9 +128,17 @@ at the first match.
      the original-buffer to the navi-buffer reverts the navi-buffer.
    :END:
    [2013-02-21 Do 01:29]
-** TODO implement narrow/widen
+** DONE implement narrow/widen
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:19]
+   :END:
    [2013-02-21 Do 01:27]
-** NEXT implement predefined queries with 1key keybindings
+** DONE implement predefined queries with 1key keybindings
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "NEXT"       [2013-05-03 Fr 19:19]
+   :END:
    [2013-02-21 Do 01:27]
 ** DONE connect navi-buffer and principal buffer (markers)
    CLOSED: [2013-03-08 Fr 11:44]
@@ -90,7 +152,15 @@ at the first match.
    - State "DONE"       from "TODO"       [2013-03-08 Fr 11:44]
    :END:
    [2013-02-21 Do 01:26]
-** TODO announce in org-mode mailing-list
+** DONE announce in org-mode mailing-list
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:19]
+   :END:
 [2013-02-21 Do 01:25]
-** TODO announce in emacs mailing-list
+** DONE announce in emacs mailing-list
+   CLOSED: [2013-05-03 Fr 19:19]
+   :LOGBOOK:
+   - State "DONE"       from "TODO"       [2013-05-03 Fr 19:19]
+   :END:
   [2013-02-21 Do 01:24]
