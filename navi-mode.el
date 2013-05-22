@@ -471,7 +471,7 @@ customizable variables `navi-key-mappings' and `navi-keywords'
 for an entry with a key pressed by the user. If it doesn't find
 one, nothing happens, if it finds one, it looks up the associated
 regexp and performs an occur-search with it."
-  :group 'outshine
+  :group 'navi-mode
   :type '(alist :key-type string
                 :value-type alist))
 
@@ -638,7 +638,7 @@ should be 'emacs-lisp' and 'picolisp'.
 
 The keys of each language-alist are keywords-symbols used for
 selecting the regexp, the value is the regexp itself"
-  :group 'outshine
+  :group 'navi-mode
   :type '(alist :key-type string
                 :value-type alist))
 
