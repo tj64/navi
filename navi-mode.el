@@ -27,7 +27,7 @@
 ;; 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL), all languages
 ;; can have their own set of searches and keybindings (see `navi-key-mappings'
 ;; and `navi-keywords'). Heading-searches and keyword-searches can be
-;; combined, offering a vast amount of possible 'views' at the
+;; combined, offering a vast amount of possible 'views' on the
 ;; original-buffer.
 
 ;; *** Usage
@@ -870,9 +870,12 @@ the original-buffer shown in the occur-search results."
 
 (defun navi-make-buffer-key (&optional buf)
   "Return the (current) buffer-name or string BUF as interned keyword-symbol"
-  (let ((buf-name
-         (file-name-sans-extension
-          (car (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS)))))
+  (let* ((split-str (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS))
+         (buf-name
+          (if (> (length split-str) 1)
+              (file-name-sans-extension
+               (mapconcat 'identity split-str ""))
+            (file-name-sans-extension (car split-str)))))
   (intern (concat ":" buf-name))))
 
 (defun navi-make-marker-name (&optional buf)
@@ -916,7 +919,7 @@ CAR of the return-list is always the marker pointing to
 
 ;; modified `occur-rename-buffer' from `replace.el'
 (defun navi-rename-buffer (&optional unique-p)
-  "Rename the current *Occur* buffer to *Navi: original-buffer-name*.
+  "Rename the current *Occur* buffer to *Navi:original-buffer-name*.
 Here `original-buffer-name' is the buffer name where Occur was
 originally run. When given the prefix argument, the renaming will
 not clobber the existing buffer(s) of that name, but use
