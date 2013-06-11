@@ -322,6 +322,30 @@ point to original-buffers")
                      (:hook . "O")
                      (:lambda . "X")
                      (:require . "R")))
+    ("ess" . ((:ALL . "a")
+              (:FUN . "f")
+              (:VAR . "v")
+              (:OBJ . "x")
+              (:DB . "b")
+              (:inout . "R")
+              (:datacreation . "C")
+              (:slicing . "[")
+              (:varconversion . "A")
+              (:varinfo . "I")
+              (:dataselection . "W")
+              (:math . "M")
+              (:matrices . "%")
+              (:advdataprocessing . "O")
+              (:strings . "\"")
+              (:datestimes . ":")
+              (:plotting . "P")
+              (:lowlevelplotting . "L")
+              (:trellisgraphics . "T")
+              (:modelfitting . "~")
+              (:statistics . "S")
+              (:distributions . "D")
+              (:programming . "{")
+              (:assignment . "=")))
     ("picolisp" . ((:ALL . "a")
                    (:FUN . "f")
                    (:VAR . "v")
@@ -498,6 +522,101 @@ regexp and performs an occur-search with it."
                      (:hook . "-hook-?")
                      (:lambda . "(lambda (")
                      (:require . "^[[:space:]]*([a-z-]*require ")))
+    ("ess" . ((:ALL . "a")
+              (:FUN . "f")
+              (:VAR . "v")
+              (:OBJ . "x")
+              (:DB . "b")
+              (:inout . (concat
+                         "\\(load(\\|read\\.\\|data(\\|library(\\|"
+                         "save[.(]\\|cat(\\|print(\\|format(\\|"
+                         "write\.table(\\|sink(\\)"))
+              (:datacreation . (concat
+                                "\\(c(\\|[[:digit:]]+:[[:digit:]]+\\|"
+                                "seq(\\|rep(\\|data\\.frame(\\|list(\\|"
+                                "array(\\|matrix(\\|factor(\\|gl(\\|"
+                                "expand\\.grid(\\|rbind(\\|cbind(\\)"))
+              (:slicing . (concat
+                           "\\([[:alpha:].:$@]+\\[[^]]+\\]\\|"
+                           "[[:alpha:].:$@]+\\[\\[.+\\]\\]\\|"
+                           "[[:alpha:].:$@]+$[[:alpha:].:$@]+\\)"))
+              (:varconversion . (concat
+                                 "\\("
+                                 "[ (\\[{]as[.(]\\|"
+                                 "^as[.(]\\)"))
+              (:varinfo . (concat
+                           "\\("
+                           "[ (\\[{]is[.(]\\|"
+                           "^is[.(]\\|"
+                           "length(\\|dim(\\|dimnames(\\|nrow(\\|"
+                           "ncol(\\|NCOL(\\|class(\\|unclass(\\|"
+                           "attr(\\|attributes(\\)"))
+              (:dataselection . (concat
+                                 "\\("
+                                 "[ (\\[{]na[.(]\\|"
+                                 "^na[.(]\\|"
+                                 "which[.(]\\|rev(\\|sort(\\|cut(\\|"
+                                 "choose(\\|unique(\\\|table(\\|subset(\\"
+                                 "sample(\\|prop\\.table(\\]\\)"))
+              (:math . (concat
+                        "\\(sin(\\|cos(\\|tan(\\|asin(\\|acos(\\|atan(\\|"
+                        "atan2(\\|log(\\|log10(\\|exp(\\|max(\\|min(\\|"
+                        "range(\\|sum(\\|diff(\\|prod(\\|mean(\\|median(\\|"
+                        "quantile(\\|weighted\\.mean(\\|rank(\\|var(\\|"
+                        "sd(\\|cor(\\|round(\\|log(\\|scale(\\|pmin(\\|"
+                        "pmax(\\|cumsum(\\|cumprod(\\|cummin(\\|cummax(\\|"
+                        "union(\\\|intersect(\\|setdiff(\\|setequal(\\|"
+                        "is\\.element(\\|Re(\\|Im(\\|Mod(\\|Arg(\\|Conj(\\|"
+                        "convolve(\\|fft(\\|mvfft(\\|filter(\\)"))
+              (:matrices . (concat
+                            "\\("
+                            "[ (\\[{]t(\\|^t(\\|diag(\\|solve(\\|rowsum(\\|"
+                            "colsum(\\|rowMeans(\\|colMeans(\\|rowSums(\\|"
+                            "%\\*%\\)"))
+              (:advdataprocessing . (concat
+                                     "\\([slt]?apply(\\|by(\\|merge(\\|"
+                                     "xtabs(\\|aggregate(\\|stack(\\|"
+                                     "unstack(\\|reshape(\\)"))
+              (:strings . (concat
+                           "\\(paste(\\|substr(\\|strsplit(\||grep(\\|"
+                           "gsub(\\|tolower(\\|toupper(\\|match(\\"
+                           " %in% \\|pmatch(\\|nchar(\\)"))
+              ;; 'format' here?
+              (:datestimes . (concat
+                              "\\(as\\.Date(\\|as\\.POSIXct(\\|"
+                              "format(\\|difftime(\\)"))
+              (:plotting . (concat
+                            "\\([a-z.]*plot\\.?[a-z.]*(\\|hist(\\|(\\|"
+                            "dotchart(\\|pie(\\|pairs(\\|qqnorm(\\|"
+                            "[a-z.]*contour(\\|image(\\|persp(\\|"
+                            "stars(\\|symbols(\\)"))
+              (:lowlevelplotting . (concat
+                                    "\\(points(\\|lines(\\|[m]?text(\\|"
+                                    "segments(\\|arrows(\\|abline(\\|rect(\\|"
+                                    "polygon(\\|legend(\\|title(\\|axis(\\|"
+                                    "rug(\\|locator(\\|par(\\)"))
+              (:trellisgraphics . (concat
+                                   "\\(xyplot(\\|barchart(\\|dotplot(\\|"
+                                   "densityplot(\\|histogram(\\|bwplot(\\|"
+                                   "qqmath(\\|stripplot(\\|qq(\\|splom(\\|"
+                                   "parallel(\\|levelplot(\\|wireframe(\\|"
+                                   "cloud(\\|lattice[a-z.]*(\\|lset(\\)"))
+              (:modelfitting . (concat
+                                "\\(optim(\\|[ng]?lm(\\|nls(\\|approx(\\|"
+                                "spline(\\|loess(\\|predict(\\|fitted(\\|"
+                                "[a-z.]*residual[s]?(\\|coef(\\|AIC(\\|"
+                                "deviance(\\|logLik(\\)"))
+              (:statistics . "\\(aov(\\|anova(\\|density(\\|[a-z.]*test(\\)")
+              (:distributions . (concat
+                                 "[rdpq]"
+                                 "\\(norm(\\|exp(\\|gamma(\\|pois(\\|"
+                                 "weibull(\\|cauchy(\\\|beta(\\|t(\\|f(\\|"
+                                 "chisq(\\|binom(\\|geom(\\|hyper(\\|"
+                                 "logis(\\|lnorm(\\|nbinom(\\|unif(\\|"
+                                 "wilcox(\\)"))
+              ;; makes no sense to search for ifs and loops
+              (:programming . "\\(function(\\|return(\\)")
+              (:assignment . "\\( ?<- ?\\| = \\)")))
     ("picolisp" . ((:de . "^[[:space:]]*(de ")
                    (:def . "^[[:space:]]*(def ")
                    (:class . "^[[:space:]]*(class ")
