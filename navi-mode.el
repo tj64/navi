@@ -527,9 +527,9 @@ regexp and performs an occur-search with it."
                      (:require . "^[[:space:]]*([a-z-]*require ")))
     ("ess" . ((:ALL . (concat
                        "\\("
-                       "[^\s\t]* ?<?-? ?function("
+                       "[^\s\t\n]* ?<?-? ?function("
                        "\\|"
-                       "[^\s\t]+ <- [^\s\t]+"
+                       "[^\s\t\n]+ <- [^\s\t\n]+"
                        "\\|"
                        "\\(setClass(\\|representation(\\|prototype(\\|"
                        "setIs(\\|setValidity(\\|extends(\\|setAs(\\|"
@@ -539,14 +539,14 @@ regexp and performs an occur-search with it."
                       "Query\\|GetResults\\|Save\\|Update\\|FetchMore\\)"
                       "(\\|odbc\\(Close\\|CloseAll\\|Connect\\|GetInfo\\|"
                       "Query\\|Tables\\|Columns\\|PrimaryKeys\\|"
-                      "FetchResults\\|GetErrMsg\\)(\\|db\\(connect\\|"
+                      "FetchResults\\|GetErrMsg\\)(\\|db\\(Connect\\|"
                       "Driver\\|ListConnections\\|GetInfo\\|ListTables\\|"
                       "ListFields\\|GetQuery\\|SendQuery\\|GetException\\|"
                       "ReadTable\\|WriteTable\\|RemoveTable\\|Disconnect\\|"
                       "UnloadDriver\\)(\\)"
                        "\\)"))
-              (:FUN . "[^\s\t]* ?<?-? ?function(")
-              (:VAR . "[^\s\t]+ <- [^\s\t]+")
+              (:FUN . "[^\s\t\n]* ?<?-? ?function(")
+              (:VAR . "[^\s\t\n]+ <- [^\s\t\n]+")
               (:OBJ . (concat
                        "\\(setClass(\\|representation(\\|prototype(\\|"
                        "setIs(\\|setValidity(\\|extends(\\|setAs(\\|"
@@ -556,7 +556,7 @@ regexp and performs an occur-search with it."
                       "Query\\|GetResults\\|Save\\|Update\\|FetchMore\\)"
                       "(\\|odbc\\(Close\\|CloseAll\\|Connect\\|GetInfo\\|"
                       "Query\\|Tables\\|Columns\\|PrimaryKeys\\|"
-                      "FetchResults\\|GetErrMsg\\)(\\|db\\(connect\\|"
+                      "FetchResults\\|GetErrMsg\\)(\\|db\\(Connect\\|"
                       "Driver\\|ListConnections\\|GetInfo\\|ListTables\\|"
                       "ListFields\\|GetQuery\\|SendQuery\\|GetException\\|"
                       "ReadTable\\|WriteTable\\|RemoveTable\\|Disconnect\\|"
@@ -587,19 +587,19 @@ regexp and performs an occur-search with it."
                            "[[:alpha:].:$@]+$[[:alpha:]][[:alpha:].:$@]+\\)"))
               (:varconversion . (concat
                                  "\\("
-                                 "[ (\\[{]as[.(][^ 	(]*(\\|"
-                                 "^as[.(][^ 	(]*(\\)"))
+                                 "[ (\\[{]as[.(][^\s\t\n(]*(\\|"
+                                 "^as[.(][^\s\t\n(]*(\\)"))
               (:varinfo . (concat
                            "\\("
-                           "[ (\\[{]is[.(][^ 	(]*(\\|"
-                           "^is[.(][^ 	(]*(\\|"
+                           "[ (\\[{]is[.(][^\s\t\n(]*(\\|"
+                           "^is[.(][^\s\t\n(]*(\\|"
                            "length(\\|dim(\\|dimnames(\\|nrow(\\|"
                            "ncol(\\|NCOL(\\|class(\\|unclass(\\|"
                            "attr(\\|attributes(\\)"))
               (:dataselection . (concat
                                  "\\("
-                                 "[ (\\[{]na[.(][^ 	(]*(\\|"
-                                 "^na[.(][^ 	(]*(\\|"
+                                 "[ (\\[{]na[.(][^\s\t\n(]*(\\|"
+                                 "^na[.(][^\s\t\n(]*(\\|"
                                  "which[.(]\\|rev(\\|sort(\\|cut(\\|"
                                  "choose(\\|unique(\\\|table(\\|subset(\\"
                                  "sample(\\|prop\\.table(\\]\\)"))
