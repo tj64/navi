@@ -327,6 +327,8 @@ point to original-buffers")
               (:VAR . "v")
               (:OBJ . "x")
               (:DB . "b")
+              (:objects . "X")
+              (:methods . "Y")
               (:inout . "R")
               (:datacreation . "C")
               (:slicing . "[")
@@ -334,9 +336,9 @@ point to original-buffers")
               (:varinfo . "I")
               (:dataselection . "W")
               (:math . "M")
-              (:matrices . "%")
+              (:matrices . "]")
               (:advdataprocessing . "O")
-              (:strings . "\"")
+              (:strings . "_")
               (:datestimes . ":")
               (:plotting . "P")
               (:lowlevelplotting . "L")
@@ -345,7 +347,8 @@ point to original-buffers")
               (:statistics . "S")
               (:distributions . "D")
               (:programming . "{")
-              (:assignment . "=")))
+              (:assignment . "=")
+              (:environment . "U")))
     ("picolisp" . ((:ALL . "a")
                    (:FUN . "f")
                    (:VAR . "v")
@@ -522,14 +525,56 @@ regexp and performs an occur-search with it."
                      (:hook . "-hook-?")
                      (:lambda . "(lambda (")
                      (:require . "^[[:space:]]*([a-z-]*require ")))
-    ("ess" . ((:ALL . "a")
-              (:FUN . "f")
-              (:VAR . "v")
-              (:OBJ . "x")
-              (:DB . "b")
+    ("ess" . ((:ALL . (concat
+                       "\\("
+                       "[^\s\t]* ?<?-? ?function("
+                       "\\|"
+                       "[^\s\t]+ <- [^\s\t]+"
+                       "\\|"
+                       "\\(setClass(\\|representation(\\|prototype(\\|"
+                       "setIs(\\|setValidity(\\|extends(\\|setAs(\\|"
+                       "setGeneric(\\|setMethod(\\|setOldClass(\\)"
+                       "\\|"
+                       "\\(sql\\(Tables\\|Columns\\|PrimaryKeys\\|Fetch\\|"
+                      "Query\\|GetResults\\|Save\\|Update\\|FetchMore\\)"
+                      "(\\|odbc\\(Close\\|CloseAll\\|Connect\\|GetInfo\\|"
+                      "Query\\|Tables\\|Columns\\|PrimaryKeys\\|"
+                      "FetchResults\\|GetErrMsg\\)(\\|db\\(connect\\|"
+                      "Driver\\|ListConnections\\|GetInfo\\|ListTables\\|"
+                      "ListFields\\|GetQuery\\|SendQuery\\|GetException\\|"
+                      "ReadTable\\|WriteTable\\|RemoveTable\\|Disconnect\\|"
+                      "UnloadDriver\\)(\\)"
+                       "\\)"))
+              (:FUN . "[^\s\t]* ?<?-? ?function(")
+              (:VAR . "[^\s\t]+ <- [^\s\t]+")
+              (:OBJ . (concat
+                       "\\(setClass(\\|representation(\\|prototype(\\|"
+                       "setIs(\\|setValidity(\\|extends(\\|setAs(\\|"
+                       "setGeneric(\\|setMethod(\\|setOldClass(\\)"))
+              (:DB . (concat
+                      "\\(sql\\(Tables\\|Columns\\|PrimaryKeys\\|Fetch\\|"
+                      "Query\\|GetResults\\|Save\\|Update\\|FetchMore\\)"
+                      "(\\|odbc\\(Close\\|CloseAll\\|Connect\\|GetInfo\\|"
+                      "Query\\|Tables\\|Columns\\|PrimaryKeys\\|"
+                      "FetchResults\\|GetErrMsg\\)(\\|db\\(connect\\|"
+                      "Driver\\|ListConnections\\|GetInfo\\|ListTables\\|"
+                      "ListFields\\|GetQuery\\|SendQuery\\|GetException\\|"
+                      "ReadTable\\|WriteTable\\|RemoveTable\\|Disconnect\\|"
+                      "UnloadDriver\\)(\\)"))
+              (:methods . (concat
+                           "\\(\\(Use\\|set\\|dump\\|remove\\|get\\|select\\|"
+                           "exists\\|has\\|find\\|show\\|getS3\\)?"
+                           "[mM]ethods?(\\|\\(set\\|is\\|remove\\|get\\)"
+                           "Generics?(\\|isGroup(\\|findFunction(\\|"
+                           "signature(\\)"))
+              (:objects . (concat
+                           "\\(new(\\|initialize(\\|slot(\\|"
+                           "[^[:space:]([{]+@[^[[:space:])}]+\\|"
+                           "[[:space:]([{]is(\\|slotNames(\\|getSlots(\\|"
+                           "[[:space:]([{]class(\\)"))
               (:inout . (concat
-                         "\\(load(\\|read\\.\\|data(\\|library(\\|"
-                         "save[.(]\\|cat(\\|print(\\|format(\\|"
+                         "\\(load(\\|read\\.[^[:space:])[(}{]+(\\|"
+                         "library(\\|save[.(]\\|cat(\\|print(\\|format(\\|"
                          "write\.table(\\|sink(\\)"))
               (:datacreation . (concat
                                 "\\(c(\\|[[:digit:]]+:[[:digit:]]+\\|"
@@ -538,23 +583,23 @@ regexp and performs an occur-search with it."
                                 "expand\\.grid(\\|rbind(\\|cbind(\\)"))
               (:slicing . (concat
                            "\\([[:alpha:].:$@]+\\[[^]]+\\]\\|"
-                           "[[:alpha:].:$@]+\\[\\[.+\\]\\]\\|"
-                           "[[:alpha:].:$@]+$[[:alpha:].:$@]+\\)"))
+                           "[[:alpha:].:$@]+\\[\\[[^]]+\\]\\]\\|"
+                           "[[:alpha:].:$@]+$[[:alpha:]][[:alpha:].:$@]+\\)"))
               (:varconversion . (concat
                                  "\\("
-                                 "[ (\\[{]as[.(]\\|"
-                                 "^as[.(]\\)"))
+                                 "[ (\\[{]as[.(][^ 	(]*(\\|"
+                                 "^as[.(][^ 	(]*(\\)"))
               (:varinfo . (concat
                            "\\("
-                           "[ (\\[{]is[.(]\\|"
-                           "^is[.(]\\|"
+                           "[ (\\[{]is[.(][^ 	(]*(\\|"
+                           "^is[.(][^ 	(]*(\\|"
                            "length(\\|dim(\\|dimnames(\\|nrow(\\|"
                            "ncol(\\|NCOL(\\|class(\\|unclass(\\|"
                            "attr(\\|attributes(\\)"))
               (:dataselection . (concat
                                  "\\("
-                                 "[ (\\[{]na[.(]\\|"
-                                 "^na[.(]\\|"
+                                 "[ (\\[{]na[.(][^ 	(]*(\\|"
+                                 "^na[.(][^ 	(]*(\\|"
                                  "which[.(]\\|rev(\\|sort(\\|cut(\\|"
                                  "choose(\\|unique(\\\|table(\\|subset(\\"
                                  "sample(\\|prop\\.table(\\]\\)"))
@@ -574,7 +619,7 @@ regexp and performs an occur-search with it."
                             "colsum(\\|rowMeans(\\|colMeans(\\|rowSums(\\|"
                             "%\\*%\\)"))
               (:advdataprocessing . (concat
-                                     "\\([slt]?apply(\\|by(\\|merge(\\|"
+                                     "\\([lstv]?apply(\\|by(\\|merge(\\|"
                                      "xtabs(\\|aggregate(\\|stack(\\|"
                                      "unstack(\\|reshape(\\)"))
               (:strings . (concat
@@ -586,15 +631,16 @@ regexp and performs an occur-search with it."
                               "\\(as\\.Date(\\|as\\.POSIXct(\\|"
                               "format(\\|difftime(\\)"))
               (:plotting . (concat
-                            "\\([a-z.]*plot\\.?[a-z.]*(\\|hist(\\|(\\|"
+                            "\\([a-z.]*plot\\.?[a-z.]*(\\|hist(\\|"
                             "dotchart(\\|pie(\\|pairs(\\|qqnorm(\\|"
                             "[a-z.]*contour(\\|image(\\|persp(\\|"
                             "stars(\\|symbols(\\)"))
               (:lowlevelplotting . (concat
                                     "\\(points(\\|lines(\\|[m]?text(\\|"
-                                    "segments(\\|arrows(\\|abline(\\|rect(\\|"
-                                    "polygon(\\|legend(\\|title(\\|axis(\\|"
-                                    "rug(\\|locator(\\|par(\\)"))
+                                    "segments(\\|arrows(\\|abline(\\|"
+                                    "[ \t(\\[{]rect(\\|polygon(\\|legend(\\|"
+                                    "title(\\|axis(\\|rug(\\|locator(\\|"
+                                    "^rect(\\|par(\\)"))
               (:trellisgraphics . (concat
                                    "\\(xyplot(\\|barchart(\\|dotplot(\\|"
                                    "densityplot(\\|histogram(\\|bwplot(\\|"
@@ -608,7 +654,7 @@ regexp and performs an occur-search with it."
                                 "deviance(\\|logLik(\\)"))
               (:statistics . "\\(aov(\\|anova(\\|density(\\|[a-z.]*test(\\)")
               (:distributions . (concat
-                                 "[rdpq]"
+                                 "\\([ \t(\\[{][rdpq]\\|^[rdpq]\\)"
                                  "\\(norm(\\|exp(\\|gamma(\\|pois(\\|"
                                  "weibull(\\|cauchy(\\\|beta(\\|t(\\|f(\\|"
                                  "chisq(\\|binom(\\|geom(\\|hyper(\\|"
@@ -616,7 +662,13 @@ regexp and performs an occur-search with it."
                                  "wilcox(\\)"))
               ;; makes no sense to search for ifs and loops
               (:programming . "\\(function(\\|return(\\)")
-              (:assignment . "\\( ?<- ?\\| = \\)")))
+              (:assignment . " ?<- ?")
+              (:environment . (concat
+                            "\\(assign(\\|get(\\|exists(\\|objects(\\|"
+                            "remove(\\|rm(\\|search(\\|searchpaths(\\|"
+                            "attach(\\|detach(\\|emptyenv(\\|parent\\.env(\\|"
+                            "baseenv(\\|globalenv(\\|environment(\\|"
+                            "new\\.env(\\|\\.GlobalEnv\\)"))))
     ("picolisp" . ((:de . "^[[:space:]]*(de ")
                    (:def . "^[[:space:]]*(def ")
                    (:class . "^[[:space:]]*(class ")
