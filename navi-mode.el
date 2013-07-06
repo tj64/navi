@@ -314,6 +314,7 @@ point to original-buffers")
                      (:defmarcro . "M")
                      (:defface . "D")
                      (:defstruct . "S")
+                     (:defsubst . "B")
                      (:defclass . "L")
                      (:global-set-key . "K")
                      (:add-to-list . "T")
@@ -506,7 +507,7 @@ regexp and performs an occur-search with it."
   '(("emacs-lisp" . ((:ALL . "^[[:space:]]*(def[a-z]+ ")
                      (:OBJ . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
                      (:VAR . "^[[:space:]]*(def[vcgf][^l][a-z]+ ")
-                     (:FUN . "^[[:space:]]*(def[mau][^e][a-z]* ")
+                     (:FUN . "^[[:space:]]*(def[maus][^et][a-z]* ")
                      (:defun . "^[[:space:]]*(defun ")
                      (:defvar . "^[[:space:]]*(defvar ")
                      (:defconst . "^[[:space:]]*(defconst ")
@@ -516,6 +517,7 @@ regexp and performs an occur-search with it."
                      (:defmarcro . "^[[:space:]]*(defmacro ")
                      (:defface . "^[[:space:]]*(defface ")
                      (:defstruct . "^[[:space:]]*(defstruct ")
+                     (:defsubst . "^[[:space:]]*(defsubst ")
                      (:defclass . "^[[:space:]]*(defclass ")
                      (:defmethod . "^[[:space:]]*(defmethod ")
                      (:global-set-key . "^[[:space:]]*(global-set-key ")
@@ -638,7 +640,7 @@ regexp and performs an occur-search with it."
               (:lowlevelplotting . (concat
                                     "\\(points(\\|lines(\\|[m]?text(\\|"
                                     "segments(\\|arrows(\\|abline(\\|"
-                                    "[ \t(\\[{]rect(\\|polygon(\\|legend(\\|"
+                                    "[\s\t(\\[{]rect(\\|polygon(\\|legend(\\|"
                                     "title(\\|axis(\\|rug(\\|locator(\\|"
                                     "^rect(\\|par(\\)"))
               (:trellisgraphics . (concat
@@ -654,7 +656,7 @@ regexp and performs an occur-search with it."
                                 "deviance(\\|logLik(\\)"))
               (:statistics . "\\(aov(\\|anova(\\|density(\\|[a-z.]*test(\\)")
               (:distributions . (concat
-                                 "\\([ \t(\\[{][rdpq]\\|^[rdpq]\\)"
+                                 "\\([\s\t(\\[{][rdpq]\\|^[rdpq]\\)"
                                  "\\(norm(\\|exp(\\|gamma(\\|pois(\\|"
                                  "weibull(\\|cauchy(\\\|beta(\\|t(\\|f(\\|"
                                  "chisq(\\|binom(\\|geom(\\|hyper(\\|"
@@ -665,7 +667,7 @@ regexp and performs an occur-search with it."
               (:assignment . " ?<- ?")
               (:environment . (concat
                             "\\(assign(\\|get(\\|exists(\\|objects(\\|"
-                            "remove(\\|rm(\\|search(\\|searchpaths(\\|"
+                            "remove(\\|[\s\t(\\[{]rm(\\|search(\\|searchpaths(\\|"
                             "attach(\\|detach(\\|emptyenv(\\|parent\\.env(\\|"
                             "baseenv(\\|globalenv(\\|environment(\\|"
                             "new\\.env(\\|\\.GlobalEnv\\)"))))
