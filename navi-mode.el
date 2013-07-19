@@ -690,7 +690,7 @@ regexp and performs an occur-search with it."
                    (:prove . "^[[:space:]]*(prove ")
                    (:ALL . (concat
                             "^[[:space:]]*("
-                            "de \\|"
+                            "\\(de \\|"
                             "def \\|"
                             "symbols \\|"
                             "var \\|"
