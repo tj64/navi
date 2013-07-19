@@ -538,14 +538,14 @@ regexp and performs an occur-search with it."
                        "setGeneric(\\|setMethod(\\|setOldClass(\\)"
                        "\\|"
                        "\\(sql\\(Tables\\|Columns\\|PrimaryKeys\\|Fetch\\|"
-                      "Query\\|GetResults\\|Save\\|Update\\|FetchMore\\)"
-                      "(\\|odbc\\(Close\\|CloseAll\\|Connect\\|GetInfo\\|"
-                      "Query\\|Tables\\|Columns\\|PrimaryKeys\\|"
-                      "FetchResults\\|GetErrMsg\\)(\\|db\\(Connect\\|"
-                      "Driver\\|ListConnections\\|GetInfo\\|ListTables\\|"
-                      "ListFields\\|GetQuery\\|SendQuery\\|GetException\\|"
-                      "ReadTable\\|WriteTable\\|RemoveTable\\|Disconnect\\|"
-                      "UnloadDriver\\)(\\)"
+                       "Query\\|GetResults\\|Save\\|Update\\|FetchMore\\)"
+                       "(\\|odbc\\(Close\\|CloseAll\\|Connect\\|GetInfo\\|"
+                       "Query\\|Tables\\|Columns\\|PrimaryKeys\\|"
+                       "FetchResults\\|GetErrMsg\\)(\\|db\\(Connect\\|"
+                       "Driver\\|ListConnections\\|GetInfo\\|ListTables\\|"
+                       "ListFields\\|GetQuery\\|SendQuery\\|GetException\\|"
+                       "ReadTable\\|WriteTable\\|RemoveTable\\|Disconnect\\|"
+                       "UnloadDriver\\)(\\)"
                        "\\)"))
               (:FUN . "[^\s\t\n]* ?<?-? ?function(")
               (:VAR . "[^\s\t\n]+ <- [^\s\t\n]+")
@@ -666,11 +666,11 @@ regexp and performs an occur-search with it."
               (:programming . "\\(function(\\|return(\\)")
               (:assignment . " ?<- ?")
               (:environment . (concat
-                            "\\(assign(\\|get(\\|exists(\\|objects(\\|"
-                            "remove(\\|[\s\t(\\[{]rm(\\|search(\\|searchpaths(\\|"
-                            "attach(\\|detach(\\|emptyenv(\\|parent\\.env(\\|"
-                            "baseenv(\\|globalenv(\\|environment(\\|"
-                            "new\\.env(\\|\\.GlobalEnv\\)"))))
+                               "\\(assign(\\|get(\\|exists(\\|objects(\\|"
+                               "remove(\\|[\s\t(\\[{]rm(\\|search(\\|searchpaths(\\|"
+                               "attach(\\|detach(\\|emptyenv(\\|parent\\.env(\\|"
+                               "baseenv(\\|globalenv(\\|environment(\\|"
+                               "new\\.env(\\|\\.GlobalEnv\\)"))))
     ("picolisp" . ((:de . "^[[:space:]]*(de ")
                    (:def . "^[[:space:]]*(def ")
                    (:class . "^[[:space:]]*(class ")
@@ -688,6 +688,30 @@ regexp and performs an occur-search with it."
                    (:goal . "^[[:space:]]*(goal ")
                    (:be . "^[[:space:]]*(be ")
                    (:prove . "^[[:space:]]*(prove ")
+                   (:ALL . (concat
+                            "^[[:space:]]*("
+                            "de \\|"
+                            "def \\|"
+                            "symbols \\|"
+                            "var \\|"
+                            "class \\|"
+                            "extend \\|"
+                            "dm \\|"
+                            "var \\|"
+                            "rel \\|"
+                            "pool \\|"
+                            "obj \\|"
+                            "object \\|"
+                            "tree \\|"
+                            "new \\|"
+                            "prove \\|"
+                            "clause \\|"
+                            "goal \\|"
+                            "be \\)"))
+                   (:VAR . (concat
+                            "^[[:space:]]*("
+                            "\\(var \\|"
+                            "rel \\)"))
                    (:OBJ . (concat
                             "^[[:space:]]*("
                             "\\(class \\|"
