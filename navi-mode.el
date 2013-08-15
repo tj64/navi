@@ -1,4 +1,5 @@
 ;; * navi-mode.el --- major-mode for easy buffer-navigation
+;; ** MetaData 
 ;;   :PROPERTIES:
 ;;   :copyright: Thorsten Jolitz
 ;;   :copyright-years: 2013
