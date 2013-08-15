@@ -1,5 +1,10 @@
-;; * navi-mode.el --- major-mode for easy buffer-navigation
-;; ** MetaData 
+;;; navi-mode.el --- major-mode for easy buffer-navigation
+
+;; Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
+;; Version: 1.0
+;; URL: https://github.com/tj64/outshine
+
+;;;; MetaData 
 ;;   :PROPERTIES:
 ;;   :copyright: Thorsten Jolitz
 ;;   :copyright-years: 2013
@@ -13,9 +18,17 @@
 ;;   :keywords: emacs keymaps unbound 
 ;;   :END:
 
-;; ** Commentary
+;;;; Commentary
 
-;; *** About navi-mode
+;;;;; About navi-mode
+
+;; [NOTE: For the sake of adding this library to MELPA, headlines had to be
+;; converted back from 'Org-mode style' to 'oldschool', and a few extra lines
+;; of required information had to be added on top of the MetaData section -
+;; just to comply with the required file formatting. All outshine, outorg and
+;; navi-mode functionality still works with this file. See my
+;; [[https://github.com/tj64/iorg][iOrg]] repository for examples of
+;; Emacs-Lisp and PicoLisp files structured 'the outshine way'.]
 
 ;; This file implements extensions for occur-mode. You can think of a
 ;; navi-buffer as a kind of 'remote-control' for an (adecuately)
@@ -31,7 +44,7 @@
 ;; combined, offering a vast amount of possible 'views' on the
 ;; original-buffer.
 
-;; *** Usage
+;;;;; Usage
 
 ;; For `navi-mode' to work, the original-buffer must be outline-structured
 ;; 'the outshine way', i.e. with the headlines being proper Org-mode
@@ -45,7 +58,7 @@
 ;; mark the header line, and apply `comment-region' on it:
 
 ;; ,-----------------------
-;; | ;; *** Third Level Header
+;; | ;;;;; Third Level Header
 ;; `-----------------------
 
 ;; In a LaTeX file, an adecuate header will look like this:
@@ -197,7 +210,7 @@
 ;;  4. type e.g. '2' and 'w' to first reduce the headline levels shown and
 ;;     then widen the buffers again.
 
-;; *** Installation
+;;;;; Installation
 
 ;; Download (or clone the github-repos of) the three required libraries
 
@@ -217,25 +230,25 @@
 
 ;; to your .emacs file. 
 
-;; *** Emacs Version
+;;;;; Emacs Version
 
 ;; `navi-mode.el' works with [GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu, GTK+
 ;; Version 3.6.4) of 2013-01-20 on eric]. No attempts of testing with older
 ;; versions or other types of Emacs have been made (yet).
 
-;; ** ChangeLog
+;;;; ChangeLog
 
 ;; | date            | author(s)       | version |
 ;; |-----------------+-----------------+---------|
 ;; | <2013-05-03 Fr> | Thorsten Jolitz |     1.0 |
 ;; | <2013-03-11 Mo> | Thorsten Jolitz |     0.9 |
 
-;; * Requires
+;;; Requires
 
 (require 'outshine)
 (require 'outorg)
 
-;; * Mode Definitions
+;;; Mode Definitions
 
 (define-derived-mode navi-mode
   occur-mode "Navi"
@@ -266,9 +279,9 @@ To return to ordinary Navi mode, use \\[navi-cease-edit].
 	    "Editing: Type \\[navi-cease-edit] to return to Occur mode.")))
 
  
-;; * Variables
-;; ** Consts
-;; ** Vars
+;;; Variables
+;;;; Consts
+;;;; Vars
 
 (defvar navi-mode-version 1.0
   "Version number of `navi-mode.el'")
@@ -284,21 +297,21 @@ point to original-buffers")
 (defvar navi-regexp-quoted-line-before-narrowing ""
   "Regexp that matched the line at point in navi-buffer before narrowing.")
 
-;; ** Hooks
+;;;; Hooks
 
 ;; (defvar navi-mode-hook nil
 ;;   "Hook run after navi-mode is called.")
 
-;; ** Fonts
-;; ** Customs
-;; *** Custom Groups 
+;;;; Fonts
+;;;; Customs
+;;;;; Custom Groups 
 
 (defgroup navi-mode nil
   "Library for outline navigation and Org-mode editing in Lisp buffers."
   :prefix "navi-"
   :group 'lisp)
 
-;; *** Custom Vars
+;;;;; Custom Vars
 
 (defcustom navi-key-mappings
   '(("emacs-lisp" . ((:ALL . "a")
@@ -844,8 +857,8 @@ selecting the regexp, the value is the regexp itself"
   :type '(alist :key-type string
                 :value-type alist))
 
-;; * Defuns
-;; ** Functions
+;;; Defuns
+;;;; Functions
 
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded.")
@@ -1316,7 +1329,7 @@ Language is derived from major-mode."
 
 ;; (add-to-list 'occur-hook 'navi-rename-buffer)
 
-;; ** Commands
+;;;; Commands
 
 ;; TODO improve orderly exit from `message' buffer via `outorg' buffer and
 ;; `original-buffer' to `navi-buffer', best without showing `outorg'
@@ -1654,8 +1667,8 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
     (message "Only subtrees (or the whole buffer) may be edited via navi-mode"))
   (navi-switch-to-twin-buffer))
 
-;; * Menus and Keys
-;; ** Menus
+;;; Menus and Keys
+;;;; Menus
 
 ;; menu map for navi-mode
 (defvar navi-menu-map
@@ -1852,7 +1865,7 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
   "Menu keymap for `navi-edit-mode'.")
 
 
-;; ** Keys
+;;;; Keys
 
 ;; key-bindings for user-defined occur-searches
 ;; see `navi-key-mappings' and `navi-keywords'.
@@ -1945,11 +1958,11 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-edit-mode-map [menu-bar navi-edit]
  (cons (purecopy "Navi-Edit") navi-edit-menu-map))
 
-;; * Run Hooks and Provide
+;;; Run Hooks and Provide
 
 ;; (add-to-list 'navi-mode-hook 'navi-mode-hook-function)
 ;; (run-mode-hooks)
 
 (provide 'navi-mode)
 
-;; navi-mode.el ends here
+;;; navi-mode.el ends here
