@@ -785,7 +785,9 @@ regexp and performs an occur-search with it."
               (:priority . ".*?\\(\\[#\\([A-Z0-9]\\)\\] ?\\)")
               (:radiotarget . "<<<\\([^<>\n\r]+\\)>>>")
               (:target . "<<\\([^<>\n\r]+\\)>>")
-              (:propertydrawer . "^[ \t]*:PROPERTIES:[ \t]*$")
+              (:propertydrawer
+               . (concat "\\(^[\\s\\t]*:PROPERTIES:[\\s\\t]*$\\)[^\\000]*?"
+                         "\\(^[\\s\\t]*:END:[\\s\\t]*?$\\)"))
               (:timestamp
                . (concat "<\\([0-9]\\{4\\}-[0-9]\\{2\\}"
                          "-[0-9]\\{2\\} ?[^\r\n>]*?\\)>"))
