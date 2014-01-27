@@ -325,6 +325,7 @@ point to original-buffers")
                      (:defgroup . "G")
                      (:defcustom . "U")
                      (:defadvice . "A")
+                     (:defalias . "W")
                      (:defmarcro . "M")
                      (:defface . "D")
                      (:defstruct . "S")
@@ -523,13 +524,15 @@ regexp and performs an occur-search with it."
   '(("emacs-lisp" . ((:ALL . "^[[:space:]]*(def[a-z]+ ")
                      (:OBJ . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
                      (:VAR . "^[[:space:]]*(def[vcgf][^l][a-z]+ ")
-                     (:FUN . "^[[:space:]]*(def[maus][^et][a-z]*\\*? ")
+                     (:FUN
+		      . "^[[:space:]]*(def[maus][^elt][a-z]*\\*? ")
                      (:defun . "^[[:space:]]*(defun\\*? ")
                      (:defvar . "^[[:space:]]*(defvar ")
                      (:defconst . "^[[:space:]]*(defconst ")
                      (:defgroup . "^[[:space:]]*(defgroup ")
                      (:defcustom . "^[[:space:]]*(defcustom ")
                      (:defadvice . "^[[:space:]]*(defadvice ")
+                     (:defalias . "^[[:space:]]*(defalias ")
                      (:defmarcro . "^[[:space:]]*(defmacro ")
                      (:defface . "^[[:space:]]*(defface ")
                      (:defstruct . "^[[:space:]]*(defstruct ")
@@ -1102,7 +1105,7 @@ the original-buffer shown in the occur-search results."
           (car (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS)))))
   (concat buf-name "-marker")))
 
-(defun navi-get-twin-buffer-markers ()
+ (defun navi-get-twin-buffer-markers ()
   "Return list with two markers pointing to buffer-twins or nil.
 CAR of the return-list is always the marker pointing to
  current-buffer, CDR the marker pointing to its twin-buffer."
