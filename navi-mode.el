@@ -141,18 +141,19 @@
 
 ;; 6. Miscancellous actions on subtrees
 
-;; | key | command                    | function-name                     |
-;; |-----+----------------------------+-----------------------------------|
-;; | m   | mark subtree               | navi-mark-subtree-and-switch      |
-;; | c   | copy subtree               | navi-copy-subtree-to-register-s   |
-;; | k   | kill subtree               | navi-kill-subtree                 |
-;; | y   | yank killed/copied subtree | navi-yank-subtree-from-register-s |
-;; | u   | undo last change           | navi-undo                         |
-;; | r   | narrow to subtree          | navi-narrow-to-subtree            |
-;; | w   | widen                      | navi-widen                        |
-;; | l   | query-replace              | navi-query-replace                |
-;; | i   | isearch                    | navi-isearch                      |
-;; | e   | edit as org (outorg)       | navi-edit-as-org                  |
+;; | key | command                    | function-name                            |
+;; |-----+----------------------------+------------------------------------------|
+;; | m   | mark thing at point        | navi-mark-thing-at-point-and-switch      |
+;; | c   | copy thing at point        | navi-copy-thing-at-point-to-register-s   |
+;; | k   | kill thing at point        | navi-kill-thing-at-point                 |
+;; | y   | yank killed/copied thing   | navi-yank-thing-at-point-from-register-s |
+;; | u   | undo last change           | navi-undo                                |
+;; | r   | narrow to thing at point   | navi-narrow-to-thing-at-point            |
+;; | w   | widen                      | navi-widen                               |
+;; | l   | query-replace              | navi-query-replace                       |
+;; | i   | isearch                    | navi-isearch                             |
+;; | e   | edit as org (outorg)       | navi-edit-as-org                         |
+;; | .   | call fun on thing at point | navi-act-on-thing-at-point               |
 
 ;; 7. Furthermore, there are five (semantically) predefined keyword-searches:
 
@@ -1105,7 +1106,7 @@ the original-buffer shown in the occur-search results."
           (car (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS)))))
   (concat buf-name "-marker")))
 
- (defun navi-get-twin-buffer-markers ()
+(defun navi-get-twin-buffer-markers ()
   "Return list with two markers pointing to buffer-twins or nil.
 CAR of the return-list is always the marker pointing to
  current-buffer, CDR the marker pointing to its twin-buffer."
@@ -1462,41 +1463,99 @@ Language is derived from major-mode."
         (navi-show-keywords keystrg))
        (t nil)))))
 
-(defun navi-mark-subtree-and-switch ()
-  "Mark subtree at point in original-buffer."
+;; (defun navi-mark-subtree-and-switch()
+;;   "Mark subtree at point in original-buffer."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (outline-mark-subtree)
+;;       (message "Only subtrees may be marked via navi-mode")))
+
+;; ;; FIXME deactivates region - workaround?
+;; ;; (navi-switch-to-twin-buffer)) 
+
+(defun navi-mark-thing-at-point-and-switch ()
+  "Mark thing at point in original-buffer."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
       (outline-mark-subtree)
-      (message "Only subtrees may be marked via navi-mode")))
-  ;; (navi-switch-to-twin-buffer)) ; FIXME deactivates region - workaround?
+    (mark-sexp)))
 
-(defun navi-copy-subtree-to-register-s ()
-  "Copy subtree at point in original-buffer."
-  (interactive)
+;; (defun navi-copy-subtree-to-register-s ()
+;;   "Copy subtree at point in original-buffer."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (progn
+;;         (outline-mark-subtree)
+;;         (and
+;;          (use-region-p)
+;;          (copy-to-register ?s (region-beginning) (region-end)))
+;;         (deactivate-mark))
+;;     (message "Only subtrees may be copied via navi-mode"))
+;;   (navi-switch-to-twin-buffer))
+
+(defun navi-act-on-thing-at-point (Fun)
+  "Mark thing at point in original-buffer and apply FUN.
+
+Makes sense only for functions that use the active region (sexp
+or subtree) and act on them without the need for further
+arguments."
+  (interactive "aFunction: ")
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (progn
-        (outline-mark-subtree)
-        (and
-         (use-region-p)
-         (copy-to-register ?s (region-beginning) (region-end)))
-        (deactivate-mark))
-    (message "Only subtrees may be copied via navi-mode"))
+      (outline-mark-subtree)
+    (mark-sexp))
+  (and
+   (use-region-p)
+   (progn
+     (funcall Fun)
+     (deactivate-mark)))
   (navi-switch-to-twin-buffer))
 
-(defun navi-narrow-to-subtree ()
-  "Narrow original buffer to subtree at point."
+(defun navi-copy-thing-at-point-to-register-s ()
+  "Copy thing at point in original-buffer."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (progn
-        (outline-mark-subtree)
-        (and
-         (use-region-p)
-         (narrow-to-region (region-beginning) (region-end)))
-        (deactivate-mark))
-    (message "Navi-mode can only narrow to subtrees"))
+      (outline-mark-subtree)
+    (mark-sexp))
+  (and
+   (use-region-p)
+   (progn
+     (copy-to-register ?s (region-beginning) (region-end))
+     (deactivate-mark)))
+  (navi-switch-to-twin-buffer))
+
+;; (defun navi-narrow-to-subtree ()
+;;   "Narrow original buffer to subtree at point."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (progn
+;;         (outline-mark-subtree)
+;;         (and
+;;          (use-region-p)
+;;          (narrow-to-region (region-beginning) (region-end)))
+;;         (deactivate-mark))
+;;     (message "Navi-mode can only narrow to subtrees"))
+;;   (setq navi-regexp-quoted-line-before-narrowing
+;;         navi-regexp-quoted-line-at-point)
+;;   (navi-switch-to-twin-buffer))
+
+(defun navi-narrow-to-thing-at-point ()
+  "Narrow original buffer to thing at point."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-mark-subtree)
+    (mark-sexp))
+  (and
+   (use-region-p)
+   (progn
+     (narrow-to-region (region-beginning) (region-end))
+     (deactivate-mark)))
   (setq navi-regexp-quoted-line-before-narrowing
         navi-regexp-quoted-line-at-point)
   (navi-switch-to-twin-buffer))
@@ -1512,20 +1571,20 @@ Language is derived from major-mode."
   (goto-char
    (navi-search-less-or-equal-line-number)))
 
-(defun navi-kill-subtree ()
-  "Kill subtree at point in original-buffer."
+(defun navi-kill-thing-at-point ()
+  "Kill thing at point in original-buffer."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (progn
-        (outline-mark-subtree)
-        (and
-         (use-region-p)
-         (and (y-or-n-p
-               "Really kill this subtree in the original-buffer ")
-              (copy-to-register ?s (region-beginning) (region-end) 'DELETE-FLAG)))
-        (deactivate-mark))
-    (message "Only subtrees may be killed via navi-mode"))
+      (outline-mark-subtree)
+    (mark-sexp))
+  (and
+   (use-region-p)
+   (and (y-or-n-p
+	 "Really kill the marked region in the original-buffer ")
+	(copy-to-register
+	 ?s (region-beginning) (region-end) 'DELETE-FLAG)))
+  (deactivate-mark)
   (navi-switch-to-twin-buffer))
 
 (defun navi-undo ()
@@ -1535,47 +1594,96 @@ Language is derived from major-mode."
   (undo)
   (navi-switch-to-twin-buffer))
 
-(defun navi-yank-subtree-from-register-s ()
+
+;; (defun navi-yank-subtree-from-register-s ()
+;;   "Yank in original-buffer."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (and
+;;        (outline-on-heading-p)
+;;        (get-register ?s))
+;;       (progn
+;;         (newline)
+;;         (forward-line -1)
+;;         (insert-register ?s))
+;;     (message "Not on subtree-heading or no subtree to yank."))
+;;   (navi-switch-to-twin-buffer))
+
+(defun navi-yank-thing-from-register-s ()
   "Yank in original-buffer."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (and
-       (outline-on-heading-p)
+       (or
+	(outline-on-heading-p)
+	(sexp-at-point))
        (get-register ?s))
       (progn
         (newline)
         (forward-line -1)
         (insert-register ?s))
-    (message "Not on subtree-heading or no subtree to yank."))
+    (message "Not on subtree/sexp or no subtree to yank."))
   (navi-switch-to-twin-buffer))
+
+
+;; (defun navi-query-replace ()
+;;   "Call `query-replace' interactively on subtree at point."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (progn
+;;         (outline-mark-subtree)
+;;         (and
+;;          (use-region-p)
+;;          (call-interactively 'query-replace))
+;;         (deactivate-mark))
+;;     (message "Navi-mode can perform query-replace only on subtrees"))
+;;   (navi-switch-to-twin-buffer))
 
 (defun navi-query-replace ()
-  "Call `query-replace' interactively on subtree at point."
+  "Call `query-replace' interactively on thing at point."
   (interactive)
   (navi-goto-occurrence-other-window)
   (if (outline-on-heading-p)
-      (progn
-        (outline-mark-subtree)
-        (and
-         (use-region-p)
-         (call-interactively 'query-replace))
-        (deactivate-mark))
-    (message "Navi-mode can perform query-replace only on subtrees"))
+      (outline-mark-subtree)
+    (mark-sexp))
+  (and
+   (use-region-p)
+   (progn
+     (call-interactively 'query-replace)
+     (deactivate-mark)))
   (navi-switch-to-twin-buffer))
 
+;; (defun navi-isearch ()
+;;   "Call `isearch' interactively on subtree at point."
+;;   (interactive)
+;;   (navi-goto-occurrence-other-window)
+;;   (if (outline-on-heading-p)
+;;       (save-restriction
+;;         (outline-mark-subtree)
+;;         (and
+;;          (use-region-p)
+;;          (narrow-to-region (region-beginning) (region-end)))
+;;         (deactivate-mark)
+;;         (isearch-mode t nil nil t nil))
+;;     (message "Navi-mode can perform isearches only on subtrees"))
+;;   (navi-switch-to-twin-buffer))
+
+
 (defun navi-isearch ()
-  "Call `isearch' interactively on subtree at point."
+  "Call `isearch' interactively on thing at point."
   (interactive)
   (navi-goto-occurrence-other-window)
-  (if (outline-on-heading-p)
-      (save-restriction
+  (save-restriction
+    (if (outline-on-heading-p)
         (outline-mark-subtree)
-        (and
-         (use-region-p)
-         (narrow-to-region (region-beginning) (region-end)))
-        (deactivate-mark)
-        (isearch-mode t nil nil t nil))
-    (message "Navi-mode can perform isearches only on subtrees"))
+      (mark-sexp))
+    (and
+     (use-region-p)
+     (progn
+       (narrow-to-region (region-beginning) (region-end))
+       (deactivate-mark)))
+    (isearch-mode t nil nil t nil))
   (navi-switch-to-twin-buffer))
 
 (defun navi-demote-subtree ()
@@ -1726,45 +1834,49 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 
     (define-key map [separator-7] menu-bar-separator)
      (define-key map [navi-query-replace]
-      `(menu-item ,(purecopy "Query-Replace in Subtree")
+      `(menu-item ,(purecopy "Query-Replace in thing-at-point")
       navi-query-replace :help ,(purecopy "Do a query-replace in
-      subtree at point")))
+      thing at point")))
      (define-key map [navi-isearch]
-      `(menu-item ,(purecopy "iSearch in Subtree")
-      navi-isearch :help ,(purecopy "Do an isearch in subtree at point")))
+      `(menu-item ,(purecopy "iSearch in thing-at-point")
+      navi-isearch :help ,(purecopy "Do an isearch in thing at point")))
 
     (define-key map [separator-6] menu-bar-separator)
      (define-key map [navi-widen]
       `(menu-item ,(purecopy "Widen Original Buffer")
       navi-widen  :help ,(purecopy "Widen original-buffer")))
-     (define-key map [navi-narrow-to-subtree]
-      `(menu-item ,(purecopy "Narrow to Subtree")
-      navi-narrow-to-subtree
+     (define-key map [navi-narrow-to-thing-at-point]
+      `(menu-item ,(purecopy "Narrow to thing-at-point")
+      navi-narrow-to-thing-at-point
 		  :help ,(purecopy "Narrow original-buffer to
-		  subtree at point")))
+		  thing at point")))
 
     (define-key map [separator-5] menu-bar-separator)
      (define-key map [navi-mail-subtree]
       `(menu-item ,(purecopy "Mail Subtree")
       navi-mail-subtree
 		  :help ,(purecopy "Mail subtree at point")))
-     (define-key map [navi-yank-subtree-from-register-s]
-      `(menu-item ,(purecopy "Yank Subtree")
-      navi-yank-subtree-from-register-s
-		  :help ,(purecopy "Yank (killed/copied) subtree
+     (define-key map [navi-yank-thing-from-register-s]
+      `(menu-item ,(purecopy "Yank killed/copied thing")
+      navi-yank-thing-from-register-s
+		  :help ,(purecopy "Yank (killed/copied) thing
 		  from register s")))
-     (define-key map [navi-kill-subtree]
-      `(menu-item ,(purecopy "Kill Subtree")
-      navi-kill-subtree
-		  :help ,(purecopy "Kill subtree at point (y-or-n-p)")))
-     (define-key map [navi-copy-subtree-to-register-s]
-      `(menu-item ,(purecopy "Copy Subtree")
-      navi-copy-subtree-to-register-s
-		  :help ,(purecopy "Copy subtree at point to register s")))
-     (define-key map [navi-mark-subtree-and-switch]
-      `(menu-item ,(purecopy "Mark Subtree")
-      navi-mark-subtree-and-switch
-		  :help ,(purecopy "Mark subtree at point and switch to
+     (define-key map [navi-kill-thing-at-point]
+      `(menu-item ,(purecopy "Kill thing-at-point")
+      navi-kill-thing-at-point
+		  :help ,(purecopy "Kill thing at point (y-or-n-p)")))
+     (define-key map [navi-copy-thing-at-point-to-register-s]
+      `(menu-item ,(purecopy "Copy thing-at-point")
+      navi-copy-thing-at-point-to-register-s
+		  :help ,(purecopy "Copy thing at point to register s")))
+     (define-key map [navi-act-on-thing-at-point]
+      `(menu-item ,(purecopy "Act on thing-at-point")
+      navi-act-on-thing-at-point
+		  :help ,(purecopy "Act on thing at point")))
+     (define-key map [navi-mark-thing-at-point-and-switch]
+      `(menu-item ,(purecopy "Mark thing-at-point")
+      navi-mark-thing-at-point-and-switch
+		  :help ,(purecopy "Mark thing at point and switch to
      original buffer")))
 
     (define-key map [separator-4] menu-bar-separator)
@@ -1925,15 +2037,19 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-mode-map (kbd "DEL") 'scroll-down-command)
 (define-key navi-mode-map (kbd "TAB") 'navi-cycle-subtree)
 (define-key navi-mode-map (kbd "<backtab>") 'navi-cycle-buffer)
-(define-key navi-mode-map (kbd "m") 'navi-mark-subtree-and-switch)
-(define-key navi-mode-map (kbd "c") 'navi-copy-subtree-to-register-s)
+(define-key navi-mode-map (kbd "m")
+  'navi-mark-thing-at-point-and-switch)
+(define-key navi-mode-map (kbd "c")
+  'navi-copy-thing-at-point-to-register-s)
+(define-key navi-mode-map (kbd ".")
+  'navi-act-on-thing-at-point)
 (define-key navi-mode-map (kbd "z") 'navi-mail-subtree)
-(define-key navi-mode-map (kbd "r") 'navi-narrow-to-subtree)
+(define-key navi-mode-map (kbd "r") 'navi-narrow-to-thing-at-point)
 (define-key navi-mode-map (kbd "w") 'navi-widen)
 (define-key navi-mode-map (kbd "l") 'navi-query-replace)
 (define-key navi-mode-map (kbd "i") 'navi-isearch)
-(define-key navi-mode-map (kbd "k") 'navi-kill-subtree)
-(define-key navi-mode-map (kbd "y") 'navi-yank-subtree-from-register-s)
+(define-key navi-mode-map (kbd "k") 'navi-kill-thing-at-point)
+(define-key navi-mode-map (kbd "y") 'navi-yank-thing-from-register-s)
 (define-key navi-mode-map (kbd "u") 'navi-undo)
 (define-key navi-mode-map (kbd "e") 'navi-edit-as-org)
 (define-key navi-mode-map (kbd "E") 'navi-edit-mode)
