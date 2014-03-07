@@ -2089,8 +2089,8 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-mode-map (kbd "g") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
 ;; TODO define navi command that scroll twin-buffer
-(define-key navi-mode-map (kbd ".") 'scroll-other-window-down)
-(define-key navi-mode-map (kbd ":") 'scroll-other-window)
+(define-key navi-mode-map (kbd ":") 'scroll-other-window-down)
+(define-key navi-mode-map (kbd ".") 'scroll-other-window)
 
 ;; menu for navi-mode
 (define-key navi-mode-map [menu-bar navi]
