@@ -1630,7 +1630,10 @@ arguments."
   (if (and
        (or
 	(outline-on-heading-p)
-	(sexp-at-point))
+	(progn
+	  (end-of-sexp)
+	  (beginning-of-sexp)
+	  (sexp-at-point)))
        (get-register ?s))
       (progn
         (newline)
