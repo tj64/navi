@@ -1639,7 +1639,7 @@ arguments."
         (newline)
         (forward-line -1)
         (insert-register ?s))
-    (message "Not on subtree/sexp or no subtree to yank."))
+    (message "Not on subtree/sexp or nothing to yank."))
   (navi-switch-to-twin-buffer))
 
 
@@ -1988,6 +1988,16 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
     (define-key map [scroll-down-command]
       `(menu-item ,(purecopy "Move Page down") scroll-down-command
 		  :help ,(purecopy "Move 1 page down in buffer")))
+    (define-key map [scroll-other-window-up]
+      `(menu-item ,(purecopy "Move Page up (other window)")
+		  scroll-other-window-up
+		  :help
+		  ,(purecopy "Move 1 page up in other window")))
+    (define-key map [scroll-other-window]
+      `(menu-item ,(purecopy "Move Page down (other window)")
+		  scroll-other-window
+		  :help
+		  ,(purecopy "Move 1 page down in other window")))
     (define-key map [occur-next]
       `(menu-item ,(purecopy "Move to Next Match") occur-next
 		  :help ,(purecopy "Move to the Nth (default 1)
@@ -2078,6 +2088,10 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-mode-map (kbd "<") 'navi-move-down-subtree)
 (define-key navi-mode-map (kbd "g") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
+;; TODO define navi command that scroll twin-buffer
+(define-key navi-mode-map (kbd ".") 'scroll-other-window-down)
+(define-key navi-mode-map (kbd ":") 'scroll-other-window)
+
 ;; menu for navi-mode
 (define-key navi-mode-map [menu-bar navi]
   (cons (purecopy "Navi") navi-menu-map))
