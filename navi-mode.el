@@ -247,7 +247,8 @@
 ;;; Requires
 
 (require 'outshine)
-;; (require 'outorg)
+;; making outorg a soft dependency
+(require 'outorg nil 'NOERROR)
 
 ;;; Mode Definitions
 
