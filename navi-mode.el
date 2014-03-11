@@ -4,7 +4,7 @@
 ;; Version: 1.0
 ;; URL: https://github.com/tj64/outshine
 
-;;;; MetaData 
+;;;; MetaData
 ;;   :PROPERTIES:
 ;;   :copyright: Thorsten Jolitz
 ;;   :copyright-years: 2013
@@ -15,7 +15,7 @@
 ;;   :author: Thorsten Jolitz
 ;;   :author_email: tjolitz AT gmail DOT com
 ;;   :inspiration:  occur-mode org-mode
-;;   :keywords: emacs keymaps unbound 
+;;   :keywords: emacs keymaps unbound
 ;;   :END:
 
 ;;;; Commentary
@@ -229,7 +229,7 @@
 ;; ;;  (require 'navi-mode)
 ;; ;; #+end_src
 
-;; to your .emacs file. 
+;; to your .emacs file.
 
 ;;;;; Emacs Version
 
@@ -247,7 +247,7 @@
 ;;; Requires
 
 (require 'outshine)
-(require 'outorg)
+;; (require 'outorg)
 
 ;;; Mode Definitions
 
@@ -277,9 +277,9 @@ To return to ordinary Navi mode, use \\[navi-cease-edit].
   (setq buffer-read-only nil)
   (add-hook 'after-change-functions 'occur-after-change-function nil t)
   (message (substitute-command-keys
-	    "Editing: Type \\[navi-cease-edit] to return to Occur mode.")))
+            "Editing: Type \\[navi-cease-edit] to return to Occur mode.")))
 
- 
+
 ;;; Variables
 ;;;; Consts
 ;;;; Vars
@@ -305,7 +305,7 @@ point to original-buffers")
 
 ;;;; Fonts
 ;;;; Customs
-;;;;; Custom Groups 
+;;;;; Custom Groups
 
 (defgroup navi-mode nil
   "Library for outline navigation and Org-mode editing in Lisp buffers."
@@ -491,7 +491,7 @@ necessary.
 
 Defining occur-searches for a programming language is a two-step
 process:
- 
+
  1. Customize `navi-key-mappings', i.e. add a new language-alist
     and populate it with pairs of keyword-symbols (that should
     represent the language keywords searched for) and ASCII
@@ -533,7 +533,7 @@ regexp and performs an occur-search with it."
                      (:OBJ . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
                      (:VAR . "^[[:space:]]*(def[vcgf][^l][a-z]+ ")
                      (:FUN
-		      . "^[[:space:]]*(def[maus][^elt][a-z]*\\*? ")
+                      . "^[[:space:]]*(def[maus][^elt][a-z]*\\*? ")
                      (:defun . "^[[:space:]]*(defun\\*? ")
                      (:defvar . "^[[:space:]]*(defvar ")
                      (:defconst . "^[[:space:]]*(defconst ")
@@ -834,8 +834,8 @@ regexp and performs an occur-search with it."
                   "^#\\+\\(CATEGORY\\|TODO\\|COLUMNS\\|STARTUP\\|ARCHIVE\\|"
                   "LINK\\|PRIORITIES\\|CONSTANTS\\|PROPERTY\\|DRAWERS\\|"
                   "SETUPFILE\\|OPTIONS\\|\\(?:[a-zA-Z][0-9a-zA-Z_]*_TODO\\)"
-                  "\\):[ 	]*\\(.*\\)"))
-              (:drawer . "^[ 	]*:\\(PROPERTIES\\|LOGBOOK\\):[ 	]*$")
+                  "\\):[        ]*\\(.*\\)"))
+              (:drawer . "^[    ]*:\\(PROPERTIES\\|LOGBOOK\\):[         ]*$")
               (:deadline . "\\<\\(DEADLINE:\\).*")
               (:scheduled-time-hour
                . "\\<SCHEDULED: *<\\(.+[0-9]\\{1,2\\}:[0-9]\\{2\\}[^>]*\\)>")
@@ -910,14 +910,14 @@ selecting the regexp, the value is the regexp itself"
   (unless buf-name
     (setq buf-name "*Navi*"))
   (let (occur-buf
-	(active-bufs (delq nil (mapcar #'(lambda (buf)
-					   (when (buffer-live-p buf) buf))
-				       bufs))))
+        (active-bufs (delq nil (mapcar #'(lambda (buf)
+                                           (when (buffer-live-p buf) buf))
+                                       bufs))))
     ;; Handle the case where one of the buffers we're searching is the
     ;; output buffer.  Just rename it.
     (when (member buf-name (mapcar 'buffer-name active-bufs))
       (with-current-buffer (get-buffer buf-name)
-	(rename-uniquely)))
+        (rename-uniquely)))
 
     ;; Now find or create the output buffer.
     ;; If we just renamed that buffer, we will make a new one here.
@@ -926,53 +926,53 @@ selecting the regexp, the value is the regexp itself"
     (with-temp-buffer
       (setq navi-tmp-buffer-marker (point-marker))
       (if (stringp nlines)
-	  (fundamental-mode) ;; This is for collect operation.
+          (fundamental-mode) ;; This is for collect operation.
         (navi-mode))
       (let ((inhibit-read-only t)
-	    ;; Don't generate undo entries for creation of the initial contents.
-	    (buffer-undo-list t))
-	(let ((count
-	       (if (stringp nlines)
+            ;; Don't generate undo entries for creation of the initial contents.
+            (buffer-undo-list t))
+        (let ((count
+               (if (stringp nlines)
                    ;; Treat nlines as a regexp to collect.
-		   (let ((bufs active-bufs)
-			 (count 0))
-		     (while bufs
-		       (with-current-buffer (car bufs)
-			 (save-excursion
-			   (goto-char (point-min))
-			   (while (re-search-forward regexp nil t)
+                   (let ((bufs active-bufs)
+                         (count 0))
+                     (while bufs
+                       (with-current-buffer (car bufs)
+                         (save-excursion
+                           (goto-char (point-min))
+                           (while (re-search-forward regexp nil t)
                              ;; Insert the replacement regexp.
-			     (let ((str (match-substitute-replacement nlines)))
-			       (if str
-				   (with-current-buffer
+                             (let ((str (match-substitute-replacement nlines)))
+                               (if str
+                                   (with-current-buffer
                                        (marker-buffer navi-tmp-buffer-marker)
-				     (insert str)
-				     (setq count (1+ count))
-				     (or (zerop (current-column))
-					 (insert "\n"))))))))
+                                     (insert str)
+                                     (setq count (1+ count))
+                                     (or (zerop (current-column))
+                                         (insert "\n"))))))))
                        (setq bufs (cdr bufs)))
                      count)
-		 ;; Perform normal occur.
-		 (occur-engine
-		  regexp active-bufs (marker-buffer navi-tmp-buffer-marker)
-		  (or nlines list-matching-lines-default-context-lines)
-		  (if (and case-fold-search search-upper-case)
-		      (isearch-no-upper-case-p regexp t)
-		    case-fold-search)
-		  list-matching-lines-buffer-name-face
-		  nil list-matching-lines-face
-		  (not (eq occur-excluded-properties t))))))
-	  (let* ((bufcount (length active-bufs))
-		 (diff (- (length bufs) bufcount)))
-	    (message "Searched %d buffer%s%s; %s match%s%s"
-		     bufcount (if (= bufcount 1) "" "s")
-		     (if (zerop diff) "" (format " (%d killed)" diff))
-		     (if (zerop count) "no" (format "%d" count))
-		     (if (= count 1) "" "es")
-		     ;; Don't display regexp if with remaining text
-		     ;; it is longer than window-width.
-		     (if (> (+ (length regexp) 42) (window-width))
-			 "" (format " for `%s'" (query-replace-descr regexp)))))
+                 ;; Perform normal occur.
+                 (occur-engine
+                  regexp active-bufs (marker-buffer navi-tmp-buffer-marker)
+                  (or nlines list-matching-lines-default-context-lines)
+                  (if (and case-fold-search search-upper-case)
+                      (isearch-no-upper-case-p regexp t)
+                    case-fold-search)
+                  list-matching-lines-buffer-name-face
+                  nil list-matching-lines-face
+                  (not (eq occur-excluded-properties t))))))
+          (let* ((bufcount (length active-bufs))
+                 (diff (- (length bufs) bufcount)))
+            (message "Searched %d buffer%s%s; %s match%s%s"
+                     bufcount (if (= bufcount 1) "" "s")
+                     (if (zerop diff) "" (format " (%d killed)" diff))
+                     (if (zerop count) "no" (format "%d" count))
+                     (if (= count 1) "" "es")
+                     ;; Don't display regexp if with remaining text
+                     ;; it is longer than window-width.
+                     (if (> (+ (length regexp) 42) (window-width))
+                         "" (format " for `%s'" (query-replace-descr regexp)))))
           (if (= count 0)
               nil
             (with-current-buffer occur-buf
@@ -990,9 +990,9 @@ selecting the regexp, the value is the regexp itself"
 
 (defun non-empty-string-p (str)
   "Return t if function argument STR is a string of length > 0, nil otherwise."
- (if (and (stringp str) (> (length str) 0))
-     str
-   nil))
+  (if (and (stringp str) (> (length str) 0))
+      str
+    nil))
 
 (defun navi-get-regexp (language key)
   "Return the value of KEY for LANGUAGE in `navi-keywords'."
@@ -1001,9 +1001,9 @@ selecting the regexp, the value is the regexp itself"
       (progn
         (message
          (format "%s%s%s"
-          "Language "
-          language
-          " not registered in 'navi-keywords'"))
+                 "Language "
+                 language
+                 " not registered in 'navi-keywords'"))
         nil)
     (let* ((result (assoc key (cdr (assoc language navi-keywords))))
            (rgxp  (and result (cdr result))))
@@ -1030,12 +1030,12 @@ The regexps are given as the list of strings RGXPS."
   "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'.
 If MAPPINGS is non-nil, return the alist with key-mappings from
 `navi-key-mappings' instead."
-(let ((custom-alist (if MAPPINGS navi-key-mappings navi-keywords)))
-  (if (not (and (non-empty-string-p language)
-                (assoc language custom-alist)))
-      (message "Language not registered in customizable variable `%s'"
-                (symbol-name custom-alist))
-    (cdr (assoc language custom-alist)))))
+  (let ((custom-alist (if MAPPINGS navi-key-mappings navi-keywords)))
+    (if (not (and (non-empty-string-p language)
+                  (assoc language custom-alist)))
+        (message "Language not registered in customizable variable `%s'"
+                 (symbol-name custom-alist))
+      (cdr (assoc language custom-alist)))))
 
 (defun navi-set-regexp-quoted-line-at-point ()
   "Set `navi-regexp-quoted-line-at-point' to the value calculated by
@@ -1052,7 +1052,7 @@ Leading and trailing whitespace is deleted."
    (outshine-chomp
     (substring-no-properties
      (buffer-string) (point-at-bol) (point-at-eol)))))
-  ;; (format "%s" navi-regexp-quoted-line-at-point))
+;; (format "%s" navi-regexp-quoted-line-at-point))
 
 (defun navi-get-line-number-from-regexp-quoted-line-at-point (rgxp)
   "Return as Integer the line number in regexp-quoted-line-at-point."
@@ -1090,7 +1090,7 @@ the original-buffer shown in the occur-search results."
                            (re-search-forward
                             (concat "^[[:space:]]*"
                                     line-num-str
-                                    ":") 
+                                    ":")
                             nil 'NO-ERROR))))
           (goto-char (point-min))
           (setq line-num (1- line-num))
@@ -1111,14 +1111,14 @@ the original-buffer shown in the occur-search results."
               (file-name-sans-extension
                (mapconcat 'identity split-str ""))
             (file-name-sans-extension (car split-str)))))
-  (intern (concat ":" buf-name))))
+    (intern (concat ":" buf-name))))
 
 (defun navi-make-marker-name (&optional buf)
   "Return marker-name by expansion of (current) buffer-name or string BUF."
   (let ((buf-name
          (file-name-sans-extension
           (car (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS)))))
-  (concat buf-name "-marker")))
+    (concat buf-name "-marker")))
 
 (defun navi-get-twin-buffer-markers ()
   "Return list with two markers pointing to buffer-twins or nil.
@@ -1249,11 +1249,11 @@ in non-nil, only headers of level LEVEL are shown."
                 (<= level 8)))
       (error "Level must be an integer between 1 and 8")
     (let ((headline-string
-            (car
-             (rassoc
-              level
-              (or org-promo-headers
-                  outline-promotion-headings)))))
+           (car
+            (rassoc
+             level
+             (or org-promo-headers
+                 outline-promotion-headings)))))
       (concat
        "^"
        (if NO-PARENT-LEVELS
@@ -1353,18 +1353,19 @@ Language is derived from major-mode."
 
 ;; TODO improve orderly exit from `message' buffer via `outorg' buffer and
 ;; `original-buffer' to `navi-buffer', best without showing `outorg'
-;; and `original' buffer to the user (not critical). 
-(defun navi-mail-subtree ()
-  "Send subtree at point as email."
-  (interactive)
-  (navi-goto-occurrence-other-window)
-  (if (outline-on-heading-p)
-      (outorg-edit-as-org)
-    (message "Only subtrees be send as email via navi-mode"))
-  (with-current-buffer
-      (get-buffer "*outorg-edit-buffer*")
-    (org-mark-subtree)
-    (org-mime-subtree)))
+;; and `original' buffer to the user (not critical).
+(eval-after-load 'outorg
+  '(defun navi-mail-subtree ()
+     "Send subtree at point as email."
+     (interactive)
+     (navi-goto-occurrence-other-window)
+     (if (outline-on-heading-p)
+         (outorg-edit-as-org)
+       (message "Only subtrees be send as email via navi-mode"))
+     (with-current-buffer
+         (get-buffer "*outorg-edit-buffer*")
+       (org-mark-subtree)
+       (org-mime-subtree))))
 
 (defun navi-cease-edit ()
   "Switch from Navi Edit mode to Navi mode."
@@ -1388,7 +1389,7 @@ Language is derived from major-mode."
         (orig-buffer-mode major-mode))
     ;; (with-current-buffer (marker-buffer (car buf-markers)) major-mode)))
     (if (and
-         buf-markers 
+         buf-markers
          (buffer-live-p (marker-buffer (car buf-markers)))
          (buffer-live-p (marker-buffer (cadr buf-markers))))
         (navi-switch-to-twin-buffer)
@@ -1444,16 +1445,16 @@ Language is derived from major-mode."
   (interactive)
   (let ((navi-revert-arguments
          (if regexp
-            (append
-             (list regexp) (cdr occur-revert-arguments))
+             (append
+              (list regexp) (cdr occur-revert-arguments))
            occur-revert-arguments)))
     (navi-set-regexp-quoted-line-at-point)
     (apply 'navi-1 (append navi-revert-arguments (list (buffer-name))))
     ;; FIXME redundant with navi-1 instead of occur-1?
     (unless
         (eq major-mode 'navi-mode) (navi-mode))
-    (goto-char 
-      (navi-search-less-or-equal-line-number))))
+    (goto-char
+     (navi-search-less-or-equal-line-number))))
 
 ;; this command executes all user-defined occur-searches
 (defun navi-generic-command (key prefix)
@@ -1486,7 +1487,7 @@ Language is derived from major-mode."
 ;;       (message "Only subtrees may be marked via navi-mode")))
 
 ;; ;; FIXME deactivates region - workaround?
-;; ;; (navi-switch-to-twin-buffer)) 
+;; ;; (navi-switch-to-twin-buffer))
 
 (defun navi-mark-thing-at-point-and-switch ()
   "Mark thing at point in original-buffer."
@@ -1595,9 +1596,9 @@ arguments."
   (and
    (use-region-p)
    (and (y-or-n-p
-	 "Really kill the marked region in the original-buffer ")
-	(copy-to-register
-	 ?s (region-beginning) (region-end) 'DELETE-FLAG)))
+         "Really kill the marked region in the original-buffer ")
+        (copy-to-register
+         ?s (region-beginning) (region-end) 'DELETE-FLAG)))
   (deactivate-mark)
   (navi-switch-to-twin-buffer))
 
@@ -1629,11 +1630,11 @@ arguments."
   (navi-goto-occurrence-other-window)
   (if (and
        (or
-	(outline-on-heading-p)
-	(progn
-	  (end-of-sexp)
-	  (beginning-of-sexp)
-	  (sexp-at-point)))
+        (outline-on-heading-p)
+        (progn
+          (end-of-sexp)
+          (beginning-of-sexp)
+          (sexp-at-point)))
        (get-register ?s))
       (progn
         (newline)
@@ -1785,17 +1786,20 @@ arguments."
   (outline-cycle '(4))
   (navi-switch-to-twin-buffer))
 
-(defun navi-edit-as-org (&optional args)
-  "Edit subtree at point (or whole buffer if ARGS are given) with `outorg'.
-Editing takes place in a separate temporary Org-mode edit-buffer."
-  (interactive "P")
-  (navi-goto-occurrence-other-window)
-  (if (outline-on-heading-p)
-      (if args
-          (outorg-edit-as-org args)
-        (outorg-edit-as-org))
-    (message "Only subtrees (or the whole buffer) may be edited via navi-mode"))
-  (navi-switch-to-twin-buffer))
+(eval-after-load 'outorg
+  '(defun navi-edit-as-org (&optional args)
+     "Edit subtree at point with `outorg'.
+
+Edit whole buffer if ARGS are given. Editing takes place in a
+separate temporary Org-mode edit-buffer."
+     (interactive "P")
+     (navi-goto-occurrence-other-window)
+     (if (outline-on-heading-p)
+         (if args
+             (outorg-edit-as-org args)
+           (outorg-edit-as-org))
+       (message "Only subtrees (or the whole buffer) may be edited via navi-mode"))
+     (navi-switch-to-twin-buffer)))
 
 ;;; Menus and Keys
 ;;;; Menus
@@ -1805,154 +1809,154 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
   (let ((map (make-sparse-keymap)))
     (define-key map [next-error-follow-minor-mode]
       `(menu-item ,(purecopy "Auto Occurrence Display")
-		  next-error-follow-minor-mode
-		  :help ,(purecopy
-			  "Display another occurrence when moving the cursor")
-		  :button (:toggle . (and (boundp 'next-error-follow-minor-mode)
-					  next-error-follow-minor-mode))))
+                  next-error-follow-minor-mode
+                  :help ,(purecopy
+                          "Display another occurrence when moving the cursor")
+                  :button (:toggle . (and (boundp 'next-error-follow-minor-mode)
+                                          next-error-follow-minor-mode))))
 
     (define-key map [separator-11] menu-bar-separator)
     (define-key map [navi-quit-and-switch]
       `(menu-item ,(purecopy "Quit")
-      navi-quit-and-switch :help ,(purecopy "Quit navi-buffer and switch to
-    original-buffer"))) 
+                  navi-quit-and-switch :help ,(purecopy "Quit navi-buffer and switch to
+    original-buffer")))
 
     (define-key map [separator-10] menu-bar-separator)
     (define-key map [kill-this-buffer]
       `(menu-item ,(purecopy "Kill Navi Buffer") kill-this-buffer
-		  :help ,(purecopy "Kill the current *Navi* buffer")))
+                  :help ,(purecopy "Kill the current *Navi* buffer")))
     (define-key map [clone-buffer]
       `(menu-item ,(purecopy "Clone Navi Buffer") clone-buffer
-		  :help ,(purecopy "Create and return a twin copy
-		  of the current *Navi* buffer")))
+                  :help ,(purecopy "Create and return a twin copy
+                  of the current *Navi* buffer")))
 
     (define-key map [separator-9] menu-bar-separator)
     (define-key map [navi-show-help]
       `(menu-item ,(purecopy "Show Help")
-      navi-show-help :help ,(purecopy "Show help for keyword queries. Use
+                  navi-show-help :help ,(purecopy "Show help for keyword queries. Use
       \\[describe-mode] to see all navi-mode keybindings.")))
-     (define-key map [navi-revert-function]
+    (define-key map [navi-revert-function]
       `(menu-item ,(purecopy "Revert Navi Buffer")
-      navi-revert-function :help ,(purecopy "Revert
+                  navi-revert-function :help ,(purecopy "Revert
       navi-buffer (seldom necessary)")))
-     (define-key map [navi-undo]
+    (define-key map [navi-undo]
       `(menu-item ,(purecopy "Undo Last Change")
-      navi-undo :help ,(purecopy "Undo last change in original-buffer")))
+                  navi-undo :help ,(purecopy "Undo last change in original-buffer")))
 
     (define-key map [separator-8] menu-bar-separator)
-     (define-key map [navi-edit-mode]
+    (define-key map [navi-edit-mode]
       `(menu-item ,(purecopy "Make Navi-Buffer Editable")
-      navi-edit-mode :help ,(purecopy "Make navi-buffer editable and apply
+                  navi-edit-mode :help ,(purecopy "Make navi-buffer editable and apply
      changes to original-buffer")))
-     (define-key map [navi-edit-as-org]
+    (define-key map [navi-edit-as-org]
       `(menu-item ,(purecopy "Edit Subtree in Org-mode")
-      navi-edit-as-org :help ,(purecopy "Edit Subtree at point in temporary
+                  navi-edit-as-org :help ,(purecopy "Edit Subtree at point in temporary
      Org-mode edit buffer")))
 
     (define-key map [separator-7] menu-bar-separator)
-     (define-key map [navi-query-replace]
+    (define-key map [navi-query-replace]
       `(menu-item ,(purecopy "Query-Replace in thing-at-point")
-      navi-query-replace :help ,(purecopy "Do a query-replace in
+                  navi-query-replace :help ,(purecopy "Do a query-replace in
       thing at point")))
-     (define-key map [navi-isearch]
+    (define-key map [navi-isearch]
       `(menu-item ,(purecopy "iSearch in thing-at-point")
-      navi-isearch :help ,(purecopy "Do an isearch in thing at point")))
+                  navi-isearch :help ,(purecopy "Do an isearch in thing at point")))
 
     (define-key map [separator-6] menu-bar-separator)
-     (define-key map [navi-widen]
+    (define-key map [navi-widen]
       `(menu-item ,(purecopy "Widen Original Buffer")
-      navi-widen  :help ,(purecopy "Widen original-buffer")))
-     (define-key map [navi-narrow-to-thing-at-point]
+                  navi-widen  :help ,(purecopy "Widen original-buffer")))
+    (define-key map [navi-narrow-to-thing-at-point]
       `(menu-item ,(purecopy "Narrow to thing-at-point")
-      navi-narrow-to-thing-at-point
-		  :help ,(purecopy "Narrow original-buffer to
-		  thing at point")))
+                  navi-narrow-to-thing-at-point
+                  :help ,(purecopy "Narrow original-buffer to
+                  thing at point")))
 
     (define-key map [separator-5] menu-bar-separator)
-     (define-key map [navi-mail-subtree]
+    (define-key map [navi-mail-subtree]
       `(menu-item ,(purecopy "Mail Subtree")
-      navi-mail-subtree
-		  :help ,(purecopy "Mail subtree at point")))
-     (define-key map [navi-yank-thing-from-register-s]
+                  navi-mail-subtree
+                  :help ,(purecopy "Mail subtree at point")))
+    (define-key map [navi-yank-thing-from-register-s]
       `(menu-item ,(purecopy "Yank killed/copied thing")
-      navi-yank-thing-from-register-s
-		  :help ,(purecopy "Yank (killed/copied) thing
-		  from register s")))
-     (define-key map [navi-kill-thing-at-point]
+                  navi-yank-thing-from-register-s
+                  :help ,(purecopy "Yank (killed/copied) thing
+                  from register s")))
+    (define-key map [navi-kill-thing-at-point]
       `(menu-item ,(purecopy "Kill thing-at-point")
-      navi-kill-thing-at-point
-		  :help ,(purecopy "Kill thing at point (y-or-n-p)")))
-     (define-key map [navi-copy-thing-at-point-to-register-s]
+                  navi-kill-thing-at-point
+                  :help ,(purecopy "Kill thing at point (y-or-n-p)")))
+    (define-key map [navi-copy-thing-at-point-to-register-s]
       `(menu-item ,(purecopy "Copy thing-at-point")
-      navi-copy-thing-at-point-to-register-s
-		  :help ,(purecopy "Copy thing at point to register s")))
-     (define-key map [navi-act-on-thing-at-point]
+                  navi-copy-thing-at-point-to-register-s
+                  :help ,(purecopy "Copy thing at point to register s")))
+    (define-key map [navi-act-on-thing-at-point]
       `(menu-item ,(purecopy "Act on thing-at-point")
-      navi-act-on-thing-at-point
-		  :help ,(purecopy "Act on thing at point")))
-     (define-key map [navi-mark-thing-at-point-and-switch]
+                  navi-act-on-thing-at-point
+                  :help ,(purecopy "Act on thing at point")))
+    (define-key map [navi-mark-thing-at-point-and-switch]
       `(menu-item ,(purecopy "Mark thing-at-point")
-      navi-mark-thing-at-point-and-switch
-		  :help ,(purecopy "Mark thing at point and switch to
+                  navi-mark-thing-at-point-and-switch
+                  :help ,(purecopy "Mark thing at point and switch to
      original buffer")))
 
     (define-key map [separator-4] menu-bar-separator)
-     (define-key map [navi-move-up-subtree]
+    (define-key map [navi-move-up-subtree]
       `(menu-item ,(purecopy "Move Up Subtree")
-      navi-move-up-subtree
-		  :help ,(purecopy "Move subtree at point up 1 position")))
-     (define-key map [navi-move-down-subtree]
+                  navi-move-up-subtree
+                  :help ,(purecopy "Move subtree at point up 1 position")))
+    (define-key map [navi-move-down-subtree]
       `(menu-item ,(purecopy "Move Down Subtree")
-      navi-move-down-subtree
-		  :help ,(purecopy "Move subtree at point down 1 position")))
+                  navi-move-down-subtree
+                  :help ,(purecopy "Move subtree at point down 1 position")))
     (define-key map [navi-demote-subtree]
       `(menu-item ,(purecopy "Demote Subtree")
-      navi-demote-subtree
-		  :help ,(purecopy "Demote subtree at point")))
+                  navi-demote-subtree
+                  :help ,(purecopy "Demote subtree at point")))
     (define-key map [navi-promote-subtree]
       `(menu-item ,(purecopy "Promote Subtree")
-      navi-promote-subtree
-		  :help ,(purecopy "Promote subtree at point")))
+                  navi-promote-subtree
+                  :help ,(purecopy "Promote subtree at point")))
     (define-key map [navi-cycle-buffer]
       `(menu-item ,(purecopy "Cycle Buffer")
-      navi-cycle-buffer
-		  :help ,(purecopy "Cycle visibility of original buffer")))
+                  navi-cycle-buffer
+                  :help ,(purecopy "Cycle visibility of original buffer")))
     (define-key map [navi-cycle-subtree]
       `(menu-item ,(purecopy "Cycle Subtree")
-      navi-cycle-subtree
-		  :help ,(purecopy "Cycle visibility of subtree at point")))
+                  navi-cycle-subtree
+                  :help ,(purecopy "Cycle visibility of subtree at point")))
 
 
     (define-key map [separator-3] menu-bar-separator)
     (define-key map [navi-switch-to-twin-buffer]
       `(menu-item ,(purecopy "Switch to Twin Buffer")
-      navi-switch-to-twin-buffer
-		  :help ,(purecopy "Go to the associated twin buffer")))
+                  navi-switch-to-twin-buffer
+                  :help ,(purecopy "Go to the associated twin buffer")))
     (define-key map [navi-goto-occurrence-other-window]
       `(menu-item ,(purecopy "Go To Occurrence Other Window")
-      navi-goto-occurrence-other-window
-		  :help ,(purecopy "Go to the occurrence the
-		  current line describes, in another window")))
+                  navi-goto-occurrence-other-window
+                  :help ,(purecopy "Go to the occurrence the
+                  current line describes, in another window")))
     (define-key map [occur-mode-display-occurrence]
       `(menu-item ,(purecopy "Display Occurrence")
-      occur-mode-display-occurrence
-		  :help ,(purecopy "Display in another window the
-		  occurrence the current line describes")))
+                  occur-mode-display-occurrence
+                  :help ,(purecopy "Display in another window the
+                  occurrence the current line describes")))
 
     (define-key map [separator-2] menu-bar-separator)
     (define-key map [scroll-up-command]
       `(menu-item ,(purecopy "Move Page up") scroll-up-command
-		  :help ,(purecopy "Move 1 page up in buffer")))
+                  :help ,(purecopy "Move 1 page up in buffer")))
     (define-key map [scroll-down-command]
       `(menu-item ,(purecopy "Move Page down") scroll-down-command
-		  :help ,(purecopy "Move 1 page down in buffer")))
+                  :help ,(purecopy "Move 1 page down in buffer")))
     (define-key map [occur-next]
       `(menu-item ,(purecopy "Move to Next Match") occur-next
-		  :help ,(purecopy "Move to the Nth (default 1)
-		  next match in a Navi-mode buffer")))
+                  :help ,(purecopy "Move to the Nth (default 1)
+                  next match in a Navi-mode buffer")))
     (define-key map [occur-prev]
       `(menu-item ,(purecopy "Move to Previous Match") occur-prev
-		  :help ,(purecopy "Move to the Nth (default 1)
+                  :help ,(purecopy "Move to the Nth (default 1)
     previous match in a Navi-mode buffer"))) map)
   "Menu keymap for `navi-mode'.")
 
@@ -1962,49 +1966,49 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
   (let ((map (make-sparse-keymap)))
     (define-key map [next-error-follow-minor-mode]
       `(menu-item ,(purecopy "Auto Occurrence Display")
-		  next-error-follow-minor-mode
-		  :help ,(purecopy
-			  "Display another occurrence when moving the cursor")
-		  :button (:toggle . (and (boundp 'next-error-follow-minor-mode)
-					  next-error-follow-minor-mode))))
+                  next-error-follow-minor-mode
+                  :help ,(purecopy
+                          "Display another occurrence when moving the cursor")
+                  :button (:toggle . (and (boundp 'next-error-follow-minor-mode)
+                                          next-error-follow-minor-mode))))
 
     (define-key map [separator-4] menu-bar-separator)
     (define-key map [navi-cease-edit]
       `(menu-item ,(purecopy "Cease Edit")
-      navi-cease-edit :help ,(purecopy "Cease editing in navi-edit-mode and
+                  navi-cease-edit :help ,(purecopy "Cease editing in navi-edit-mode and
     return to (read-only) navi-mode")))
 
     (define-key map [separator-3] menu-bar-separator)
     (define-key map [occur-mode-display-occurrence]
       `(menu-item ,(purecopy "Display Occurrence")
-      occur-mode-display-occurrence
-		  :help ,(purecopy "Display in another window the
-		  occurrence the current line describes")))
+                  occur-mode-display-occurrence
+                  :help ,(purecopy "Display in another window the
+                  occurrence the current line describes")))
 
     (define-key map [separator-2] menu-bar-separator)
     (define-key map [scroll-up-command]
       `(menu-item ,(purecopy "Move Page up") scroll-up-command
-		  :help ,(purecopy "Move 1 page up in buffer")))
+                  :help ,(purecopy "Move 1 page up in buffer")))
     (define-key map [scroll-down-command]
       `(menu-item ,(purecopy "Move Page down") scroll-down-command
-		  :help ,(purecopy "Move 1 page down in buffer")))
+                  :help ,(purecopy "Move 1 page down in buffer")))
     (define-key map [scroll-other-window-up]
       `(menu-item ,(purecopy "Move Page up (other window)")
-		  scroll-other-window-up
-		  :help
-		  ,(purecopy "Move 1 page up in other window")))
+                  scroll-other-window-up
+                  :help
+                  ,(purecopy "Move 1 page up in other window")))
     (define-key map [scroll-other-window]
       `(menu-item ,(purecopy "Move Page down (other window)")
-		  scroll-other-window
-		  :help
-		  ,(purecopy "Move 1 page down in other window")))
+                  scroll-other-window
+                  :help
+                  ,(purecopy "Move 1 page down in other window")))
     (define-key map [occur-next]
       `(menu-item ,(purecopy "Move to Next Match") occur-next
-		  :help ,(purecopy "Move to the Nth (default 1)
-		  next match in a Navi-mode buffer")))
+                  :help ,(purecopy "Move to the Nth (default 1)
+                  next match in a Navi-mode buffer")))
     (define-key map [occur-prev]
       `(menu-item ,(purecopy "Move to Previous Match") occur-prev
-		  :help ,(purecopy "Move to the Nth (default 1)
+                  :help ,(purecopy "Move to the Nth (default 1)
     previous match in a Navi-mode buffer"))) map)
   "Menu keymap for `navi-edit-mode'.")
 
@@ -2043,12 +2047,12 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
           (define-key navi-mode-map (format "%c" key)
             'navi-generic-command))
       ;; all ascii printing chars
-      (let ((num-seq (number-sequence 32 127))) 
+      (let ((num-seq (number-sequence 32 127)))
         (mapc #'(lambda (num)
                   (setq num-seq (delq num num-seq)))
-              ;; reserved keys defined elsewhere 
+              ;; reserved keys defined elsewhere
               '(32 43 45 60 69 94 99 100 101 103 104 107 108 109
-              110 111 112 113 114 115 117 119 121 122 127)) num-seq))
+                   110 111 112 113 114 115 117 119 121 122 127)) num-seq))
 
 ;; global keys for (original) twin-buffer of navi-buffer
 (global-set-key (kbd "M-s n") 'navi-search-and-switch)
@@ -2069,7 +2073,7 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
   'navi-mark-thing-at-point-and-switch)
 (define-key navi-mode-map (kbd "c")
   'navi-copy-thing-at-point-to-register-s)
-(define-key navi-mode-map (kbd ".")
+(define-key navi-mode-map (kbd ",")
   'navi-act-on-thing-at-point)
 (define-key navi-mode-map (kbd "z") 'navi-mail-subtree)
 (define-key navi-mode-map (kbd "r") 'navi-narrow-to-thing-at-point)
@@ -2088,7 +2092,7 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-mode-map (kbd "<") 'navi-move-down-subtree)
 (define-key navi-mode-map (kbd "g") 'navi-revert-function)
 (define-key navi-mode-map (kbd "q") 'navi-quit-and-switch)
-;; TODO define navi command that scroll twin-buffer
+;; TODO define navi command that scrolls twin-buffer
 (define-key navi-mode-map (kbd ":") 'scroll-other-window-down)
 (define-key navi-mode-map (kbd ".") 'scroll-other-window)
 
@@ -2109,7 +2113,7 @@ Editing takes place in a separate temporary Org-mode edit-buffer."
 (define-key navi-edit-mode-map [menu-bar navi] nil)
 (define-key navi-edit-mode-map [menu-bar occur] nil)
 (define-key navi-edit-mode-map [menu-bar navi-edit]
- (cons (purecopy "Navi-Edit") navi-edit-menu-map))
+  (cons (purecopy "Navi-Edit") navi-edit-menu-map))
 
 ;;; Run Hooks and Provide
 
