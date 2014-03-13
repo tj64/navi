@@ -1512,23 +1512,40 @@ Language is derived from major-mode."
 ;;     (message "Only subtrees may be copied via navi-mode"))
 ;;   (navi-switch-to-twin-buffer))
 
-(defun navi-act-on-thing-at-point (Fun)
-  "Mark thing at point in original-buffer and apply FUN.
+(defun navi-act-on-thing-at-point (&optional arg)
+  "Call a function with function arguments on thing-at-point.
 
-Makes sense only for functions that use the active region (sexp
-or subtree) and act on them without the need for further
-arguments."
-  (interactive "aFunction: ")
+Makes sense only for functions that don't need an active region
+\(ARG is nil\) or that take start and end region markers as first
+arguments \(ARG is non-nil\). In both cases, a list of
+more \(optional\) function arguments can be given \(see
+`navi-act-on-thing'\)."
+  (interactive "P")
   (navi-goto-occurrence-other-window)
-  (if (outline-on-heading-p)
-      (outline-mark-subtree)
-    (mark-sexp))
-  (and
-   (use-region-p)
-   (progn
-     (funcall Fun)
-     (deactivate-mark)))
+  (if arg
+      (progn
+	(deactivate-mark)
+	(call-interactively 'navi-act-on-thing))
+    (if (outline-on-heading-p)
+	(outline-mark-subtree)
+      (mark-sexp))
+    (if (not (use-region-p))
+	(error "No active region")
+      (call-interactively 'navi-act-on-thing)
+      (deactivate-mark)))
   (navi-switch-to-twin-buffer))
+
+(defun navi-act-on-thing (fun &optional funargs start end)
+  "Call FUN with FUNARGS on thing or region \(from START to END\)."
+  (interactive "aFunction: \nxArgument List (arg1 ... argN): \nr")
+  (if (and start end (use-region-p))
+      (if funargs
+	  (funcall fun start end funargs)
+	(funcall fun start end))	
+    (if funargs
+	(funcall fun funargs)
+      (funcall fun))))
+  
 
 (defun navi-copy-thing-at-point-to-register-s ()
   "Copy thing at point in original-buffer."
