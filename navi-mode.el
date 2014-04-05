@@ -341,6 +341,7 @@ point to original-buffers")
                      (:add-hook . "H")
                      (:hook . "O")
                      (:lambda . "X")
+                     (:ert . "Z")
                      (:require . "R")))
     ("ess" . ((:ALL . "a")
               (:FUN . "f")
@@ -556,6 +557,7 @@ regexp and performs an occur-search with it."
                      (:add-hook . "^[[:space:]]*(add-hook ")
                      (:hook . "-hook-?")
                      (:lambda . "(lambda (")
+                     (:ert . "^[[:space:]]*(ert-")
                      (:require . "^[[:space:]]*([a-z-]*require ")))
     ("ess" . ((:ALL . (concat
                        "\\("
