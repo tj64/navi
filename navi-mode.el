@@ -7,13 +7,15 @@
 ;;;; MetaData
 ;;   :PROPERTIES:
 ;;   :copyright: Thorsten Jolitz
-;;   :copyright-years: 2013
+;;   :copyright-years: 2013+
 ;;   :version:  1.0
 ;;   :licence:  GPL 2 or later (free software)
 ;;   :licence-url: http://www.gnu.org/licenses/
 ;;   :part-of-emacs: no
 ;;   :author: Thorsten Jolitz
 ;;   :author_email: tjolitz AT gmail DOT com
+;;   :git-repo: https://github.com/tj64/navi.git
+;;   :git-clone: git://github.com/tj64/navi.git
 ;;   :inspiration:  occur-mode org-mode
 ;;   :keywords: emacs keymaps unbound
 ;;   :END:
@@ -22,27 +24,28 @@
 
 ;;;;; About navi-mode
 
-;; [NOTE: For the sake of adding this library to MELPA, headlines had to be
-;; converted back from 'Org-mode style' to 'oldschool', and a few extra lines
-;; of required information had to be added on top of the MetaData section -
-;; just to comply with the required file formatting. All outshine, outorg and
-;; navi-mode functionality still works with this file. See my
-;; [[https://github.com/tj64/iorg][iOrg]] repository for examples of
+;; [NOTE: For the sake of adding this library to MELPA, headlines had to
+;; be converted back from 'Org-mode style' to 'oldschool', and a few
+;; extra lines of required information had to be added on top of the
+;; MetaData section - just to comply with the required file
+;; formatting. All outshine, outorg and navi-mode functionality still
+;; works with this file. See my [[https://github.com/tj64/iorg][iOrg]] repository for examples of
 ;; Emacs-Lisp and PicoLisp files structured 'the outshine way'.]
 
 ;; This file implements extensions for occur-mode. You can think of a
 ;; navi-buffer as a kind of 'remote-control' for an (adecuately)
-;; outline-structured original-buffer. It enables quick navigation and basic
-;; structure editing in the original-buffer without (necessarily) leaving the
-;; navi-buffer. When switching to the original-buffer and coming back after
-;; some modifications, the navi-buffer is always reverted (thus up-to-date).
+;; outline-structured original-buffer. It enables quick navigation and
+;; basic structure editing in the original-buffer without (necessarily)
+;; leaving the navi-buffer. When switching to the original-buffer and
+;; coming back after some modifications, the navi-buffer is always
+;; reverted (thus up-to-date).
 
-;; Besides the fundamental outline-heading-searches (8 outline-levels) and the
-;; 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL), all languages
-;; can have their own set of searches and keybindings (see `navi-key-mappings'
-;; and `navi-keywords'). Heading-searches and keyword-searches can be
-;; combined, offering a vast amount of possible 'views' on the
-;; original-buffer.
+;; Besides the fundamental outline-heading-searches (8 outline-levels)
+;; and the 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL), all
+;; languages can have their own set of searches and keybindings (see
+;; `navi-key-mappings' and `navi-keywords'). Heading-searches and
+;; keyword-searches can be combined, offering a vast amount of possible
+;; 'views' on the original-buffer.
 
 ;;;;; Usage
 
@@ -51,53 +54,54 @@
 ;; headlines, marked and outcommented with `comment-region'. As an example, to
 ;; generate a 3rd level outshine-headline in an Emacs Lisp file, write down
 
-;; ,-----------------------
-;; | *** Third Level Header
-;; `-----------------------
+;; #+begin_example
+;;  *** Third Level Header
+;; #+end_example
 
 ;; mark the header line, and apply `comment-region' on it:
 
-;; ,-----------------------
-;; | ;;;;; Third Level Header
-;; `-----------------------
+;; #+begin_example
+;;  ;;;;; Third Level Header
+;; #+end_example
 
 ;; In a LaTeX file, an adecuate header will look like this:
 
-;; ,-----------------------
-;; | % *** Third Level Header
-;; `-----------------------
+;; #+begin_example
+;;  % *** Third Level Header
+;; #+end_example
 
 ;; and in a PicoLisp file like this (always depending of the major-mode specific
 ;; values of `comment-start', `comment-end', `comment-add' and
 ;; `comment-padding'):
 
-;; ,-----------------------
-;; | ## *** Third Level Header
-;; `-----------------------
+;; #+begin_example
+;;  ## *** Third Level Header
+;; #+end_example
 
 ;; The second assumption is that `outline-minor-mode' is activated in the
-;; original-buffer and `outshine.el' loaded like described in its installation
-;; instructions, i.e.
+;; original-buffer and `outshine.el' loaded like described in its
+;; installation instructions, i.e.
 
-;; # #+begin_src emacs-lisp
-;; #   (require 'outshine)
-;; #   (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
-;; # #+end_src
+;; #+begin_example
+;;    (require 'outshine)
+;;    (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+;; #+end_example
 
-;; When these pre-conditions are fullfilled (`outorg.el' must be loaded too),
-;; you can use 'M-s n' (`navi-search-and-switch') to open a navi-buffer and
-;; immediately switch to it. The new navi-buffer will show the first-level
-;; headings of the original-buffer, with point at the first entry.
+;; When these pre-conditions are fullfilled (`outorg.el' must be loaded
+;; too), you can use 'M-s n' (`navi-search-and-switch') to open a
+;; navi-buffer and immediately switch to it. The new navi-buffer will
+;; show the first-level headings of the original-buffer, with point at
+;; the first entry.
 
 ;; You can then:
 
-;; 1. Show headlines (up-to) different levels:
+;; - Show headlines (up-to) different levels:
 
 ;; | key     | command            | function-name        |
 ;; |---------+--------------------+----------------------|
 ;; | 1 ... 8 | show levels 1 to 8 | navi-generic-command |
 
-;; 2. Navigate up and down in the search results shown in the navi-buffer:
+;;  - Navigate up and down in the search results shown in the navi-buffer:
 
 ;; | key | command   | function-name       |
 ;; |-----+-----------+---------------------|
@@ -106,7 +110,7 @@
 ;; | DEL | down page | scroll-down-command |
 ;; | SPC | up page   | scroll-up-command   |
 
-;; 3. Revert the navi-buffer (seldom necessary), show help for the
+;; - Revert the navi-buffer (seldom necessary), show help for the
 ;;    user-defined keyword-searches, and quit the navi-buffer and switch-back
 ;;    to the original-buffer:
 
@@ -116,7 +120,7 @@
 ;; | h   | show help                 | navi-show-help       |
 ;; | q   | quit navi-mode and switch | navi-quit-and-switch |
 
-;; 4. Switch to the original-buffer and back to the navi-buffer, display an
+;; - Switch to the original-buffer and back to the navi-buffer, display an
 ;;    occurence in the original-buffer or go to the occurence:
 
 ;; | key     | command                | function-name                     |
@@ -128,7 +132,7 @@
 ;; | d       | display occurrence     | occur-mode-display-occurrence     |
 ;; | o       | goto occurrence        | navi-goto-occurrence-other-window |
 
-;; 5. Structure editing on subtrees and visibility cycling
+;; - Structure editing on subtrees and visibility cycling
 
 ;; | key       | command                        | function-name          |
 ;; |-----------+--------------------------------+------------------------|
@@ -139,7 +143,7 @@
 ;; | ^         | move up subtree (same level)   | navi-move-up-subtree   |
 ;; | <         | move down subtree (same level) | navi-move-down-subtree |
 
-;; 6. Miscancellous actions on subtrees
+;; - Miscancellous actions on subtrees
 
 ;; | key | command                    | function-name                            |
 ;; |-----+----------------------------+------------------------------------------|
@@ -155,7 +159,7 @@
 ;; | e   | edit as org (outorg)       | navi-edit-as-org                         |
 ;; | .   | call fun on thing at point | navi-act-on-thing-at-point               |
 
-;; 7. Furthermore, there are five (semantically) predefined keyword-searches:
+;; - Furthermore, there are five (semantically) predefined keyword-searches:
 
 ;; | key | keyword-symbol | searches for               |
 ;; |-----+----------------+----------------------------|
@@ -166,34 +170,54 @@
 ;; | a   | :ALL           | all                        |
 
 
-;; 8. And (potentially) many more user-defined keyword-searches
+;; - And (potentially) many more user-defined keyword-searches
 ;; (example Emacs Lisp):
 
-;; | key | keyword-symbol | searches for |
-;; |-----+----------------+--------------|
-;; | F   | :defun         | (defun       |
-;; | V   | :defvar        | (defvar      |
-;; | C   | :defconst      | (defconst    |
-;; | G   | :defgroup      | (defgroup    |
-;; | U   | :defcustom     | (defcustom   |
-;; | A   | :defadvice     | (defadvice   |
-;; | M   | :defmacro      | (defmacro    |
-;; | E   | :defface       | (defface     |
-;; | S   | :defstruct     | (defstruct   |
-;; | L   | :defclass      | (defclass    |
+;; #+begin_example
+;; [KEY] : [SEARCH]
+;; ================
+;;                 	a : ALL
+;;                 	f : FUN
+;;                 	v : VAR
+;;                 	x : OBJ
+;;                 	b : DB
+;;                 	F : defun
+;;                 	V : defvar
+;;                 	C : defconst
+;;                 	G : defgroup
+;;                 	U : defcustom
+;;                 	A : defadvice
+;;                 	W : defalias
+;;                 	M : defmarcro
+;;                 	D : defface
+;;                 	S : defstruct
+;;                 	B : defsubst
+;;                 	L : defclass
+;;                 	I : define
+;;                 	J : declare
+;;                 	K : global-set-key
+;;                 	T : add-to-list
+;;                 	Q : setq
+;;                 	H : add-hook
+;;                 	O : hook
+;;                 	X : lambda
+;;                 	Z : ert
+;;                 	R : require
 
-;; 9. Headline-searches and keyword-searches can be combined, e.g.
+;; #+end_example
 
-;; ,------
-;; | C-2 f
-;; `------
+;; - Headline-searches and keyword-searches can be combined, e.g.
+
+;; #+begin_example
+;;  C-2 f
+;; #+end_example
 
 ;; in an Emacs Lisp (outshine-)buffer shows all headlines up-to level 2 as
 ;; well as all function, macro and advice definitions in the original-buffer,
 
-;; ,------
-;; | C-5 a
-;; `------
+;; #+begin_example
+;;  C-5 a
+;; #+end_example
 
 ;; shows all headlines up-to level 5 as well as all functions, variables,
 ;; classes, methods, objects, and database-related definitions. The exact
@@ -225,17 +249,17 @@
 
 ;; Install `navi-mode.el' by adding
 
-;; ;; #+begin_src emacs-lisp
-;; ;;  (require 'navi-mode)
-;; ;; #+end_src
+;; #+begin_example
+;;   (require 'navi-mode)
+;; #+end_example
 
 ;; to your .emacs file.
 
 ;;;;; Emacs Version
 
-;; `navi-mode.el' works with [GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu, GTK+
-;; Version 3.6.4) of 2013-01-20 on eric]. No attempts of testing with older
-;; versions or other types of Emacs have been made (yet).
+;; `navi-mode.el' works with [GNU Emacs 24.2.1 (x86_64-unknown-linux-gnu,
+;; GTK+ Version 3.6.4) of 2013-01-20 on eric]. No attempts of testing
+;; with older versions or other types of Emacs have been made (yet).
 
 ;;;; ChangeLog
 
