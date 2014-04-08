@@ -24,13 +24,14 @@
 
 ;;;;; About navi-mode
 
-;; [NOTE: For the sake of adding this library to MELPA, headlines had to
-;; be converted back from 'Org-mode style' to 'oldschool', and a few
-;; extra lines of required information had to be added on top of the
-;; MetaData section - just to comply with the required file
+;; [NOTE: For the sake of adding this library to MELPA, headlines had
+;; to be converted back from 'Org-mode style' to 'oldschool', and a
+;; few extra lines of required information had to be added on top of
+;; the MetaData section - just to comply with the required file
 ;; formatting. All outshine, outorg and navi-mode functionality still
-;; works with this file. See my [[https://github.com/tj64/iorg][iOrg]] repository for examples of
-;; Emacs-Lisp and PicoLisp files structured 'the outshine way'.]
+;; works with this file. See my [[https://github.com/tj64/iorg][iOrg]]
+;; repository for examples of Emacs-Lisp and PicoLisp files structured
+;; 'the outshine way'.]
 
 ;; This file implements extensions for occur-mode. You can think of a
 ;; navi-buffer as a kind of 'remote-control' for an (adecuately)
@@ -41,18 +42,19 @@
 ;; reverted (thus up-to-date).
 
 ;; Besides the fundamental outline-heading-searches (8 outline-levels)
-;; and the 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL), all
-;; languages can have their own set of searches and keybindings (see
-;; `navi-key-mappings' and `navi-keywords'). Heading-searches and
-;; keyword-searches can be combined, offering a vast amount of possible
-;; 'views' on the original-buffer.
+;; and the 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL),
+;; all languages can have their own set of searches and keybindings
+;; (see `navi-key-mappings' and `navi-keywords'). Heading-searches and
+;; keyword-searches can be combined, offering a vast amount of
+;; possible 'views' on the original-buffer.
 
 ;;;;; Usage
 
-;; For `navi-mode' to work, the original-buffer must be outline-structured
-;; 'the outshine way', i.e. with the headlines being proper Org-mode
-;; headlines, marked and outcommented with `comment-region'. As an example, to
-;; generate a 3rd level outshine-headline in an Emacs Lisp file, write down
+;; For `navi-mode' to work, the original-buffer must be
+;; outline-structured 'the outshine way', i.e. with the headlines
+;; being proper Org-mode headlines, marked and outcommented with
+;; `comment-region'. As an example, to generate a 3rd level
+;; outshine-headline in an Emacs Lisp file, write down
 
 ;; #+begin_example
 ;;  *** Third Level Header
@@ -239,9 +241,9 @@
 
 ;; Download (or clone the github-repos of) the three required libraries
 
-;; | `navi-mode.el' | (https://github.com/tj64/navi)     |
-;; | `outshine.el'  | (https://github.com/tj64/outshine) |
-;; | `outorg.el'    | (https://github.com/tj64/outorg)   |
+;; | navi-mode.el | [[https://github.com/tj64/navi][navi-mode]] |
+;; | outshine.el  | [[https://github.com/tj64/outshine][outshine]]  |
+;; | outorg.el    | [[https://github.com/tj64/outorg][outorg]]    |
 
 ;; and put them in a place where Emacs can find them (on the Emacs
 ;; 'load-path'). Follow the installation instructions in `outshine.el' and
