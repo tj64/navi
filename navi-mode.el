@@ -368,7 +368,8 @@ point to original-buffers")
                      (:hook . "O")
                      (:lambda . "X")
                      (:ert . "Z")
-                     (:require . "R")))
+                     (:require . "R")
+		     (:eval-after-load . "T")))
     ("ess" . ((:ALL . "a")
               (:FUN . "f")
               (:VAR . "v")
@@ -577,14 +578,17 @@ regexp and performs an occur-search with it."
                      (:defmethod . "^[[:space:]]*(defmethod ")
                      (:declare . "^[[:space:]]*(declare-")
                      (:define . "^[[:space:]]*(define-")
-                     (:global-set-key . "^[[:space:]]*(global-set-key ")
+                     (:global-set-key
+		      . "^[[:space:]]*(global-set-key ")
                      (:add-to-list . "^[[:space:]]*(add-to-list ")
                      (:setq . "^[[:space:]]*(setq ")
                      (:add-hook . "^[[:space:]]*(add-hook ")
                      (:hook . "-hook-?")
                      (:lambda . "(lambda (")
                      (:ert . "^[[:space:]]*(ert-")
-                     (:require . "^[[:space:]]*([a-z-]*require ")))
+                     (:require . "^[[:space:]]*([a-z-]*require ")
+		     (:eval-after-load
+		      . "^[[:space:]]*(eval-after-load ")))
     ("ess" . ((:ALL . (concat
                        "\\("
                        "[^\s\t\n]* ?<?-? ?function("
