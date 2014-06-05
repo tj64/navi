@@ -587,7 +587,7 @@ regexp and performs an occur-search with it."
                      (:hook . "-hook-?")
                      (:lambda . "(lambda (")
                      (:ert . "^[[:space:]]*(ert-")
-                     (:marker . "^[[:space:]]*([a-z]+-marker ")
+                     (:marker . "^[[:space:]]*([a-z]+-marker")
                      (:require . "^[[:space:]]*([a-z-]*require ")
 		     (:eval-after-load
 		      . "^[[:space:]]*(eval-after-load ")))
