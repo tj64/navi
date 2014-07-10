@@ -559,7 +559,7 @@ regexp and performs an occur-search with it."
                 :value-type alist))
 
 (defcustom navi-keywords
-  '(("emacs-lisp" . ((:ALL . "^[[:space:]]*(def[a-z]+ ")
+  '(("emacs-lisp" . ((:ALL . "^[[:space:]]*(def[a-z]+\\*? ")
                      (:OBJ . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
                      (:VAR . "^[[:space:]]*(def[vcgf][^l][a-z]+ ")
                      (:FUN
@@ -571,7 +571,7 @@ regexp and performs an occur-search with it."
                      (:defcustom . "^[[:space:]]*(defcustom ")
                      (:defadvice . "^[[:space:]]*(defadvice ")
                      (:defalias . "^[[:space:]]*(defalias ")
-                     (:defmarcro . "^[[:space:]]*(defmacro ")
+                     (:defmarcro . "^[[:space:]]*(defmacro\\*? ")
                      (:defface . "^[[:space:]]*(defface ")
                      (:defstruct . "^[[:space:]]*(defstruct ")
                      (:defsubst . "^[[:space:]]*(defsubst ")
