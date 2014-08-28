@@ -914,7 +914,7 @@ selecting the regexp, the value is the regexp itself"
 
 ;;; Defuns
 ;;;; Functions
-
+;;;;; Utility Functions
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded.")
 
@@ -928,6 +928,15 @@ selecting the regexp, the value is the regexp itself"
       (insert "\n")
       (insert (make-string length char)))))
 
+(defun non-empty-string-p (str)
+  "Return t if function argument STR is a string of length > 0, nil otherwise."
+  (if (and (stringp str) (> (length str) 0))
+      str
+    nil))
+
+
+;;;;; Navi Generic Command
+
 (defun navi-map-keyboard-to-key (language kbd-key)
   "Map pressed keyboard-key KBD-KEY to key in `navi-keywords'."
   (let ((mappings (navi-get-language-alist language 'MAPPINGS)))
@@ -937,6 +946,8 @@ selecting the regexp, the value is the regexp itself"
 (defun navi-msg (key language)
   "Tell user that key is not defined for language."
   (message "Key %s is not defined for language %s" key language))
+
+;;;;; Occur Search
 
 ;; modified `occur-1' from `replace.el'
 (defun navi-1 (regexp nlines bufs &optional buf-name)
@@ -1022,12 +1033,71 @@ selecting the regexp, the value is the regexp itself"
               (run-hooks 'occur-hook)))))
       (set-marker navi-tmp-buffer-marker nil))))
 
+(defun navi-show-headers (level &optional args)
+  "Show headers up-to level LEVEL."
+  (let ((org-promo-headers
+         (and (eq major-mode 'navi-mode)
+              (with-current-buffer
+                  (marker-buffer
+                   (cadr (navi-get-twin-buffer-markers)))
+                (and
+                 (eq major-mode 'org-mode)
+                 outline-promotion-headings)))))
+    (if args
+        (navi-revert-function
+         (if org-promo-headers
+             (navi-calc-org-mode-headline-regexp
+              level
+              org-promo-headers
+              'NO-PARENT-LEVELS)
+           (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)))
+      (navi-revert-function
+       (if org-promo-headers
+           (navi-calc-org-mode-headline-regexp
+            level
+            org-promo-headers)
+         (navi-calc-headline-regexp level))))))
 
-(defun non-empty-string-p (str)
-  "Return t if function argument STR is a string of length > 0, nil otherwise."
-  (if (and (stringp str) (> (length str) 0))
-      str
-    nil))
+
+(defun navi-show-keywords (key)
+  "Show matches of occur-search with KEY.
+Language is derived from major-mode."
+  (let ((language (navi-get-language-name)))
+    (navi-revert-function
+     (navi-get-regexp language
+                      (navi-map-keyboard-to-key language key)))))
+
+(defun navi-show-headers-and-keywords (level key &optional args)
+  "Show headers up-to level LEVEL and matches of occur-search with KEY.
+Language is derived from major-mode."
+  (let* ((language (navi-get-language-name))
+         (org-promo-headers
+          (and (eq major-mode 'navi-mode)
+               (with-current-buffer
+                   (marker-buffer
+                    (cadr (navi-get-twin-buffer-markers)))
+                 (and
+                  (eq major-mode 'org-mode)
+                  outline-promotion-headings))))
+         (rgxp
+          (navi-make-regexp-alternatives
+           (if args
+               (if org-promo-headers
+                   (navi-calc-org-mode-headline-regexp
+                    level
+                    org-promo-headers
+                    'NO-PARENT-LEVELS)
+                 (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
+             (if org-promo-headers
+                 (navi-calc-org-mode-headline-regexp
+                  level
+                  org-promo-headers)
+               (navi-calc-headline-regexp level)))
+           (navi-get-regexp language
+                            (navi-map-keyboard-to-key language key)))))
+    (navi-revert-function rgxp)))
+
+;;;;; Regexps
 
 (defun navi-get-regexp (language key)
   "Return the value of KEY for LANGUAGE in `navi-keywords'."
@@ -1061,6 +1131,47 @@ The regexps are given as the list of strings RGXPS."
           'identity rgxps "\\|")
          "\\)"))))
 
+(defun navi-calc-headline-regexp (level &optional NO-PARENT-LEVELS)
+  "Calculate regexp to show headers of original-buffer.
+Regexp should result in an occur-search showing up to
+outline-level LEVEL headlines in navi-buffer. If NO-PARENT-LEVELS
+in non-nil, only headers of level LEVEL are shown."
+  (let* ((orig-buf (marker-buffer
+                    (cadr (navi-get-twin-buffer-markers))))
+         (outline-base-string
+          (with-current-buffer orig-buf
+            (outshine-transform-normalized-outline-regexp-base-to-string)))
+         (rgxp-string
+          (regexp-quote
+           (outshine-chomp
+            (format
+             "%s" (car (rassoc 1 (with-current-buffer orig-buf
+                                   outline-promotion-headings)))))))
+         (rgxp (if (not (and level
+                             (integer-or-marker-p level)
+                             (>= level 1)
+                             (<= level 8)))
+                   (error "Level must be an integer between 1 and 8")
+                 (if NO-PARENT-LEVELS
+                     (regexp-quote
+                      (format
+                       "%s"
+                       (car
+                        (rassoc level
+                                (with-current-buffer orig-buf
+                                  outline-promotion-headings)))))
+                   (concat
+                    (dotimes (i (1- level) rgxp-string)
+                      (setq rgxp-string
+                            (concat rgxp-string
+                                    (regexp-quote
+                                     outline-base-string)
+                                    "?")))
+                    " ")))))
+    (concat "^" rgxp)))
+
+;;;;; Keyword Searches
+
 (defun navi-get-language-alist (language &optional MAPPINGS)
   "Return the alist with keys and regexps for LANGUAGE from `navi-keywords'.
 If MAPPINGS is non-nil, return the alist with key-mappings from
@@ -1071,6 +1182,8 @@ If MAPPINGS is non-nil, return the alist with key-mappings from
         (message "Language not registered in customizable variable `%s'"
                  (symbol-name custom-alist))
       (cdr (assoc language custom-alist)))))
+
+;;;;; Navi Buffer
 
 (defun navi-set-regexp-quoted-line-at-point ()
   "Set `navi-regexp-quoted-line-at-point' to the value calculated by
@@ -1138,6 +1251,46 @@ the original-buffer shown in the occur-search results."
       (point))))
 
 
+;; modified `occur-rename-buffer' from `replace.el'
+(defun navi-rename-buffer (&optional unique-p)
+  "Rename the current *Occur* buffer to *Navi:original-buffer-name*.
+Here `original-buffer-name' is the buffer name where Occur was
+originally run. When given the prefix argument, the renaming will
+not clobber the existing buffer(s) of that name, but use
+`generate-new-buffer-name' instead. You can add this to
+`occur-hook' if you always want a separate *Occur* buffer for
+each buffer where you invoke `occur'."
+  (let ((orig-buffer-name ""))
+    (with-current-buffer
+        (if (eq major-mode 'occur-mode) (current-buffer) (get-buffer "*Occur*"))
+      (setq orig-buffer-name
+            (mapconcat
+             #'buffer-name
+             (car (cddr occur-revert-arguments)) "/"))
+      (rename-buffer (concat "*Navi:" orig-buffer-name "*") unique-p)
+      ;; make marker for this navi-buffer
+      ;; and store it in `navi''s plist
+      (put 'navi
+           (navi-make-buffer-key)
+           (set
+            (intern
+             (navi-make-marker-name
+              (cadr (split-string (buffer-name) "[*:]" 'OMIT-NULLS))))
+            (point-marker))))))
+
+;; (add-to-list 'occur-hook 'navi-rename-buffer)
+
+(defun navi-clean-up ()
+  "Clean up `navi' plist and left-over markers after killing navi-buffer."
+  (setq navi-revert-arguments nil)
+  (setq navi-regexp-quoted-line-at-point nil)
+  (mapc
+   (lambda (marker) (set-marker marker nil))
+   (navi-get-twin-buffer-markers)))
+
+
+;;;;; Twin Buffers
+
 (defun navi-make-buffer-key (&optional buf)
   "Return the (current) buffer-name or string BUF as interned keyword-symbol"
   (let* ((split-str (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS))
@@ -1186,73 +1339,17 @@ CAR of the return-list is always the marker pointing to
       (and self-orig twin-of-orig
            (list self-orig twin-of-orig)))))
 
+(defun navi-get-language-name ()
+  "Return language name for major-mode of original-buffer."
+  (with-current-buffer
+      (marker-buffer
+       (cadr (navi-get-twin-buffer-markers)))
+    (car
+     (split-string
+      (symbol-name major-mode)
+      "-mode" 'OMIT-NULLS))))
 
-;; modified `occur-rename-buffer' from `replace.el'
-(defun navi-rename-buffer (&optional unique-p)
-  "Rename the current *Occur* buffer to *Navi:original-buffer-name*.
-Here `original-buffer-name' is the buffer name where Occur was
-originally run. When given the prefix argument, the renaming will
-not clobber the existing buffer(s) of that name, but use
-`generate-new-buffer-name' instead. You can add this to
-`occur-hook' if you always want a separate *Occur* buffer for
-each buffer where you invoke `occur'."
-  (let ((orig-buffer-name ""))
-    (with-current-buffer
-        (if (eq major-mode 'occur-mode) (current-buffer) (get-buffer "*Occur*"))
-      (setq orig-buffer-name
-            (mapconcat
-             #'buffer-name
-             (car (cddr occur-revert-arguments)) "/"))
-      (rename-buffer (concat "*Navi:" orig-buffer-name "*") unique-p)
-      ;; make marker for this navi-buffer
-      ;; and store it in `navi''s plist
-      (put 'navi
-           (navi-make-buffer-key)
-           (set
-            (intern
-             (navi-make-marker-name
-              (cadr (split-string (buffer-name) "[*:]" 'OMIT-NULLS))))
-            (point-marker))))))
-
-(defun navi-calc-headline-regexp (level &optional NO-PARENT-LEVELS)
-  "Calculate regexp to show headers of original-buffer.
-Regexp should result in an occur-search showing up to
-outline-level LEVEL headlines in navi-buffer. If NO-PARENT-LEVELS
-in non-nil, only headers of level LEVEL are shown."
-  (let* ((orig-buf (marker-buffer
-                    (cadr (navi-get-twin-buffer-markers))))
-         (outline-base-string
-          (with-current-buffer orig-buf
-            (outshine-transform-normalized-outline-regexp-base-to-string)))
-         (rgxp-string
-          (regexp-quote
-           (outshine-chomp
-            (format
-             "%s" (car (rassoc 1 (with-current-buffer orig-buf
-                                   outline-promotion-headings)))))))
-         (rgxp (if (not (and level
-                             (integer-or-marker-p level)
-                             (>= level 1)
-                             (<= level 8)))
-                   (error "Level must be an integer between 1 and 8")
-                 (if NO-PARENT-LEVELS
-                     (regexp-quote
-                      (format
-                       "%s"
-                       (car
-                        (rassoc level
-                                (with-current-buffer orig-buf
-                                  outline-promotion-headings)))))
-                   (concat
-                    (dotimes (i (1- level) rgxp-string)
-                      (setq rgxp-string
-                            (concat rgxp-string
-                                    (regexp-quote
-                                     outline-base-string)
-                                    "?")))
-                    " ")))))
-    (concat "^" rgxp)))
-
+;;;;; Special Case Org-mode
 
 ;; special treatment for Org-mode buffers
 (defun navi-make-org-mode-promotion-headings-list ()
@@ -1300,87 +1397,6 @@ in non-nil, only headers of level LEVEL are shown."
            (mapconcat 'identity (split-string headline-string "" t) "?")
            nil nil 1)))))))
 
-(defun navi-show-headers (level &optional args)
-  "Show headers up-to level LEVEL."
-  (let ((org-promo-headers
-         (and (eq major-mode 'navi-mode)
-              (with-current-buffer
-                  (marker-buffer
-                   (cadr (navi-get-twin-buffer-markers)))
-                (and
-                 (eq major-mode 'org-mode)
-                 outline-promotion-headings)))))
-    (if args
-        (navi-revert-function
-         (if org-promo-headers
-             (navi-calc-org-mode-headline-regexp
-              level
-              org-promo-headers
-              'NO-PARENT-LEVELS)
-           (navi-calc-headline-regexp level 'NO-PARENT-LEVELS)))
-      (navi-revert-function
-       (if org-promo-headers
-           (navi-calc-org-mode-headline-regexp
-            level
-            org-promo-headers)
-         (navi-calc-headline-regexp level))))))
-
-
-(defun navi-get-language-name ()
-  "Return language name for major-mode of original-buffer."
-  (with-current-buffer
-      (marker-buffer
-       (cadr (navi-get-twin-buffer-markers)))
-    (car
-     (split-string
-      (symbol-name major-mode)
-      "-mode" 'OMIT-NULLS))))
-
-(defun navi-show-keywords (key)
-  "Show matches of occur-search with KEY.
-Language is derived from major-mode."
-  (let ((language (navi-get-language-name)))
-    (navi-revert-function
-     (navi-get-regexp language
-                      (navi-map-keyboard-to-key language key)))))
-
-(defun navi-show-headers-and-keywords (level key &optional args)
-  "Show headers up-to level LEVEL and matches of occur-search with KEY.
-Language is derived from major-mode."
-  (let* ((language (navi-get-language-name))
-         (org-promo-headers
-          (and (eq major-mode 'navi-mode)
-               (with-current-buffer
-                   (marker-buffer
-                    (cadr (navi-get-twin-buffer-markers)))
-                 (and
-                  (eq major-mode 'org-mode)
-                  outline-promotion-headings))))
-         (rgxp
-          (navi-make-regexp-alternatives
-           (if args
-               (if org-promo-headers
-                   (navi-calc-org-mode-headline-regexp
-                    level
-                    org-promo-headers
-                    'NO-PARENT-LEVELS)
-                 (navi-calc-headline-regexp level 'NO-PARENT-LEVELS))
-             (if org-promo-headers
-                 (navi-calc-org-mode-headline-regexp
-                  level
-                  org-promo-headers)
-               (navi-calc-headline-regexp level)))
-           (navi-get-regexp language
-                            (navi-map-keyboard-to-key language key)))))
-    (navi-revert-function rgxp)))
-
-(defun navi-clean-up ()
-  "Clean up `navi' plist and left-over markers after killing navi-buffer."
-  (setq navi-revert-arguments nil)
-  (setq navi-regexp-quoted-line-at-point nil)
-  (mapc
-   (lambda (marker) (set-marker marker nil))
-   (navi-get-twin-buffer-markers)))
 
 ;; (add-to-list 'occur-hook 'navi-rename-buffer)
 
