@@ -273,8 +273,7 @@
 ;;; Requires
 
 (require 'outshine)
-;; making outorg a soft dependency
-(require 'outorg nil 'NOERROR)
+(require 'outorg)
 
 ;;; Mode Definitions
 
@@ -914,9 +913,12 @@ selecting the regexp, the value is the regexp itself"
 
 ;;; Defuns
 ;;;; Functions
-;;;;; Utility Functions
+;;;;; Hook Function
+
 ;; (defun navi-mode-hook-function ()
 ;;   "Function to be run after `navi-mode' is loaded.")
+
+;;;;; Utility Functions
 
 ;; copied from http://www.emacswiki.org/emacs/basic-edit-toolkit.el
 (defun navi-underline-line-with (char)
@@ -928,12 +930,11 @@ selecting the regexp, the value is the regexp itself"
       (insert "\n")
       (insert (make-string length char)))))
 
-(defun non-empty-string-p (str)
+(defun navi-non-empty-string-p (str)
   "Return t if function argument STR is a string of length > 0, nil otherwise."
   (if (and (stringp str) (> (length str) 0))
       str
     nil))
-
 
 ;;;;; Navi Generic Command
 
@@ -1101,7 +1102,7 @@ Language is derived from major-mode."
 
 (defun navi-get-regexp (language key)
   "Return the value of KEY for LANGUAGE in `navi-keywords'."
-  (if (not (and (non-empty-string-p language)
+  (if (not (and (navi-non-empty-string-p language)
                 (assoc language navi-keywords)))
       (progn
         (message
@@ -1177,7 +1178,7 @@ in non-nil, only headers of level LEVEL are shown."
 If MAPPINGS is non-nil, return the alist with key-mappings from
 `navi-key-mappings' instead."
   (let ((custom-alist (if MAPPINGS navi-key-mappings navi-keywords)))
-    (if (not (and (non-empty-string-p language)
+    (if (not (and (navi-non-empty-string-p language)
                   (assoc language custom-alist)))
         (message "Language not registered in customizable variable `%s'"
                  (symbol-name custom-alist))
@@ -1402,21 +1403,7 @@ in non-nil, only headers of level LEVEL are shown."
 
 ;;;; Commands
 
-;; TODO improve orderly exit from `message' buffer via `outorg' buffer and
-;; `original-buffer' to `navi-buffer', best without showing `outorg'
-;; and `original' buffer to the user (not critical).
-(eval-after-load 'outorg
-  '(defun navi-mail-subtree ()
-     "Send subtree at point as email."
-     (interactive)
-     (navi-goto-occurrence-other-window)
-     (if (outline-on-heading-p)
-         (outorg-edit-as-org)
-       (message "Only subtrees be send as email via navi-mode"))
-     (with-current-buffer
-         (get-buffer "*outorg-edit-buffer*")
-       (org-mark-subtree)
-       (org-mime-subtree))))
+;;;;; Navi Edit Mode
 
 (defun navi-cease-edit ()
   "Switch from Navi Edit mode to Navi mode."
@@ -1424,6 +1411,9 @@ in non-nil, only headers of level LEVEL are shown."
   (when (derived-mode-p 'navi-edit-mode)
     (navi-mode)
     (message "Switching to Navi mode.")))
+
+
+;;;;; Twin Buffers
 
 (defun navi-goto-occurrence-other-window ()
   "Moves navi-buffer marker to point before switching buffers."
@@ -1490,6 +1480,8 @@ in non-nil, only headers of level LEVEL are shown."
          (and (eq major-mode 'navi-mode)
               (navi-revert-function)))))
 
+;;;;; Navi Buffer
+
 ;; adapted from 'replace.el'
 (defun navi-revert-function (&optional regexp)
   "Handle `revert-buffer' for navi-buffers."
@@ -1506,6 +1498,8 @@ in non-nil, only headers of level LEVEL are shown."
         (eq major-mode 'navi-mode) (navi-mode))
     (goto-char
      (navi-search-less-or-equal-line-number))))
+
+;;;;; Navi Generic Command
 
 ;; this command executes all user-defined occur-searches
 (defun navi-generic-command (key prefix)
@@ -1528,6 +1522,8 @@ in non-nil, only headers of level LEVEL are shown."
        ((memq key (number-sequence 57 126))
         (navi-show-keywords keystrg))
        (t nil)))))
+
+;;;;; Act on thing-at-point
 
 ;; (defun navi-mark-subtree-and-switch()
 ;;   "Mark subtree at point in original-buffer."
@@ -1670,14 +1666,6 @@ more \(optional\) function arguments can be given \(see
   (deactivate-mark)
   (navi-switch-to-twin-buffer))
 
-(defun navi-undo ()
-  "Undo last (undoable) action in original-buffer."
-  (interactive)
-  (navi-goto-occurrence-other-window)
-  (undo)
-  (navi-switch-to-twin-buffer))
-
-
 ;; (defun navi-yank-subtree-from-register-s ()
 ;;   "Yank in original-buffer."
 ;;   (interactive)
@@ -1711,7 +1699,6 @@ more \(optional\) function arguments can be given \(see
     (message "Not on subtree/sexp or nothing to yank."))
   (navi-switch-to-twin-buffer))
 
-
 ;; (defun navi-query-replace ()
 ;;   "Call `query-replace' interactively on subtree at point."
 ;;   (interactive)
@@ -1725,6 +1712,8 @@ more \(optional\) function arguments can be given \(see
 ;;         (deactivate-mark))
 ;;     (message "Navi-mode can perform query-replace only on subtrees"))
 ;;   (navi-switch-to-twin-buffer))
+
+;;;;; Search and Replace
 
 (defun navi-query-replace ()
   "Call `query-replace' interactively on thing at point."
@@ -1808,6 +1797,35 @@ more \(optional\) function arguments can be given \(see
     (message "Navi-mode can only move subtrees"))
   (navi-switch-to-twin-buffer))
 
+;;;;; Visibility Cycling
+
+(defun navi-cycle-subtree ()
+  "Cycle the visibility state of subtree at point in the original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outline-cycle 1)
+    (message "Not on subtree - can't cycle subtree visibility state."))
+  (navi-switch-to-twin-buffer))
+
+(defun navi-cycle-buffer ()
+  "Cycle the visibility state of the original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (outline-cycle '(4))
+  (navi-switch-to-twin-buffer))
+
+;;;;; Undo
+
+(defun navi-undo ()
+  "Undo last (undoable) action in original-buffer."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (undo)
+  (navi-switch-to-twin-buffer))
+
+;;;;; Show Help
+
 (defun navi-show-help ()
   "Show navi-keybindings for major-mode of original-buffer."
   (interactive)
@@ -1838,36 +1856,36 @@ more \(optional\) function arguments can be given \(see
       (goto-char (point-min))
       (view-buffer (current-buffer)))))
 
-(defun navi-cycle-subtree ()
-  "Cycle the visibility state of subtree at point in the original-buffer."
-  (interactive)
-  (navi-goto-occurrence-other-window)
-  (if (outline-on-heading-p)
-      (outline-cycle 1)
-    (message "Not on subtree - can't cycle subtree visibility state."))
-  (navi-switch-to-twin-buffer))
+;;;;; Use Outorg
 
-(defun navi-cycle-buffer ()
-  "Cycle the visibility state of the original-buffer."
-  (interactive)
-  (navi-goto-occurrence-other-window)
-  (outline-cycle '(4))
-  (navi-switch-to-twin-buffer))
-
-(eval-after-load 'outorg
-  '(defun navi-edit-as-org (&optional args)
-     "Edit subtree at point with `outorg'.
+(defun navi-edit-as-org (&optional args)
+  "Edit subtree at point with `outorg'.
 
 Edit whole buffer if ARGS are given. Editing takes place in a
 separate temporary Org-mode edit-buffer."
-     (interactive "P")
-     (navi-goto-occurrence-other-window)
-     (if (outline-on-heading-p)
-         (if args
-             (outorg-edit-as-org args)
-           (outorg-edit-as-org))
-       (message "Only subtrees (or the whole buffer) may be edited via navi-mode"))
-     (navi-switch-to-twin-buffer)))
+  (interactive "P")
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (if args
+	  (outorg-edit-as-org args)
+	(outorg-edit-as-org))
+    (message "Only subtrees (or the whole buffer) may be edited via navi-mode"))
+  (navi-switch-to-twin-buffer))
+
+;; TODO improve orderly exit from `message' buffer via `outorg' buffer and
+;; `original-buffer' to `navi-buffer', best without showing `outorg'
+;; and `original' buffer to the user (not critical).
+(defun navi-mail-subtree ()
+  "Send subtree at point as email."
+  (interactive)
+  (navi-goto-occurrence-other-window)
+  (if (outline-on-heading-p)
+      (outorg-edit-as-org)
+    (message "Only subtrees be send as email via navi-mode"))
+  (with-current-buffer
+      (get-buffer "*outorg-edit-buffer*")
+    (org-mark-subtree)
+    (org-mime-subtree)))
 
 ;;; Menus and Keys
 ;;;; Menus
