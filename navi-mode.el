@@ -459,7 +459,18 @@ point to original-buffers")
               ;; (:plot . "O")
               ;; (:footnotedef . "F")
               ;; (:latex . "X")
-              )))
+              ))
+    ("latex" . ((:ALL . "a")
+		(:FUN . "f")
+		(:VAR . "v")
+		(:OBJ . "x")
+		(:figure . "F")
+		(:table . "T")
+		(:listing . "L")
+		(:index . "I")
+		(:ref . "R")
+		(:refrange . "A")
+		(:refall . "V"))))
 
   "Mappings between keybindings and keyword-symbols used in `navi-keywords'.
 
@@ -887,7 +898,34 @@ regexp and performs an occur-search with it."
               ;; (:plot . "O")
               ;; (:footnotedef . "F")
               ;; (:latex . "X")
-              )))
+              ))
+    ("latex" . ((:ALL . (concat
+		      "^[[:space:]]*\\\\[[:word:]]+"
+		      "\\(?:\\[.*]\\)?\\(?:{.+}\\)?"))
+		(:FUN . (concat
+		      "^[[:space:]]*\\\\[[:word:]]+"
+		      "\\(?:\\[.*]\\)[^{]"))
+		(:VAR . (concat
+		       "^[[:space:]]*\\\\[[:word:]]+"
+		       "\\(?:\\[.*]\\)\\(?:{.+}\\)"))
+		(:OBJ . (concat
+		      "^[[:space:]]*\\\\[[:word:]]+"
+		      "\\(?:{.*}\\)"))
+		(:figure . (concat
+		       "^[[:space:]]*\\\\begin{figure}"
+		       "[^^\000]+?\\\\end{figure}"))
+		(:table . (concat
+		       "^[[:space:]]*\\\\begin{table}"
+		       "[^^\000]+?\\\\end{table}"))
+		(:listing . (concat
+		       "^[[:space:]]*\\\\begin{listing}"
+		       "[^^\000]+?\\\\end{listing}"))
+		(:index . "\\\\index{[^^\000]+?}")
+		(:ref . "\\\\v?ref{[^^\000]+?}")
+		(:refrange . (concat
+			      "\\\\vrefrange{[^^\000]+?}"
+			      "{[^^\000]+?}"))
+		(:refall . "\\\\v?ref"))))
 
   "Alist of language-specific keywords for occur-searches in
   navi-mode.
