@@ -2,7 +2,7 @@
 
 ;; Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
 ;; Version: 1.0
-;; URL: https://github.com/tj64/outshine
+;; URL: https://github.com/tj64/navi
 
 ;;;; MetaData
 ;;   :PROPERTIES:
@@ -17,85 +17,90 @@
 ;;   :git-repo: https://github.com/tj64/navi.git
 ;;   :git-clone: git://github.com/tj64/navi.git
 ;;   :inspiration:  occur-mode org-mode
-;;   :keywords: emacs keymaps unbound
+;;   :keywords: emacs navigation remote-control
 ;;   :END:
 
 ;;;; Commentary
 
 ;;;;; About navi-mode
 
-;; [NOTE: For the sake of adding this library to MELPA, headlines had
-;; to be converted back from 'Org-mode style' to 'oldschool', and a
-;; few extra lines of required information had to be added on top of
-;; the MetaData section - just to comply with the required file
-;; formatting. All outshine, outorg and navi-mode functionality still
-;; works with this file. See my [[https://github.com/tj64/iorg][iOrg]]
-;; repository for examples of Emacs-Lisp and PicoLisp files structured
-;; 'the outshine way'.]
+;; Navi-mode, as its name suggests, enables super-fast navigation and
+;; easy structure-editing in Outshine or Org buffers via one-key
+;; bindings in associated read-only *Navi* buffers.
 
-;; This file implements extensions for occur-mode. You can think of a
-;; navi-buffer as a kind of 'remote-control' for an (adecuately)
-;; outline-structured original-buffer. It enables quick navigation and
-;; basic structure editing in the original-buffer without (necessarily)
-;; leaving the navi-buffer. When switching to the original-buffer and
-;; coming back after some modifications, the navi-buffer is always
-;; reverted (thus up-to-date).
+;; You can think of a navi-buffer as a kind of 'remote-control' for an
+;; (adecuately) outline-structured original-buffer. Besides navigation
+;; and structure-editing, many common commands can be executed in the
+;; original-buffer without (necessarily) leaving the navi-buffer. When
+;; switching to the original-buffer and coming back after some
+;; modifications, the navi-buffer is always reverted (thus
+;; up-to-date).
 
-;; Besides the fundamental outline-heading-searches (8 outline-levels)
-;; and the 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL),
-;; all languages can have their own set of searches and keybindings
-;; (see `navi-key-mappings' and `navi-keywords'). Heading-searches and
-;; keyword-searches can be combined, offering a vast amount of
-;; possible 'views' on the original-buffer.
+;; Besides the many things that can be done from a navi-buffer, its
+;; main benefit is to offer a flexible but persistent and rock-solid
+;; overview side-by-side to the details of the original buffer. There
+;; can be many different navi-buffers alive at the same time, each one
+;; of them firmly connected to its associated original
+;; buffer. Switching between the 'twin-buffers' is easy and
+;; fast. Typically, an outline-structured original buffer in
+;; 'show-all' visibility state shares a splitted window with its
+;; associated navi-buffer that either shows headlines, keywords, or a
+;; combination of both. Instead of cycling visibility in the original
+;; buffer itself it is often more convenient to quickly switch to its
+;; navi-buffer and use its many different (over-)views.
+
+;; Navi-mode is implemented on top of occur-mode and thus uses occur
+;; as its 'search-engine'. It does not aim to replace occur-mode or to
+;; compete with it, it rather specializes occur-mode for a certain
+;; use-case. Using navi-mode for remotely controlling Outshine and Org
+;; buffers does in no way interfere with occasionally calling 'M-x
+;; occur' on these buffers.
+
+;; Navi-mode is part of the Outshine project, consisting of the three
+;; libraries outshine.el, outorg.el and navi-mode.el. For navi-mode to
+;; work, the original buffer must be either an org-mode buffer or have
+;; outline-minor-mode with outshine extensions activated (and be
+;; structured with outshine headers, i.e. outcommented Org headers).
 
 ;;;;; Usage
 
-;; For `navi-mode' to work, the original-buffer must be
-;; outline-structured 'the outshine way', i.e. with the headlines
-;; being proper Org-mode headlines, marked and outcommented with
-;; `comment-region'. As an example, to generate a 3rd level
-;; outshine-headline in an Emacs Lisp file, write down
+;; Navi-mode is a special read-only mode (line e.g. occur-mode and
+;; dired-mode), thus all its core commands have one-key
+;; bindings. However, the command `navi-edit-mode' makes the
+;; navi-buffer editable. The edits are directly applied in the
+;; associated original buffer. With command `navi-cease-edit' the
+;; default read-only mode is turned on again.
 
-;; #+begin_example
-;;  *** Third Level Header
-;; #+end_example
+;; Navi-mode's functionality can be divided into the following
+;; categories:
 
-;; mark the header line, and apply `comment-region' on it:
+;;  - headline searches :: keys '1' to '8' show all headlines up to that level
 
-;; #+begin_example
-;;  ;;;;; Third Level Header
-;; #+end_example
+;;  - keyword searches :: e.g. key 'f' shows functions in many major-modes
 
-;; In a LaTeX file, an adecuate header will look like this:
+;;  - combined headline and keyword searches :: e.g. 'C-3 v' shows
+;;       variables and headlines up to level 3
 
-;; #+begin_example
-;;  % *** Third Level Header
-;; #+end_example
+;;  - navigation commands :: e.g. keys 'n' and 'p' move to the
+;;       next/previous line in the navi-buffer. These commands are
+;;       especially useful in combination with keys 'd', 'o' and 's' that
+;;       show the current position in the original buffer (or switch to
+;;       it).
 
-;; and in a PicoLisp file like this (always depending of the major-mode specific
-;; values of `comment-start', `comment-end', `comment-add' and
-;; `comment-padding'):
+;;  - action commands :: call functions on the thing-at-point in the
+;;       navi-buffer, to be executed in the 'twin-buffer'. 
 
-;; #+begin_example
-;;  ## *** Third Level Header
-;; #+end_example
+;; Besides the mentioned fundamental outline-heading-searches (8
+;; outline-levels) and the 5 basic keyword-searches (:FUN, :VAR, :DB,
+;; :OBJ and :ALL), all languages can have their own set of searches
+;; and keybindings (see customizable variables `navi-key-mappings' and
+;; `navi-keywords').
 
-;; The second assumption is that `outline-minor-mode' is activated in the
-;; original-buffer and `outshine.el' loaded like described in its
-;; installation instructions, i.e.
-
-;; #+begin_example
-;;    (require 'outshine)
-;;    (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
-;; #+end_example
-
-;; When these pre-conditions are fullfilled (`outorg.el' must be loaded
-;; too), you can use 'M-s n' (`navi-search-and-switch') to open a
-;; navi-buffer and immediately switch to it. The new navi-buffer will
-;; show the first-level headings of the original-buffer, with point at
-;; the first entry.
-
-;; You can then:
+;; Use 'M-s n' (`navi-search-and-switch') to open a navi-buffer and
+;; immediately switch to it. The new navi-buffer will show the
+;; first-level headings of the original-buffer, with point at the
+;; first entry. Here is an overview over the available commands in the
+;; navi-buffer:
 
 ;; - Show headlines (up-to) different levels:
 
@@ -145,7 +150,7 @@
 ;; | ^         | move up subtree (same level)   | navi-move-up-subtree   |
 ;; | <         | move down subtree (same level) | navi-move-down-subtree |
 
-;; - Miscancellous actions on subtrees
+;; - Miscancellous actions on subtrees (there are more ...)
 
 ;; | key | command                    | function-name                            |
 ;; |-----+----------------------------+------------------------------------------|
@@ -239,17 +244,16 @@
 
 ;;;;; Installation
 
-;; Download (or clone the github-repos of) the three required libraries
+;; Install the three required libraries:
 
 ;; | navi-mode.el | [[https://github.com/tj64/navi][navi-mode]] |
 ;; | outshine.el  | [[https://github.com/tj64/outshine][outshine]]  |
 ;; | outorg.el    | [[https://github.com/tj64/outorg][outorg]]    |
 
-;; and put them in a place where Emacs can find them (on the Emacs
-;; 'load-path'). Follow the installation instructions in `outshine.el' and
-;; `outorg.el'.
+;; from the package-manager via MELPA or clone their github-repos. Follow
+;; the installation instructions in `outshine.el' and `outorg.el'.
 
-;; Install `navi-mode.el' by adding
+;; Then install `navi-mode.el' by adding
 
 ;; #+begin_example
 ;;   (require 'navi-mode)
