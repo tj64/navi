@@ -329,6 +329,9 @@ point to original-buffers")
 (defvar navi-regexp-quoted-line-before-narrowing ""
   "Regexp that matched the line at point in navi-buffer before narrowing.")
 
+(defvar navi-tmp-buffer-marker (make-marker)
+  "Marker for navi-tmp-buffer.")
+
 ;;;; Hooks
 
 ;; (defvar navi-mode-hook nil
@@ -1014,7 +1017,7 @@ selecting the regexp, the value is the regexp itself"
     (setq occur-buf (get-buffer-create buf-name))
 
     (with-temp-buffer
-      (setq navi-tmp-buffer-marker (point-marker))
+      (move-marker navi-tmp-buffer-marker (point))
       (if (stringp nlines)
           (fundamental-mode) ;; This is for collect operation.
         (navi-mode))
@@ -1248,7 +1251,7 @@ Leading and trailing whitespace is deleted."
 
 (defun navi-get-line-number-from-regexp-quoted-line-at-point (rgxp)
   "Return as Integer the line number in regexp-quoted-line-at-point."
-  (string-to-int
+  (string-to-number
    (car (split-string rgxp ":" 'OMIT-NULLS))))
 
 (defun navi-in-buffer-headline-p ()
@@ -1326,7 +1329,7 @@ each buffer where you invoke `occur'."
 
 (defun navi-clean-up ()
   "Clean up `navi' plist and left-over markers after killing navi-buffer."
-  (setq navi-revert-arguments nil)
+  (setq navi-revert-arguments nil)	; FIXME
   (setq navi-regexp-quoted-line-at-point nil)
   (mapc
    (lambda (marker) (set-marker marker nil))
@@ -1576,13 +1579,13 @@ FUN-NO-PREFIX, otherwise add `outshine-' prefix and thus call the
          ((memq numval-prefix (number-sequence 1 8))
           (navi-show-headers-and-keywords numval-prefix keystrg))
          ((and
-           (not (memq numval-prefix (number-sequence 1 8))
-                (not (memq key (number-sequence 49 56)))))
+           (not (memq numval-prefix (number-sequence 1 8)))
+	   (not (memq key (number-sequence 49 56))))
           (navi-show-headers keystrg prefix))
          (t nil))
       (cond
        ((memq key (number-sequence 49 56))
-        (navi-show-headers (string-to-int (format "%c" key))))
+        (navi-show-headers (string-to-number (format "%c" key))))
        ((memq key (number-sequence 57 126))
         (navi-show-keywords keystrg))
        (t nil)))))
@@ -1949,7 +1952,9 @@ separate temporary Org-mode edit-buffer."
   (with-current-buffer
       (get-buffer "*outorg-edit-buffer*")
     (org-mark-subtree)
-    (org-mime-subtree)))
+    (if (require 'org-mime nil t)
+      (org-mime-subtree)
+      (user-error "%s" "Library `org-mime-subtree' not found"))))
 
 ;;;;; Call outshine-use-outorg functions
 
