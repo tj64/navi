@@ -9,19 +9,19 @@
 
 
 
-# navi-mode.el &#x2014; major-mode for easy buffer-navigation
+# navi-mode.el &#x2014; major-mode for easy buffer-navigation<a id="sec-1"></a>
 
 Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
-Version: 1.0
-URL: <https://github.com/tj64/outshine>
+Version: 2.0
+URL: <https://github.com/tj64/navi>
 
-## MetaData
+## MetaData<a id="sec-1-1"></a>
 
     copyright: Thorsten Jolitz
     
     copyright-years: 2013+
     
-    version: 1.0
+    version: 2.0
     
     licence: GPL 2 or later (free software)
     
@@ -39,74 +39,89 @@ URL: <https://github.com/tj64/outshine>
     
     inspiration: occur-mode org-mode
     
-    keywords: emacs keymaps unbound
+    keywords: emacs navigation remote-buffer-control
 
-## Commentary
+## Commentary<a id="sec-1-2"></a>
 
-### About navi-mode
+### About navi-mode<a id="sec-1-2-1"></a>
 
-[NOTE: For the sake of adding this library to MELPA, headlines had
-to be converted back from 'Org-mode style' to 'oldschool', and a
-few extra lines of required information had to be added on top of
-the MetaData section - just to comply with the required file
-formatting. All outshine, outorg and navi-mode functionality still
-works with this file. See my [iOrg](https://github.com/tj64/iorg)
-repository for examples of Emacs-Lisp and PicoLisp files structured
-'the outshine way'.]
+Navi-mode, as its name suggests, enables super-fast navigation and
+easy structure-editing in Outshine or Org buffers via one-key
+bindings in associated read-only **Navi** buffers.
 
-This file implements extensions for occur-mode. You can think of a
-navi-buffer as a kind of 'remote-control' for an (adecuately)
-outline-structured original-buffer. It enables quick navigation and
-basic structure editing in the original-buffer without (necessarily)
-leaving the navi-buffer. When switching to the original-buffer and
-coming back after some modifications, the navi-buffer is always
-reverted (thus up-to-date).
+You can think of a navi-buffer as a kind of 'remote-control' for an
+(adecuately) outline-structured original-buffer. Besides navigation
+and structure-editing, many common commands can be executed in the
+original-buffer without (necessarily) leaving the navi-buffer. When
+switching to the original-buffer and coming back after some
+modifications, the navi-buffer is always reverted (thus
+up-to-date).
 
-Besides the fundamental outline-heading-searches (8 outline-levels)
-and the 5 basic keyword-searches (:FUN, :VAR, :DB, :OBJ and :ALL),
-all languages can have their own set of searches and keybindings
-(see \`navi-key-mappings' and \`navi-keywords'). Heading-searches and
-keyword-searches can be combined, offering a vast amount of
-possible 'views' on the original-buffer.
+Besides the many things that can be done from a navi-buffer, its
+main benefit is to offer a flexible but persistent and rock-solid
+overview side-by-side to the details of the original buffer. There
+can be many different navi-buffers alive at the same time, each one
+of them firmly connected to its associated original
+buffer. Switching between the 'twin-buffers' is easy and
+fast. Typically, an outline-structured original buffer in
+'show-all' visibility state shares a splitted window with its
+associated navi-buffer that either shows headlines, keywords, or a
+combination of both. Instead of cycling visibility in the original
+buffer itself it is often more convenient to quickly switch to its
+navi-buffer and use its many different (over-)views.
 
-### Usage
+Navi-mode is implemented on top of occur-mode and thus uses occur
+as its 'search-engine'. It does not aim to replace occur-mode or to
+compete with it, it rather specializes occur-mode for a certain
+use-case. Using navi-mode for remotely controlling Outshine and Org
+buffers does in no way interfere with occasionally calling 'M-x
+occur' on these buffers.
 
-For \`navi-mode' to work, the original-buffer must be
-outline-structured 'the outshine way', i.e. with the headlines
-being proper Org-mode headlines, marked and outcommented with
-\`comment-region'. As an example, to generate a 3rd level
-outshine-headline in an Emacs Lisp file, write down
+Navi-mode is part of the Outshine project, consisting of the three
+libraries outshine.el, outorg.el and navi-mode.el. For navi-mode to
+work, the original buffer must be either an org-mode buffer or have
+outline-minor-mode with outshine extensions activated (and be
+structured with outshine headers, i.e. outcommented Org headers).
 
-    *** Third Level Header
+### Usage<a id="sec-1-2-2"></a>
 
-mark the header line, and apply \`comment-region' on it:
+Navi-mode is a special read-only mode (line e.g. occur-mode and
+dired-mode), thus all its core commands have one-key
+bindings. However, the command \`navi-edit-mode' makes the
+navi-buffer editable. The edits are directly applied in the
+associated original buffer. With command \`navi-cease-edit' the
+default read-only mode is turned on again.
 
-    ;;;;; Third Level Header
+Navi-mode's functionality can be divided into the following
+categories:
 
-In a LaTeX file, an adecuate header will look like this:
+-   **headline searches:** keys '1' to '8' show all headlines up to that level
 
-    % *** Third Level Header
+-   **keyword searches:** e.g. key 'f' shows functions in many major-modes
 
-and in a PicoLisp file like this (always depending of the major-mode specific
-values of \`comment-start', \`comment-end', \`comment-add' and
-\`comment-padding'):
+-   **combined headline and keyword searches:** e.g. 'C-3 v' shows
+    variables and headlines up to level 3
 
-    ## *** Third Level Header
+-   **navigation commands:** e.g. keys 'n' and 'p' move to the
+    next/previous line in the navi-buffer. These commands are
+    especially useful in combination with keys 'd', 'o' and 's' that
+    show the current position in the original buffer (or switch to
+    it).
 
-The second assumption is that \`outline-minor-mode' is activated in the
-original-buffer and \`outshine.el' loaded like described in its
-installation instructions, i.e.
+-   **action commands:** call functions on the thing-at-point in the
+    navi-buffer, to be executed in the 'twin-buffer'.
 
-    (require 'outshine)
-    (add-hook 'outline-minor-mode-hook 'outshine-hook-function)
+Besides the mentioned fundamental outline-heading-searches (8
+outline-levels) and the 5 basic keyword-searches (:FUN, :VAR, :DB,
+:OBJ and :ALL), all languages can have their own set of searches
+and keybindings (see customizable variables \`navi-key-mappings' and
+\`navi-keywords').
 
-When these pre-conditions are fullfilled (\`outorg.el' must be loaded
-too), you can use 'M-s n' (\`navi-search-and-switch') to open a
-navi-buffer and immediately switch to it. The new navi-buffer will
-show the first-level headings of the original-buffer, with point at
-the first entry.
-
-You can then:
+Use 'M-s n' (\`navi-search-and-switch') to open a navi-buffer and
+immediately switch to it. The new navi-buffer will show the
+first-level headings of the original-buffer, with point at the
+first entry. Here is an overview over the available commands in the
+navi-buffer:
 
 -   Show headlines (up-to) different levels:
 
@@ -136,6 +151,7 @@ You can then:
 </tr>
 </tbody>
 </table>
+
 -   Navigate up and down in the search results shown in the navi-buffer:
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
@@ -185,6 +201,7 @@ You can then:
 </tr>
 </tbody>
 </table>
+
 -   Revert the navi-buffer (seldom necessary), show help for the
     user-defined keyword-searches, and quit the navi-buffer and switch-back
     to the original-buffer:
@@ -229,6 +246,7 @@ You can then:
 </tr>
 </tbody>
 </table>
+
 -   Switch to the original-buffer and back to the navi-buffer, display an
     occurence in the original-buffer or go to the occurence:
 
@@ -293,6 +311,7 @@ You can then:
 </tr>
 </tbody>
 </table>
+
 -   Structure editing on subtrees and visibility cycling
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
@@ -356,7 +375,8 @@ You can then:
 </tr>
 </tbody>
 </table>
--   Miscancellous actions on subtrees
+
+-   Miscancellous actions on subtrees (there are more &#x2026;)
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -454,6 +474,7 @@ You can then:
 </tr>
 </tbody>
 </table>
+
 -   Furthermore, there are five (semantically) predefined keyword-searches:
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
@@ -510,6 +531,7 @@ You can then:
 </tr>
 </tbody>
 </table>
+
 -   And (potentially) many more user-defined keyword-searches
 
 (example Emacs Lisp):
@@ -543,6 +565,7 @@ You can then:
                             X : lambda
                             Z : ert
                             R : require
+
 -   Headline-searches and keyword-searches can be combined, e.g.
 
     C-2 f
@@ -568,9 +591,9 @@ usage pattern is the following:
 4.  type e.g. '2' and 'w' to first reduce the headline levels shown and
     then widen the buffers again.
 
-### Installation
+### Installation<a id="sec-1-2-3"></a>
 
-Download (or clone the github-repos of) the three required libraries
+Install the three required libraries:
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -600,23 +623,22 @@ Download (or clone the github-repos of) the three required libraries
 </tbody>
 </table>
 
-and put them in a place where Emacs can find them (on the Emacs
-'load-path'). Follow the installation instructions in \`outshine.el' and
-\`outorg.el'.
+from the package-manager via MELPA or clone their github-repos. Follow
+the installation instructions in \`outshine.el' and \`outorg.el'.
 
-Install \`navi-mode.el' by adding
+Then install \`navi-mode.el' by adding
 
     (require 'navi-mode)
 
 to your .emacs file.
 
-### Emacs Version
+### Emacs Version<a id="sec-1-2-4"></a>
 
 \`navi-mode.el' works with [GNU Emacs 24.2.1 (x86\_64-unknown-linux-gnu,
 GTK+ Version 3.6.4) of 2013-01-20 on eric]. No attempts of testing
 with older versions or other types of Emacs have been made (yet).
 
-## ChangeLog
+## ChangeLog<a id="sec-1-3"></a>
 
 <table border="2" cellspacing="0" cellpadding="6" rules="groups" frame="hsides">
 
@@ -637,6 +659,13 @@ with older versions or other types of Emacs have been made (yet).
 </thead>
 
 <tbody>
+<tr>
+<td class="left"><span class="timestamp-wrapper"><span class="timestamp">&lt;2014-09-20 Sa&gt;</span></span></td>
+<td class="left">Thorsten Jolitz</td>
+<td class="right">2.0</td>
+</tr>
+
+
 <tr>
 <td class="left"><span class="timestamp-wrapper"><span class="timestamp">&lt;2013-05-03 Fr&gt;</span></span></td>
 <td class="left">Thorsten Jolitz</td>
