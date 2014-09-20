@@ -1354,7 +1354,7 @@ each buffer where you invoke `occur'."
 (defun navi-get-twin-buffer-markers ()
   "Return list with two markers pointing to buffer-twins or nil.
 CAR of the return-list is always the marker pointing to
- current-buffer, CDR the marker pointing to its twin-buffer."
+ current-buffer, CADR the marker pointing to its twin-buffer."
   (let* ((curr-buf-split
           (split-string (buffer-name) "[*:]" 'OMIT-NULLS))
          (is-navi-buffer-p
@@ -1452,9 +1452,12 @@ FUN-NO-PREFIX, otherwise add `outshine-' prefix and thus call the
 'outshine-use-outorg' function."
   (let ((fun (intern
 	      (format "%s%s"
+		      (with-current-buffer
+			  (marker-buffer
+			   (cadr (navi-get-twin-buffer-markers)))
 		      (if (eq major-mode 'org-mode)
 			  "org-"
-			"outshine-")
+			"outshine-"))
 		      fun-no-prefix))))
     (navi-goto-occurrence-other-window)
     (call-interactively fun)
@@ -2437,55 +2440,52 @@ separate temporary Org-mode edit-buffer."
 ;; TODO define navi command that scrolls twin-buffer
 (define-key navi-mode-map (kbd ":") 'scroll-other-window-down)
 (define-key navi-mode-map (kbd ".") 'scroll-other-window)
-;; ;; original Org-mode keys for `outshine-use-outorg' functions
-;;  (define-key navi-mode-map (kbd ".") 'outshine-imenu)
-;;  ("Outline Visibility")
-;;  (define-key navi-mode-map (kbd ".") (outshine-use-outorg
-;; 				      'org-display-outline-path
-;; 				      'WHOLE-BUFFER-P))
-;; ("Outline Structure Editing")
-;; (define-key navi-mode-map (kbd ".") 'outshine-insert-heading)
-;; (define-key navi-mode-map (kbd ".") 'outshine-sort-entries)
-;; (define-key navi-mode-map (kbd ".") 'outshine-toggle-comment)
-;; ("Clock Commands")
-;; (define-key navi-mode-map (kbd ".") 'outshine-clock-in)
-;; (define-key navi-mode-map (kbd ".") 'outshine-clock-out)
-;; ("Date & Time Commands")
-;; (define-key navi-mode-map (kbd ".") outshine-time-stamp)
-;; (define-key navi-mode-map (kbd ".") 'outshine-time-stamp-inactive)
-;; (define-key navi-mode-map (kbd ".") 'outshine-deadline)
-;; (define-key navi-mode-map (kbd ".") 'outshine-schedule)
-;; ("Exporting")
-;; (define-key navi-mode-map (kbd ".") 'outshine-export-dispatch)
-;; ("Meta Data Editing")
-;; (define-key navi-mode-map (kbd ".") 'outshine-todo)
-;; (define-key navi-mode-map (kbd ".") 'outshine-priority)
-;; (define-key navi-mode-map (kbd ".")
-;;   (outshine-use-outorg
-;;    (lambda () (interactive) (org-priority ?\ ))))
-;; (define-key navi-mode-map (kbd ".")
-;;   (outshine-use-outorg
-;;    (lambda () (interactive) (org-priority ?A))))
-;;  (define-key navi-mode-map (kbd ".")
-;;    (outshine-use-outorg
-;;     (lambda () (interactive) (org-priority ?B))))
-;; (define-key navi-mode-map (kbd ".")
-;;   (outshine-use-outorg
-;;    (lambda () (interactive) (org-priority ?C))))
-;; (define-key navi-mode-map (kbd ".") 'outshine-set-tags-command)
-;; ("Properties and Effort")
-;; (define-key navi-mode-map (kbd ".") 'outshine-set-property)
-;; (define-key navi-mode-map (kbd ".")
-;;   'outshine-set-property-and-value)
-;; (define-key navi-mode-map (kbd ".") 'outshine-set-effort)
-;; (define-key navi-mode-map (kbd ".") 'outshine-inc-effort)
-;; (define-key navi-mode-map (kbd ".") 'outshine-agenda)
-;; (define-key navi-mode-map (kbd ".")
-;;   (outshine-agenda-set-restriction-lock))
-;; (define-key navi-mode-map (kbd ".")
-;;   (outshine-agenda-remove-restriction-lock))
-;; ("Misc")
-;; (define-key navi-mode-map (kbd ".") 'outshine-open-at-point)
+;; ;; original Org-mode keys for `navi-use-outorg' functions
+(define-key navi-mode-map (kbd "C-c C-d") 'navi-deadline)
+(define-key navi-mode-map (kbd "C-c C-e") 'navi-export-dispatch)
+(define-key navi-mode-map (kbd "C-c C-l") 'navi-insert-link)
+(define-key navi-mode-map (kbd "C-c C-o") 'navi-open-at-point)
+(define-key navi-mode-map (kbd "C-c C-q") 'navi-set-tags-command)
+(define-key navi-mode-map (kbd "C-c C-s") 'navi-schedule)
+(define-key navi-mode-map (kbd "C-c C-t") 'navi-todo)
+(define-key navi-mode-map (kbd "C-c !") 'navi-time-stamp-inactive)
+(define-key navi-mode-map (kbd "C-c ,") 'navi-priority)
+(define-key navi-mode-map (kbd "C-c .") 'navi-time-stamp)
+(define-key navi-mode-map (kbd "C-c :") 'navi-toggle-fixed-width)
+(define-key navi-mode-map (kbd "C-c ;") 'navi-toggle-comment)
+(define-key navi-mode-map (kbd "C-c ^") 'navi-sort-entries)
+(define-key navi-mode-map (kbd "C-c M-b") 'navi-previous-block)
+(define-key navi-mode-map (kbd "C-c M-f") 'navi-next-block)
+(define-key navi-mode-map (kbd "C-c C-x C-b") 'navi-toggle-checkbox)
+(define-key navi-mode-map (kbd "C-c C-x TAB") 'navi-clock-in)
+(define-key navi-mode-map (kbd "C-c C-x C-j") 'navi-clock-goto)
+(define-key navi-mode-map (kbd "C-c C-x C-o") 'navi-clock-out)
+(define-key navi-mode-map (kbd "C-c C-x C-q") 'navi-clock-cancel)
+(define-key navi-mode-map (kbd "C-c C-x C-r") 'navi-clock-report)
+(define-key navi-mode-map (kbd "C-c C-x C-n") 'navi-next-link)
+(define-key navi-mode-map (kbd "C-c M-l")
+  'navi-insert-last-stored-link)
+(define-key navi-mode-map (kbd "C-c C-x C-p") 'navi-previous-link)
+(define-key navi-mode-map (kbd "C-c C-x ,") 'navi-timer-pause-or-continue)
+(define-key navi-mode-map (kbd "C-c C-x -") 'navi-timer-item)
+(define-key navi-mode-map (kbd "C-c C-x .") 'navi-timer)
+(define-key navi-mode-map (kbd "C-c C-x 0") 'navi-timer-start)
+(define-key navi-mode-map (kbd "C-c C-x :")
+  'navi-timer-cancel-timer)
+(define-key navi-mode-map (kbd "C-c C-x ;") 'navi-timer-set-timer)
+(define-key navi-mode-map (kbd "C-c C-x <")
+  'navi-agenda-set-restriction-lock)
+(define-key navi-mode-map (kbd "C-c C-x >")
+  'navi-agenda-remove-restriction-lock)
+(define-key navi-mode-map (kbd "C-c C-x E") 'navi-inc-effort)
+(define-key navi-mode-map (kbd "C-c C-x P")
+  'navi-set-property-and-value)
+(define-key navi-mode-map (kbd "C-c C-x a")
+  'navi-toggle-archive-tag)
+(define-key navi-mode-map (kbd "C-c C-x d") 'navi-insert-drawer)
+(define-key navi-mode-map (kbd "C-c C-x e") 'navi-set-effort)
+(define-key navi-mode-map (kbd "C-c C-x f") 'navi-footnote-action)
+(define-key navi-mode-map (kbd "C-c C-x p") 'navi-set-property)
 
 ;; menu for navi-mode
 (define-key navi-mode-map [menu-bar navi]
