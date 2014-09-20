@@ -10,7 +10,8 @@
 
 ** TODO improve MELPA-package
 ** TODO quit byte-compiler
-** TODO update README
+** DONE update README
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 19:20]
 ** DONE set version number
    - State "DONE"       from "TODO"       [2014-09-20 Sa 19:17]
 ** TODO announce in org-mode mailing-list
