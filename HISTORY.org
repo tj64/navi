@@ -12,7 +12,8 @@
 ** TODO improve MELPA-package
 ** TODO set and push v2.0 tag
 ** TODO delete tj-navi branch
-** TODO Merge trunk in master
+** DONE Merge trunk in master
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 22:39]
 ** DONE quite byte-compiler
    - State "DONE"       from "TODO"       [2014-09-20 Sa 21:31]
 ** DONE update README
