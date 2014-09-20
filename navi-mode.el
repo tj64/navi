@@ -1,14 +1,14 @@
 ;;; navi-mode.el --- major-mode for easy buffer-navigation
 
 ;; Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
-;; Version: 1.0
+;; Version: 2.0
 ;; URL: https://github.com/tj64/navi
 
 ;;;; MetaData
 ;;   :PROPERTIES:
 ;;   :copyright: Thorsten Jolitz
 ;;   :copyright-years: 2013+
-;;   :version:  1.0
+;;   :version:  2.0
 ;;   :licence:  GPL 2 or later (free software)
 ;;   :licence-url: http://www.gnu.org/licenses/
 ;;   :part-of-emacs: no
@@ -271,6 +271,7 @@
 
 ;; | date            | author(s)       | version |
 ;; |-----------------+-----------------+---------|
+;; | <2014-09-20 Sa> | Thorsten Jolitz |     2.0 |
 ;; | <2013-05-03 Fr> | Thorsten Jolitz |     1.0 |
 ;; | <2013-03-11 Mo> | Thorsten Jolitz |     0.9 |
 
@@ -314,7 +315,7 @@ To return to ordinary Navi mode, use \\[navi-cease-edit].
 ;;;; Consts
 ;;;; Vars
 
-(defvar navi-mode-version 1.0
+(defvar navi-mode-version 2.0
   "Version number of `navi-mode.el'")
 
 (defvar navi "navi"
@@ -1348,7 +1349,8 @@ each buffer where you invoke `occur'."
   "Return marker-name by expansion of (current) buffer-name or string BUF."
   (let ((buf-name
          (file-name-sans-extension
-          (car (split-string (or buf (buffer-name)) "[*]" 'OMIT-NULLS)))))
+          (car (split-string (or buf (buffer-name))
+			     "[*]" 'OMIT-NULLS)))))
     (concat buf-name "-marker")))
 
 (defun navi-get-twin-buffer-markers ()

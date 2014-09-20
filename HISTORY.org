@@ -1,3 +1,22 @@
+* TODO Version 2.1
+
+** TODO update README
+** TODO set version number
+** TODO announce in org-mode mailing-list
+** TODO announce in emacs-user mailing-list
+
+
+* TODO Version 2.0
+
+** TODO improve MELPA-package
+** TODO quit byte-compiler
+** TODO update README
+** DONE set version number
+   - State "DONE"       from "TODO"       [2014-09-20 Sa 19:17]
+** TODO announce in org-mode mailing-list
+** TODO announce in emacs-user mailing-list
+
+
 
 * DONE Version 1.0
   CLOSED: [2013-05-03 Fr 19:21]
