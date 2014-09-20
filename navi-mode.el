@@ -16,8 +16,8 @@
 ;;   :author_email: tjolitz AT gmail DOT com
 ;;   :git-repo: https://github.com/tj64/navi.git
 ;;   :git-clone: git://github.com/tj64/navi.git
-;;   :inspiration:  occur-mode org-mode
-;;   :keywords: emacs navigation remote-control
+;;   :inspiration:  occur-mode org-mode 
+;;   :keywords: emacs navigation remote-buffer-control
 ;;   :END:
 
 ;;;; Commentary
@@ -1440,8 +1440,25 @@ in non-nil, only headers of level LEVEL are shown."
            (mapconcat 'identity (split-string headline-string "" t) "?")
            nil nil 1)))))))
 
-
 ;; (add-to-list 'occur-hook 'navi-rename-buffer)
+
+;;;;; Use Outorg
+
+(defun navi-use-outorg (fun-no-prefix)
+  "Call prefixed FUN-NO-PREFIX from navi-mode.
+If the associated original (twin-) buffer is an Org-mode buffer,
+call the relevant Org command directly, i.e. add `org-' prefix to
+FUN-NO-PREFIX, otherwise add `outshine-' prefix and thus call the
+'outshine-use-outorg' function."
+  (let ((fun (intern
+	      (format "%s%s"
+		      (if (eq major-mode 'org-mode)
+			  "org-"
+			"outshine-")
+		      fun-no-prefix))))
+    (navi-goto-occurrence-other-window)
+    (call-interactively fun)
+    (navi-switch-to-twin-buffer)))
 
 ;;;; Commands
 
@@ -1929,6 +1946,203 @@ separate temporary Org-mode edit-buffer."
     (org-mark-subtree)
     (org-mime-subtree)))
 
+;;;;; Call outshine-use-outorg functions
+
+(defun navi-deadline ()
+  "Call `outshine-deadline' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'deadline))
+
+(defun navi-export-dispatch ()
+  "Call `outshine-export-dispatch' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'export-dispatch))
+
+(defun navi-insert-link ()
+"Call `outshine-insert-link' from navi-mode."
+(interactive)
+(navi-use-outorg 'insert-link))
+
+(defun navi-open-at-point ()
+  "Call `outshine-open-at-point' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'open-at-point))
+
+(defun navi-set-tags-command ()
+  "Call `outshine-set-tags-command' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'set-tags-command))
+
+(defun navi-schedule ()
+  "Call `outshine-schedule' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'schedule))
+  
+(defun navi-todo ()
+  "Call `outshine-todo' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'todo))
+
+(defun navi-time-stamp-inactive ()
+  "Call `outshine-time-stamp-inactive' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'time-stamp-inactive))
+
+(defun navi-priority ()
+  "Call `outshine-priority' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'priority))
+
+(defun navi-time-stamp ()
+  "Call `outshine-time-stamp' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'time-stamp))
+
+(defun navi-toggle-fixed-width ()
+  "Call `outshine-toggle-fixed-width' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'toggle-fixed-width))
+
+(defun navi-toggle-comment ()
+  "Call `outshine-toggle-comment' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'toggle-comment))
+
+(defun navi-sort-entries ()
+  "Call `outshine-sort-entries' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'sort-entries))
+
+(defun navi-previous-block ()
+  "Call `outshine-previous-block' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'previous-block))
+
+(defun navi-next-block ()
+  "Call `outshine-next-block' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'next-block))
+
+(defun navi-insert-last-stored-link ()
+  "Call `outshine-insert-last-stored-link' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'insert-last-stored-link))
+
+(defun navi-toggle-checkbox ()
+  "Call `outshine-toggle-checkbox' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'toggle-checkbox))
+
+(defun navi-clock-in ()
+  "Call `outshine-clock-in' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'clock-in))
+
+(defun navi-clock-goto ()
+  "Call `outshine-clock-goto' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'clock-goto))
+
+(defun navi-next-link ()
+  "Call `outshine-next-link' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'next-link))
+
+(defun navi-clock-out ()
+  "Call `outshine-clock-out' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'clock-out))
+
+(defun navi-previous-link ()
+  "Call `outshine-previous-link' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'previous-link))
+
+(defun navi-clock-cancel ()
+  "Call `outshine-clock-cancel' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'clock-cancel))
+
+(defun navi-clock-report ()
+  "Call `outshine-clock-report' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'clock-report))
+
+(defun navi-timer-pause-or-continue ()
+  "Call `outshine-timer-pause-or-continue' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'timer-pause-or-continue))
+
+(defun navi-timer-item ()
+  "Call `outshine-timer-item' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'timer-item))
+
+(defun navi-timer ()
+  "Call `outshine-timer' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'timer))
+
+(defun navi-timer-start ()
+  "Call `outshine-timer-start' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'timer-start))
+
+(defun navi-timer-cancel-timer ()
+  "Call `outshine-timer-cancel-timer' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'timer-cancel-timer))
+
+(defun navi-timer-set-timer ()
+  "Call `outshine-timer-set-timer' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'timer-set-timer))
+
+(defun navi-agenda-set-restriction-lock ()
+  "Call `outshine-agenda-set-restriction-lock' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'agenda-set-restriction-lock))
+
+(defun navi-agenda-remove-restriction-lock ()
+  "Call `outshine-agenda-remove-restriction-lock' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'agenda-remove-restriction-lock))
+
+(defun navi-inc-effort ()
+  "Call `outshine-inc-effort' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'inc-effort))
+
+(defun navi-set-property-and-value ()
+  "Call `outshine-set-property-and-value' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'set-property-and-value))
+
+(defun navi-toggle-archive-tag ()
+  "Call `outshine-toggle-archive-tag' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'toggle-archive-tag))
+
+(defun navi-insert-drawer ()
+  "Call `outshine-insert-drawer' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'insert-drawer))
+
+(defun navi-set-effort ()
+  "Call `outshine-set-effort' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'set-effort))
+
+(defun navi-footnote-action ()
+  "Call `outshine-footnote-action' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'footnote-action))
+
+(defun navi-set-property ()
+  "Call `outshine-set-property' from navi-mode."
+  (interactive)
+  (navi-use-outorg 'set-property))
+
 ;;; Menus and Keys
 ;;;; Menus
 
@@ -2223,6 +2437,55 @@ separate temporary Org-mode edit-buffer."
 ;; TODO define navi command that scrolls twin-buffer
 (define-key navi-mode-map (kbd ":") 'scroll-other-window-down)
 (define-key navi-mode-map (kbd ".") 'scroll-other-window)
+;; ;; original Org-mode keys for `outshine-use-outorg' functions
+;;  (define-key navi-mode-map (kbd ".") 'outshine-imenu)
+;;  ("Outline Visibility")
+;;  (define-key navi-mode-map (kbd ".") (outshine-use-outorg
+;; 				      'org-display-outline-path
+;; 				      'WHOLE-BUFFER-P))
+;; ("Outline Structure Editing")
+;; (define-key navi-mode-map (kbd ".") 'outshine-insert-heading)
+;; (define-key navi-mode-map (kbd ".") 'outshine-sort-entries)
+;; (define-key navi-mode-map (kbd ".") 'outshine-toggle-comment)
+;; ("Clock Commands")
+;; (define-key navi-mode-map (kbd ".") 'outshine-clock-in)
+;; (define-key navi-mode-map (kbd ".") 'outshine-clock-out)
+;; ("Date & Time Commands")
+;; (define-key navi-mode-map (kbd ".") outshine-time-stamp)
+;; (define-key navi-mode-map (kbd ".") 'outshine-time-stamp-inactive)
+;; (define-key navi-mode-map (kbd ".") 'outshine-deadline)
+;; (define-key navi-mode-map (kbd ".") 'outshine-schedule)
+;; ("Exporting")
+;; (define-key navi-mode-map (kbd ".") 'outshine-export-dispatch)
+;; ("Meta Data Editing")
+;; (define-key navi-mode-map (kbd ".") 'outshine-todo)
+;; (define-key navi-mode-map (kbd ".") 'outshine-priority)
+;; (define-key navi-mode-map (kbd ".")
+;;   (outshine-use-outorg
+;;    (lambda () (interactive) (org-priority ?\ ))))
+;; (define-key navi-mode-map (kbd ".")
+;;   (outshine-use-outorg
+;;    (lambda () (interactive) (org-priority ?A))))
+;;  (define-key navi-mode-map (kbd ".")
+;;    (outshine-use-outorg
+;;     (lambda () (interactive) (org-priority ?B))))
+;; (define-key navi-mode-map (kbd ".")
+;;   (outshine-use-outorg
+;;    (lambda () (interactive) (org-priority ?C))))
+;; (define-key navi-mode-map (kbd ".") 'outshine-set-tags-command)
+;; ("Properties and Effort")
+;; (define-key navi-mode-map (kbd ".") 'outshine-set-property)
+;; (define-key navi-mode-map (kbd ".")
+;;   'outshine-set-property-and-value)
+;; (define-key navi-mode-map (kbd ".") 'outshine-set-effort)
+;; (define-key navi-mode-map (kbd ".") 'outshine-inc-effort)
+;; (define-key navi-mode-map (kbd ".") 'outshine-agenda)
+;; (define-key navi-mode-map (kbd ".")
+;;   (outshine-agenda-set-restriction-lock))
+;; (define-key navi-mode-map (kbd ".")
+;;   (outshine-agenda-remove-restriction-lock))
+;; ("Misc")
+;; (define-key navi-mode-map (kbd ".") 'outshine-open-at-point)
 
 ;; menu for navi-mode
 (define-key navi-mode-map [menu-bar navi]
