@@ -10,7 +10,8 @@
 * TODO Version 2.0
 
 ** TODO improve MELPA-package
-** TODO set and push v2.0 tag
+** DONE set and push v2.0 tag
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:06]
 ** TODO delete tj-navi branch
 ** DONE Merge trunk in master
    - State "DONE"       from "TODO"       [2014-09-20 Sa 22:39]
@@ -20,8 +21,10 @@
    - State "DONE"       from "TODO"       [2014-09-20 Sa 19:20]
 ** DONE set version number
    - State "DONE"       from "TODO"       [2014-09-20 Sa 19:17]
-** TODO announce in org-mode mailing-list
-** TODO announce in emacs-user mailing-list
+** DONE announce in org-mode mailing-list
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:07]
+** DONE announce in emacs-user mailing-list
+   - State "DONE"       from "TODO"       [2014-09-21 So 13:07]
 
 * DONE Version 1.0
   CLOSED: [2013-05-03 Fr 19:21]
