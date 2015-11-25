@@ -280,6 +280,7 @@
 
 (require 'outshine)
 (require 'outorg)
+(require 'thingatpt)
 
 ;;; Mode Definitions
 
