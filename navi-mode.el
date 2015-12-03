@@ -3,6 +3,7 @@
 ;; Author: Thorsten Jolitz <tjolitz AT gmail DOT com>
 ;; Version: 2.0
 ;; URL: https://github.com/tj64/navi
+;; Package-Requires: ((outshine "2.0") (outorg "2.0"))
 
 ;;;; MetaData
 ;;   :PROPERTIES:
@@ -279,6 +280,7 @@
 
 (require 'outshine)
 (require 'outorg)
+(require 'thingatpt)
 
 ;;; Mode Definitions
 
