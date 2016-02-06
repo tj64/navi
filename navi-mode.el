@@ -583,8 +583,8 @@ regexp and performs an occur-search with it."
                      (:OBJ . "^[[:space:]]*(def[smc][^auo][a-z]+ ")
                      (:VAR . "^[[:space:]]*(def[vcgf][^l][a-z]+ ")
                      (:FUN
-                      . "^[[:space:]]*(def[maus][^eltu][a-z]*\\*? ")
-                     (:defun . "^[[:space:]]*(defun\\*? ")
+                      . "^[[:space:]]*(*def[maus][^eltu][a-z]*\\*? ")
+                     (:defun . "^[[:space:]]*(*defun\\*? ")
                      (:defvar . "^[[:space:]]*(defvar ")
                      (:defconst . "^[[:space:]]*(defconst ")
                      (:defgroup . "^[[:space:]]*(defgroup ")
