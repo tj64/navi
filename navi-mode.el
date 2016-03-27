@@ -1493,6 +1493,7 @@ FUN-NO-PREFIX, otherwise add `outshine-' prefix and thus call the
   (navi-set-regexp-quoted-line-at-point)
   (occur-mode-goto-occurrence-other-window))
 
+;;;###autoload
 (defun navi-search-and-switch ()
   "Call `occur' and immediatley switch to `*Navi:original-buffer-name*' buffer"
   (interactive)
