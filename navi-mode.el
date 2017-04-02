@@ -579,8 +579,7 @@ regexp and performs an occur-search with it."
                 :value-type alist))
 
 (defcustom navi-keywords
-  '(("emacs-lisp" . ((:ALL
-		      . "^[[:space:]]*(\\(cl-\\)\\{0,1\\}def[a-z]+\\*? ")
+  '(("emacs-lisp" . ((:ALL . "^[[:space:]]*(\\(use-package[[:space:]]+\\|\\(cl-\\)\\{0,1\\}def[a-z]+\\)\\*? ")
                      (:OBJ . "^[[:space:]]*(\\(cl-\\)\\{0,1\\}def[smc][^auo][a-z]+ ")
                      (:VAR . "^[[:space:]]*(\\(cl-\\)\\{0,1\\}def[vcgf][^l][a-z]+ ")
                      (:FUN
@@ -611,7 +610,8 @@ regexp and performs an occur-search with it."
                      (:marker . "^[[:space:]]*([a-z]+-marker")
                      (:require . "^[[:space:]]*([a-z-]*require ")
 		     (:eval-after-load
-		      . "^[[:space:]]*(\\(cl-\\)\\{0,1\\}eval-after-load ")))
+		      . "^[[:space:]]*(\\(cl-\\)\\{0,1\\}eval-after-load ")
+                     (:use-package . (rx bol (0+ space) "(" (0+ space) (group "use-package" (1+ space) (1+ not-newline))))))
     ("ess" . ((:ALL . (concat
                        "\\("
                        "[^\s\t\n]* ?<?-? ?function("
